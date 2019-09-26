@@ -13,7 +13,7 @@
     "dist/doc",
     "dist/main",
     "dist/api-meta.json",
-    "libjabra",    
+    "libjabra",
     "includes",
     "src/main",
     "binding.gyp",
@@ -39,6 +39,14 @@
   "author": "GN Audio",
   "license": "MIT",
   "gypfile": true,
+  "homepage": "https://github.com/gnaudio/jabra-node-sdk/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gnaudio/jabra-node-sdk.git"
+  },
+  "bugs": {
+    "url": "https://developer.jabra.com/site/global/support/index.gsp"
+  },
   "devEngines": {
     "node": ">=11.0.0",
     "npm": ">=5.5.1"

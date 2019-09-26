@@ -16,6 +16,14 @@
   "author": "GN Audio",
   "license": "MIT",
   "private": true,
+  "homepage": "https://github.com/gnaudio/jabra-node-sdk/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gnaudio/jabra-node-sdk.git"
+  },
+  "bugs": {
+    "url": "https://developer.jabra.com/site/global/support/index.gsp"
+  },
   "dependencies": {
     "@gnaudio/jabra-node-sdk": "2.0.0-beta.1",
     "@gnaudio/jabra-electron-renderer-helper": "1.0.0-beta.1"
