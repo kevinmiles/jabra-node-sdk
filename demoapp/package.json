@@ -1,0 +1,32 @@
+{
+  "name": "@gnaudio/jabra-electron-test-app",
+  "version": "1.0.0-alpha.1",
+  "description": "A electon test application for Jabra Electron/Node SDK",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && browserify src/renderer/renderer.ts -p tsify --debug -o dist/renderer/bundle.js && copyfiles -u 1 src/**/*.html dist",
+    "start": "npm run build && electron ./dist/main/main.js",
+    "package": "electron-packager . --platform=win32 --arch=x64 --overwrite",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "jabra",
+    "test"
+  ],
+  "author": "GN Audio",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@gnaudio/jabra-node-sdk": "2.0.0-beta.1",
+    "@gnaudio/jabra-electron-renderer-helper": "1.0.0-beta.1"
+  },
+  "devDependencies": {
+    "electron": "6.0.10",
+    "typescript": "3.6.3",
+    "electron-packager": "14.0.6",
+    "rimraf": "2.6.3",
+    "copyfiles": "2.1.0",
+    "browserify": "16.5.0",
+    "tsify": "4.0.1"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "@gnaudio/jabra-electron-renderer-helper",
+  "version": "1.0.0-beta.1",
+  "description": "Makes jabra-node-sdk available for Electron's renderer process",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "npm run build:dev",
+    "build:release": "tsc -p tsconfig.json",
+    "build:dev": "tsc -p tsconfig.json && browserify src/test/renderer/renderer.ts -p tsify --debug -o dist/test/renderer/bundle.js && copyfiles -u 1 src/**/*.html dist",
+    "start": "npm run build:dev && electron ./dist/test/main/main.js",
+    "prepare": "npm run build:release",
+    "clean": "rimraf dist"
+  },
+  "files": [
+    "dist/common/**/*",
+    "dist/main/**/*",
+    "dist/renderer/**/*",
+    "dist/index.*",
+    "README.md",
+    "LICENSE.md",
+    "package.json"
+  ],
+  "keywords": [
+    "jabra",
+    "electron"
+  ],
+  "author": "GN Audio",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {},
+  "peerDependencies": {
+    "@gnaudio/jabra-node-sdk": ">=2.0.0-beta.1",
+    "electron": ">=2.0.0"
+  },
+  "devDependencies": {
+    "@gnaudio/jabra-node-sdk": ">=2.0.0-beta.1",
+    "electron": "6.0.10",
+    "typescript": "3.6.3",
+    "rimraf": "2.6.3",
+    "copyfiles": "2.1.0",
+    "browserify": "16.5.0",
+    "tsify": "4.0.1"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "name": "@gnaudio/jabra-node-sdk",
+  "version": "2.0.0-beta.1",
+  "description": "NodeJS SDK for Jabra Devices",
+  "main": "dist/main/index.js",
+  "types": "dist/main/index.d.ts",
+  "keywords": [
+    "jabra",
+    "sdk"
+  ],
+  "files": [
+    "assets",
+    "dist/doc",
+    "dist/main",
+    "dist/api-meta.json",
+    "libjabra",    
+    "includes",
+    "src/main",
+    "binding.gyp",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "npm run build:dev",
+    "build:dev": "node-gyp rebuild --debug && npm run tsc",
+    "build:release": "node-gyp rebuild && npm run tsc",
+    "tsc": "tsc && copyfiles -u 1 src/**/*.js dist",
+    "prepare": "npm run tsc && npm run doc && node dist/script/generatemeta.js",
+    "generatemeta": "ts-node src/script/generatemeta.ts",
+    "manueltest1": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/manueltest/test1.ts",
+    "manueltest2": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/manueltest/test2.ts",
+    "example1a": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/example/example1a.js",
+    "example1b": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/example/example1b.ts",
+    "example2": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/example/example2.ts",
+    "example3": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/example/example3.ts",
+    "doc": "typedoc --mode file --excludePrivate --out dist/doc src/main",
+    "clean": "node-gyp clean && rimraf dist",
+    "pipeline-build-setversion": "node setversion.js"
+  },
+  "author": "GN Audio",
+  "license": "MIT",
+  "gypfile": true,
+  "devEngines": {
+    "node": ">=11.0.0",
+    "npm": ">=5.5.1"
+  },
+  "dependencies": {
+    "bindings": "1.5.0",
+    "node-addon-api": "1.6.3"
+  },
+  "devDependencies": {
+    "@types/bindings": "1.3.0",
+    "@types/node": "12.7.5",
+    "cross-env": "5.2.0",
+    "replace-in-file": "4.1.3",
+    "rimraf": "2.6.3",
+    "ts-node": "8.4.1",
+    "typedoc": "0.15.0",
+    "typescript": "3.6.3",
+    "copyfiles": "2.1.0"
+  }
+}

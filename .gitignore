@@ -1,0 +1,7 @@
+**/dist/
+**/.vscode/ipch/
+**/.ionide
+**/build/
+**/node_modules/
+
+
