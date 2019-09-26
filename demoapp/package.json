@@ -33,7 +33,7 @@
     "typescript": "3.6.3",
     "electron-packager": "14.0.6",
     "rimraf": "2.6.3",
-    "copyfiles": "2.1.0",
+    "copyfiles": "2.1.1",
     "browserify": "16.5.0",
     "tsify": "4.0.1"
   }
