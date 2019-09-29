@@ -53,7 +53,7 @@ For all examples, user should first register the app on [Jabra developer site](h
 ### Simple button events example using javascript and plain promises
 
 ```javascript
-const j = require("jabra-dev");
+const j = require("@gnaudio/jabra-node-sdk");
 j.createJabraApplication('123').then((jabra) => { //123 is appID here
     jabra.on('attach', (device) => {
         console.log('Press any key on Jabra device ' + device.deviceName);
@@ -82,7 +82,7 @@ createJabraApplication('123').then((jabra) => { //123 is appID here
 This example shows how to ring a Jabra device.
 
 ```typescript
-import { createJabraApplication } from 'jabra-dev';
+import { createJabraApplication } from '@gnaudio/jabra-node-sdk';
 
 createJabraApplication('123').then((jabra) => { //123 is appID here
     jabra.on('attach', (device) => {
@@ -121,7 +121,7 @@ createJabraApplication('123').then((jabra) => { //123 is appID here
 ### Multiple device management with typescript and async/await
 
 ```typescript
-import { createJabraApplication } from 'jabra-dev';
+import { createJabraApplication } from '@gnaudio/jabra-node-sdk';
 
 (async () => {
     let jabra = await createJabraApplication('123'); //123 is appID here
