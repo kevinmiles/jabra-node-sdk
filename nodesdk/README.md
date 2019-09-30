@@ -8,10 +8,9 @@ Jabra Node.js SDK - BETA RELEASE
 - [Examples](#examples)
     - [Simple Example](#simple-example)
     - [Multiple device management](#multiple-device-management)
-- [Supported devices](#supported-devices)
-- [Bug report](../readme#bug-reports)
-- [Changelog](../changelog)
-- [License](../license)
+- [Bug report](https://github.com/gnaudio/jabra-node-sdk#bug-reports)
+- [Changelog](https://github.com/gnaudio/jabra-node-sdk/blob/master/CHANGELOG.md)
+- [License](https://github.com/gnaudio/jabra-node-sdk/blob/master/LICENSE.md)
 
 **Warning: ALL software released here is in BETA. All software can be considered unstable, possibly untested and might be updated at any time. In addition, this documentation is not fully updated. Use at your own risk. If you want to use something stable, please await completion of our development and Q/A process OR consider using our previous ["jabra" npm](https://www.npmjs.com/package/jabra) package (util it will be deprecated at a later stage).**
 
@@ -30,7 +29,7 @@ Jabra Node.js SDK - BETA RELEASE
     ```
 
 ## Installation
-This release is published to npm and can be installed via below command.
+This release is published to [npm](https://www.npmjs.com/package/@gnaudio/jabra-node-sdk) and can be installed via below command.
 ```
 npm install --save @gnaudio/jabra-node-sdk
 ```
@@ -44,7 +43,7 @@ LIBJABRA_TRACE_LEVEL | fatal, error, warning(default), info, debug | Log levels
 LIBJABRA_RESOURCE_PATH | **On Mac:** ~/Library/Application Support/JabraSDK/ **On Windows:** %appdata%/JabraSDK  | This determine the system path where logs and device related files are written.
 
 ## API Reference
-API doc is in html format. See doc folder inside installed module `node_module/jabra/doc` and open `index.html`.
+API doc is in html format. See doc folder inside installed module `node_modules\@gnaudio\jabra-node-sdk\dist\doc` and open `index.html`.
 
 ## Examples
 
@@ -57,6 +56,9 @@ const j = require("@gnaudio/jabra-node-sdk");
 j.createJabraApplication('123').then((jabra) => { //123 is appID here
     jabra.on('attach', (device) => {
         console.log('Press any key on Jabra device ' + device.deviceName);
+        
+        // If you are creating a softphone, consider using GN protocol when device supports it.
+        // E.g. device.setHidWorkingStateAsync(j.enumHidState.GN_HID);
         device.on('btnPress', (btnType, btnValue) => {
           console.log('New input from device is received: ', j.enumDeviceBtnType[btnType], btnValue);
         });
@@ -71,6 +73,9 @@ import { createJabraApplication, enumDeviceBtnType } from '../main/index';
 createJabraApplication('123').then((jabra) => { //123 is appID here
     jabra.on('attach', (device) => {
         console.log('Press any key on Jabra device ' + device.deviceName);
+
+        // If you are creating a softphone, consider using GN protocol when device supports it.
+        // E.g. device.setHidWorkingStateAsync(enumHidState.GN_HID);
         device.on('btnPress', (btnType, btnValue) => {
           console.log('New input from device is received: ', enumDeviceBtnType[btnType], btnValue);
         });
@@ -79,13 +84,16 @@ createJabraApplication('123').then((jabra) => { //123 is appID here
 ```
 
 ### Ring example using typescript and plain promises
-This example shows how to ring a Jabra device.
+This example shows how to ring a Jabra device
 
 ```typescript
 import { createJabraApplication } from '@gnaudio/jabra-node-sdk';
 
 createJabraApplication('123').then((jabra) => { //123 is appID here
     jabra.on('attach', (device) => {
+        // If you are creating a softphone, consider using GN protocol when device supports it.
+        // E.g. device.setHidWorkingStateAsync(enumHidState.GN_HID);
+
         device.isRingerSupportedAsync().then( (supported) => {
             if (supported) {
               device.offhookAsync().then ( () => {
@@ -155,12 +163,3 @@ import { createJabraApplication } from '@gnaudio/jabra-node-sdk';
     await jabra.disposeAsync();
 })();
 ```
-
-## Supported devices
- 
- * PRO 9470, PRO 9460, PRO 9450, Biz 2300, Motion Office, Evolve 65 USB, Biz 2400 II CC, PRO 930, PRO 935 (single and dual), PRO 925 (single and dual), Evolve 40 /80, Link 265, Evolve 30 ||, 
- Evolve 20, Biz 1500, Biz 2400 II, Evolve 30, Link 260, Evolve 75
- * Motion UC (Over BT)
- * Link 360, Link 370
- * Speak 410, Speak 510, Speak 710, Speak 810
- * More devices are being added

@@ -8,7 +8,7 @@ For more information, refer to the [individual README files](#Project-Contents) 
 
 **Warning: ALL software released here is in BETA (ALPHA for demo/test). All software can be considered unstable, possibly untested and might be updated at any time. Use at your own risk. If you want to use something stable, please await completion of our development and Q/A process OR consider using our previous ["jabra"](https://www.npmjs.com/package/jabra) package (util it will be deprecated at a later stage).**
 
-# Project Contents
+# Project contents
 - [NODE.JS SDK NPM PROJECT](nodesdk/README.md) (MAIN PROJECT)
 - [Electron renderer helper npm project (optional package)](electronrendererhelper/README.md)
 - [Demo app project](demoapp/README.md)
@@ -19,7 +19,7 @@ For more information, refer to the [individual README files](#Project-Contents) 
 - [Changelog](CHANGELOG.md)
 - [License](LICENSE.md)
 
-# Bug Reports
+# Bug reports
 If you find any bug or have any suggestion then fill in the form at [Jabra developer support site](https://developer.jabra.com/support/) with below details:
 
 1. Bug description with steps to reproduce the issue.

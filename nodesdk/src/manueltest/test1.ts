@@ -5,7 +5,7 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-import { createJabraApplication, DeviceType, JabraType, jabraEnums, enumWizardMode } from '../main/index';
+import { createJabraApplication, DeviceType, JabraType, jabraEnums, enumHidState, enumWizardMode } from '../main/index';
 
 let reserved1 = {
     proxy: "this.httpProxyService.getProxy()",
@@ -28,6 +28,8 @@ let reserved1 = {
         });
 
         jabra.on('attach', async (device: DeviceType) => {
+            device.setHidWorkingStateAsync(enumHidState.GN_HID);
+
             console.log("Device attached with device " + JSON.stringify(device));
 
             // await device.connectNewDeviceAsync("myname", "010AFF000F07", true);
