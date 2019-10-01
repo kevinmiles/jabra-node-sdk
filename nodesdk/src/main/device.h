@@ -48,3 +48,5 @@ Napi::Value napi_SetWizardMode(const Napi::CallbackInfo& info);
 Napi::Value napi_GetAudioFileParametersForUpload(const Napi::CallbackInfo& info);
 Napi::Value napi_GetButtonFocus(const Napi::CallbackInfo& info);
 Napi::Value napi_ReleaseButtonFocus(const Napi::CallbackInfo& info);
+
+Napi::Value napi_GetEqualizerParameters(const Napi::CallbackInfo& info);

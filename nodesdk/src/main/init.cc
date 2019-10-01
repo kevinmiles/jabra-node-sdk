@@ -107,10 +107,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   EXPORTS_SET(PlayRingTone)
   EXPORTS_SET(GetESN)
   EXPORTS_SET(GetTimestamp)
-  //EXPORTS_SET(GetEqualizerParameters)
-  EXPORTS_SET(SetDatetime)
-  
-    
+  EXPORTS_SET(GetEqualizerParameters)
+  EXPORTS_SET(SetDatetime) 
 
   // Battery
   EXPORTS_SET(GetBatteryStatus)

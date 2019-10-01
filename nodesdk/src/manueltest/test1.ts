@@ -38,13 +38,20 @@ let reserved1 = {
                 console.log("getSupportedFeaturesAsync returned " + JSON.stringify(v, null, 2));
             });
 
+            device.getEqualizerParametersAsync().then((result) => {
+                console.log("getEqualizerParametersAsync returned " + JSON.stringify(result, null, 2));
+            }).catch(err => {
+                console.log("getEqualizerParametersAsync failed with error " + err);
+            });
+            /*
             device.setDateTimeAsync({
-                sec: 12, min: 38, hour: 10, mday: 24, mon: 8, year: 2019, wday: 2 
+                sec: 12, min: 38, hour: 10, mday: 24, mon: 8, year: 119, wday: 2 
             }).then(() => {
                 console.log("setDateTimeAsync succeded ");
             }).catch((err) => {
                 console.log("setDateTimeAsync failed with error " + err);
             });
+            */
 
             // console.log("before getFirmwareVersionAsync");
 /*

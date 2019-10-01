@@ -842,11 +842,11 @@ export class DeviceType implements DeviceInfo, MetaApi {
 
    /**
    * Get equalizer parameters.
-   * @param {number} nBands no of bands
+   * @param {number} maxBands Max no of bands to return (default is 5)
    * @returns {Promise<Array<EqualizerBand>, Error>} - Resolve equalizerBand `object` if successful otherwise Reject with `error`.
    */
-   getEqualizerParametersAsync(nBands: number): Promise<Array<{ maxGain: number, centerFrequency: number, currentGain: number }>> {
-     return util.promisify(sdkIntegration.GetEqualizerParameters)(this.deviceID,nBands);
+   getEqualizerParametersAsync(maxNBands?: number): Promise<Array<{ max_gain: number, centerFrequency: number, currentGain: number }>> {
+     return util.promisify(sdkIntegration.GetEqualizerParameters)(this.deviceID, maxNBands || 5);
    }
 
    /**
@@ -855,8 +855,8 @@ export class DeviceType implements DeviceInfo, MetaApi {
     * (must be within range of +/- max_gain).
     * @returns {Promise<void>, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
    */
-   setEqualizerParametersAsync(bands: Array<number>,nband:number): Promise<void> {
-    return util.promisify(sdkIntegration.SetEqualizerParameters)(this.deviceID,bands,nband);
+   setEqualizerParametersAsync(bands: Array<number>, nband:number): Promise<void> {
+    return util.promisify(sdkIntegration.SetEqualizerParameters)(this.deviceID, bands, nband);
    }
 
     /**

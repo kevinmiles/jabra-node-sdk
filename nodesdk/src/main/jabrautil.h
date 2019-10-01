@@ -83,3 +83,11 @@ struct FeatureListCountPair {
   const DeviceFeature* featureList;
   unsigned int featureCount;
 };
+
+/**
+ * Raw "C" pair of a bands list pointer and a count.
+ */
+struct EqualizerBandsListCountPair {
+   Jabra_EqualizerBand * bands;
+   unsigned int bandsCount;
+};

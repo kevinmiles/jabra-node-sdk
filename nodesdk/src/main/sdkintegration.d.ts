@@ -198,6 +198,6 @@ export declare interface SdkIntegration {
     GetButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>,callback: (error: Error | null, result: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void): void;
     ReleaseButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>,callback: (error: Error | null, result: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void): void;
     SetDatetime(deviceId: number, dateTime: { sec: number, min: number, hour: number, mday: number, mon: number, year: number, wday: number }, callback: (error: Error | null, result: void) => void): void;
-    GetEqualizerParameters(deviceId: number,nBands:number, callback: (error: Error | null, result: Array) => void): void;
+    GetEqualizerParameters(deviceId: number, maxNBands:number, callback: (error: Error | null, result: Array<{ max_gain: number, centerFrequency: number, currentGain: number }>) => void): void;
     GetSupportedFeatures(deviceId: number, callback: (error: Error | null, result: Array<enumDeviceFeature>) => void): void;
 }

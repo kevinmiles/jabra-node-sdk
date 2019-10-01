@@ -802,39 +802,49 @@ Napi::Value napi_GetSupportedFeatures(const Napi::CallbackInfo& info) {
   return env.Undefined();
 }
 
-// TODO: Complete
-/*
 Napi::Value napi_GetEqualizerParameters(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   Napi::Env env = info.Env();
 
-  if (util::verifyArguments(functionName, info, {util::NUMBER, util::OBJECT,util::NUMBER,util::FUNCTION})) {
+  if (util::verifyArguments(functionName, info, {util::NUMBER, util::NUMBER, util::FUNCTION})) {
     const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
-    Napi::Object EqualizerBand = info[1].As<Napi::Object>();
-	 const unsigned int nbands = (unsigned short)(info[2].As<Napi::Number>().Int32Value());
-    Napi::Function javascriptResultCallback = info[3].As<Napi::Function>();
+	  const unsigned int maxNbands = (unsigned short)(info[1].As<Napi::Number>().Int32Value());
+    Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
-    EqualizerBand *rawEqualizerBand = toCType(deviceId, EqualizerBandObject);
-    IF_LOG(plog::verbose) {
-    //   LOG_VERBOSE << "napi_GetButtonFocus translated button event input argument into raw object : '" << toString(rawButtonEvent) << "'";
-    }
-    (new util::JAsyncWorker<void, void>(
+    (new util::JAsyncWorker<EqualizerBandsListCountPair, Napi::Array>(
       functionName,
       javascriptResultCallback,
-      [functionName, deviceId, rawEqualizerBand,nbands](){
+      [functionName, deviceId, maxNbands](){
         Jabra_ReturnCode retv;
-        if ((retv = Jabra_GetEqualizerParameters(deviceId, rawEqualizerBand,&nbands)) != Return_Ok) {
+        
+        EqualizerBandsListCountPair pair;
+        pair.bands = new Jabra_EqualizerBand[maxNbands > 0 ? maxNbands : 1];
+        pair.bandsCount = maxNbands;
+        if ((retv = Jabra_GetEqualizerParameters(deviceId, pair.bands, &pair.bandsCount)) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
-      }, [rawEqualizerBand]() {
-        if (rawEqualizerBand) {
-         //Custom_FreeEqualizerBand(rawEqualizerBand);
+        return pair;
+      }, [](const Napi::Env& env, const EqualizerBandsListCountPair& pair) {
+        Napi::Array result = Napi::Array::New(env);
+
+        for (unsigned int i=0; i<pair.bandsCount; ++i) {
+          Jabra_EqualizerBand& src = pair.bands[i];
+
+          Napi::Object newElement = Napi::Object::New(env);
+
+          newElement.Set(Napi::String::New(env, "maxGain"), Napi::Number::New(env, src.max_gain));
+          newElement.Set(Napi::String::New(env, "centerFrequency"), Napi::Number::New(env, src.centerFrequency));
+          newElement.Set(Napi::String::New(env, "currentGain"), Napi::Number::New(env, src.currentGain));
+               
+          result.Set(i, newElement);
         }
+
+        return result;
+      }, [](const EqualizerBandsListCountPair& pair) {
+        delete[] pair.bands;
       }
     ))->Queue();
   }
 
   return env.Undefined();
-  
 }
-*/
