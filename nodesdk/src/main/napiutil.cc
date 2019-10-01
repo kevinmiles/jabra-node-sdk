@@ -12,6 +12,7 @@ namespace util {
             case ARRAYBUFFER: return "arraybuffer"; break;
             case TYPEDARRAY: return "typedarray"; break;
             case OBJECT: return "object"; break;
+            case ARRAY: return "array"; break;
             case FUNCTION: return "function"; break;
             case PROMISE: return "promise"; break;
             case DATAVIEW: return"dataview"; break;
@@ -34,6 +35,7 @@ namespace util {
             case ARRAYBUFFER: return value.IsArrayBuffer(); break;
             case TYPEDARRAY: return value.IsTypedArray(); break;
             case OBJECT: return value.IsObject(); break;
+            case ARRAY: return value.IsArray(); break;
             case FUNCTION: return value.IsFunction(); break;
             case PROMISE: return value.IsPromise(); break;
             case DATAVIEW: return value.IsDataView(); break;
@@ -68,28 +70,28 @@ namespace util {
 
         return true;
     }
-}
 
 
-/**
- * Create a C-string suitable for storing in a settings object from a std:string 
- */
-     char * newCString(const std::string& src) {      
-      char * cpy = new char[src.length() + 1];
-      strncpy(cpy, src.c_str(), src.length());
-      cpy[src.length()] = 0;
+    /**
+     * Create a C-string from a std:string 
+     */
+    char * newCString(const std::string& src) {      
+        char * cpy = new char[src.length() + 1];
+        strncpy(cpy, src.c_str(), src.length());
+        cpy[src.length()] = 0;
 
-      return cpy;
-}
+        return cpy;
+    }
 
-/**
- * Create a C-string suitable for storing in a settings object from a napi string/null object.
- */
-     char * newCString(const Napi::Value& src) {
-    if (src.IsString()) {
-      Napi::String strSrc = src.As<Napi::String>();
-      return newCString((std::string)strSrc);
-    } else {
-      return nullptr;
+    /**
+     * Create a C-string from a napi string/null object.
+     */
+    char * newCString(const Napi::Value& src) {
+        if (src.IsString()) {
+        Napi::String strSrc = src.As<Napi::String>();
+        return newCString((std::string)strSrc);
+        } else {
+        return nullptr;
+        }
     }
 }

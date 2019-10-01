@@ -37,12 +37,27 @@ let reserved1 = {
             device.getSupportedFeaturesAsync().then((v) => {
                 console.log("getSupportedFeaturesAsync returned " + JSON.stringify(v, null, 2));
             });
-
+            /*
             device.getEqualizerParametersAsync().then((result) => {
                 console.log("getEqualizerParametersAsync returned " + JSON.stringify(result, null, 2));
             }).catch(err => {
                 console.log("getEqualizerParametersAsync failed with error " + err);
             });
+            */
+           /*
+
+            device.getButtonFocusAsync([
+                {
+                    buttonTypeKey: 27,
+                    buttonTypeValue: "hej",
+                    buttonEventType: [ { key: 42, value: "bla" }]
+                }
+             ]).then((result) => {
+                console.log("getButtonFocusAsync returned " + JSON.stringify(result, null, 2));
+            }).catch(err => {
+                console.log("getButtonFocusAsync failed with error " + err);
+            });
+*/
             /*
             device.setDateTimeAsync({
                 sec: 12, min: 38, hour: 10, mday: 24, mon: 8, year: 119, wday: 2 

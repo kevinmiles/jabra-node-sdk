@@ -187,19 +187,19 @@ static DeviceSettings *toCType(const unsigned short deviceId, Napi::Object src) 
       SettingInfo& settingDst = result->settingInfo[i];
       Napi::Object settingSrc = settingInfo.Get(i).ToObject();
 
-      settingDst.guid = newCString(settingSrc.Get("guid"));
-      settingDst.name = newCString(settingSrc.Get("name"));
-      settingDst.helpText = newCString(settingSrc.Get("helpText"));
-      settingDst.isValidationSupport = newCString(settingSrc.Get("isValidationSupport"));
+      settingDst.guid = util::newCString(settingSrc.Get("guid"));
+      settingDst.name = util::newCString(settingSrc.Get("name"));
+      settingDst.helpText = util::newCString(settingSrc.Get("helpText"));
+      settingDst.isValidationSupport = util::newCString(settingSrc.Get("isValidationSupport"));
 
       Napi::Value validationRuleSrc = settingSrc.Get("validationRule");
       if (validationRuleSrc.IsObject()) {
         Napi::Object validationRuleSrcObj = validationRuleSrc.As<Napi::Object>();
         settingDst.validationRule = new ValidationRule();
-        settingDst.validationRule->errorMessage = newCString(validationRuleSrcObj.Get("errorMessage"));
+        settingDst.validationRule->errorMessage = util::newCString(validationRuleSrcObj.Get("errorMessage"));
         settingDst.validationRule->maxLength = util::getObjInt32OrDefault(validationRuleSrcObj, "maxLength", INT_MAX);
         settingDst.validationRule->minLength = util::getObjInt32OrDefault(validationRuleSrcObj, "minLength", 0);
-        settingDst.validationRule->regExp = newCString(validationRuleSrcObj.Get("regExp"));
+        settingDst.validationRule->regExp = util::newCString(validationRuleSrcObj.Get("regExp"));
       } else {
         settingDst.validationRule = nullptr;
       }
@@ -215,7 +215,7 @@ static DeviceSettings *toCType(const unsigned short deviceId, Napi::Object src) 
         if (settingDst.settingDataType == DataType::settingByte) {
           settingDst.currValue = new char[1] { (char)(uint8_t)util::getObjInt32OrDefault(settingSrc, "currValue", 0) };
         } else if (settingDst.settingDataType == DataType::settingByte) {
-          settingDst.currValue = newCString(settingSrc.Get("currValue"));
+          settingDst.currValue = util::newCString(settingSrc.Get("currValue"));
         } else {         
           LOG_ERROR << "Device " << deviceId << " has unexpected settingDataType " << settingDst.currValue << " for settings GUID " << settingDst.guid;
           settingDst.currValue = nullptr;
@@ -224,8 +224,8 @@ static DeviceSettings *toCType(const unsigned short deviceId, Napi::Object src) 
         settingDst.currValue = nullptr;
       }
 
-      settingDst.groupName = newCString(settingSrc.Get("groupName"));
-      settingDst.groupHelpText = newCString(settingSrc.Get("groupHelpText"));
+      settingDst.groupName = util::newCString(settingSrc.Get("groupName"));
+      settingDst.groupHelpText = util::newCString(settingSrc.Get("groupHelpText"));
       settingDst.isDepedentsetting = util::getObjBooleanOrDefault(settingSrc, "isDepedentsetting", false);
 
       settingDst.isPCsetting = util::getObjBooleanOrDefault(settingSrc, "isPCsetting", false);
@@ -235,7 +235,7 @@ static DeviceSettings *toCType(const unsigned short deviceId, Napi::Object src) 
         if (settingDst.settingDataType == DataType::settingByte) {
           settingDst.dependentDefaultValue = new char[1] { (char)(uint8_t)util::getObjInt32OrDefault(settingSrc, "dependentDefaultValue", 0) };
         } else if (settingDst.settingDataType == DataType::settingByte) {
-          settingDst.dependentDefaultValue = newCString(settingSrc.Get("dependentDefaultValue"));
+          settingDst.dependentDefaultValue = util::newCString(settingSrc.Get("dependentDefaultValue"));
         } else {         
           LOG_ERROR << "Device " << deviceId << " has unexpected settingDataType " << settingDst.currValue << " for settings GUID " << settingDst.guid;
           settingDst.dependentDefaultValue = nullptr;
@@ -254,7 +254,7 @@ static DeviceSettings *toCType(const unsigned short deviceId, Napi::Object src) 
            Napi::Object listKeyValueSrcObj = listKeyValueAry.Get(j).As<Napi::Object>();
 
            listKeyValueDst.key = util::getObjInt32OrDefault(listKeyValueSrcObj, "key", 0);
-           listKeyValueDst.value = newCString(listKeyValueSrcObj.Get("value"));
+           listKeyValueDst.value = util::newCString(listKeyValueSrcObj.Get("value"));
 
            Napi::Array dependentsSrc = listKeyValueSrcObj.Get("dependents").As<Napi::Array>();
            if (dependentsSrc.IsArray()) {
@@ -265,7 +265,7 @@ static DeviceSettings *toCType(const unsigned short deviceId, Napi::Object src) 
                   DependencySetting& dependencySettingDst = listKeyValueDst.dependents[k];
                   Napi::Object dependencySettingSrc = dependentsSrc.Get(k).As<Napi::Object>();
 
-                  dependencySettingDst.GUID = newCString(dependencySettingSrc.Get("GUID"));
+                  dependencySettingDst.GUID = util::newCString(dependencySettingSrc.Get("GUID"));
                   dependencySettingDst.enableFlag = util::getObjBooleanOrDefault(dependencySettingSrc, "enableFlag", false);
               }
            } else {

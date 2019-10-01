@@ -587,9 +587,7 @@ export class DeviceType implements DeviceInfo, MetaApi {
      * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
      */
     getButtonFocusAsync(btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>): Promise<void> {
-        //return util.promisify(sdkIntegration.GetButtonFocus)(this.deviceID,btnEvents);
-        return Promise.reject("getButtonFocusAsync not yet implemented");
-        
+        return util.promisify(sdkIntegration.GetButtonFocus)(this.deviceID, btnEvents);    
     }
 
     /**
@@ -598,9 +596,7 @@ export class DeviceType implements DeviceInfo, MetaApi {
      * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
      */
     releaseButtonFocusAsync(btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>): Promise<void> {
-        //return util.promisify(sdkIntegration.GetButtonFocus)(this.deviceID,btnEvents);
-        return Promise.reject("releaseButtonFocusAsync not yet implemented");
-
+        return util.promisify(sdkIntegration.ReleaseButtonFocus)(this.deviceID, btnEvents);
     }        
 
     /**

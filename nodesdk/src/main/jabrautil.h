@@ -91,3 +91,5 @@ struct EqualizerBandsListCountPair {
    Jabra_EqualizerBand * bands;
    unsigned int bandsCount;
 };
+
+typedef enum { GET_FOCUS, RELEASE_FOCUS } GetReleaseButtonFocusEnum;

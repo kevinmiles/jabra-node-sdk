@@ -592,139 +592,119 @@ Napi::Value napi_SetWizardMode(const Napi::CallbackInfo& info) {
 }
 
 /**
- * Convert a napi Button event object to a native sdk ButtonEvent object (the reverse of toNodeType).
+ * Convert a napi Button event object to a native sdk ButtonEvent object.
  * 
  * Nb. Use Custom_FreeButtonEvents to free memory allocated by this function.
  */
-static ButtonEvent *toCType(const unsigned short buttonevent, Napi::Object src) {
+static ButtonEvent *toButtonEventCType(const Napi::Array& src) {
     ButtonEvent * result = new ButtonEvent();
+  
+    result->buttonEventCount = src.Length();
+    result->buttonEventInfo = new ButtonEventInfo[src.Length()];
 
-    Napi::Array buttonEventInfo = src.Get("buttonEventInfo").As<Napi::Array>();
-    if (buttonEventInfo.IsArray()) {
-        result->buttonEventCount = util::getObjInt32OrDefault(buttonEventInfo, "buttonEventCount", 0);
-        result->buttonEventInfo = new ButtonEventInfo[result->buttonEventCount];
+    for ( int i=0; i<result->buttonEventCount; ++i) {
+        ButtonEventInfo& btnEventDst = result->buttonEventInfo[i];
+        Napi::Object btnEventSrc = src.Get(i).ToObject();
 
-        for ( int i=0; i<result->buttonEventCount; ++i) {
-            ButtonEventInfo& btnEventDst = result->buttonEventInfo[i];
-            Napi::Object btnEventSrc = buttonEventInfo.Get(i).ToObject();
+        btnEventDst.buttonTypeKey = util::getObjInt32OrDefault(btnEventSrc, "buttonTypeKey", -1);
+        btnEventDst.buttonTypeValue = util::newCString(util::getObjStringOrDefault(btnEventSrc, "buttonTypeValue", ""));
 
-            btnEventDst.buttonTypeKey = util::getObjInt32OrDefault(btnEventSrc, "buttonTypeKey", -1);
-            btnEventDst.buttonTypeValue = newCString(btnEventSrc.Get("buttonTypeValue"));
-            btnEventDst.buttonEventTypeSize = util::getObjInt32OrDefault(btnEventSrc, "buttonEventTypeSize", -1);
-            btnEventDst.buttonEventType = new ButtonEventType[btnEventDst.buttonEventTypeSize];
+        Napi::Array buttonEventTypeArray = btnEventSrc.Get("buttonEventType").As<Napi::Array>();
 
-            Napi::Array buttonEventTypeArray = btnEventSrc.Get("buttonEventType").As<Napi::Array>();
-            if (buttonEventTypeArray.IsArray()) {
-                for (int j=0; j<btnEventDst.buttonEventTypeSize; ++j) {
-                    ButtonEventType& btnEventTypeDst = btnEventDst.buttonEventType[j];
-                    Napi::Object btnEventTypeSrcObj = buttonEventTypeArray.Get(j).As<Napi::Object>();
+        btnEventDst.buttonEventTypeSize = buttonEventTypeArray.Length();
+        btnEventDst.buttonEventType = new ButtonEventType[buttonEventTypeArray.Length()];
 
-                    btnEventTypeDst.key = util::getObjInt32OrDefault(btnEventTypeSrcObj, "key", 0);
-                    btnEventTypeDst.value = newCString(btnEventTypeSrcObj.Get("value"));
-                }
-            } else {
-                btnEventDst.buttonEventTypeSize = 0;
-                btnEventDst.buttonEventType = nullptr;
+        if (buttonEventTypeArray.IsArray()) {
+            for (int j=0; j<btnEventDst.buttonEventTypeSize; ++j) {
+                ButtonEventType& btnEventTypeDst = btnEventDst.buttonEventType[j];
+                Napi::Object btnEventTypeSrcObj = buttonEventTypeArray.Get(j).As<Napi::Object>();
+
+                btnEventTypeDst.key = util::getObjInt32OrDefault(btnEventTypeSrcObj, "key", 0);
+                btnEventTypeDst.value = util::newCString(util::getObjStringOrDefault(btnEventTypeSrcObj, "value", ""));
             }
+        } else {
+            btnEventDst.buttonEventTypeSize = 0;
+            btnEventDst.buttonEventType = nullptr;
         }
-    } else {
-        result->buttonEventCount = 0;
-        result->buttonEventInfo = nullptr;
     }
 
     return result;
 }
 
+static void Custom_FreeButtonEvent(ButtonEvent* buttonEvent) {
+  ButtonEventInfo *btnEventInfos = buttonEvent->buttonEventInfo;
+  if (btnEventInfos != nullptr) {
+    for (int i = 0; i < buttonEvent->buttonEventCount; i++) {
+      ButtonEventInfo& btnEventInfo = btnEventInfos[i];
 
-static void Custom_FreeButtonEvents(ButtonEvent* buttonEvent) {
-	if (buttonEvent != nullptr) {
-		if (buttonEvent->buttonEventInfo != nullptr) {
-			ButtonEventInfo *btnEventInfo = buttonEvent->buttonEventInfo;
-			for (int i = 0; i < buttonEvent->buttonEventCount; i++) {
-				delete[] btnEventInfo->buttonTypeValue;
-				//List
-				if (btnEventInfo->buttonEventType != nullptr) {
-					ButtonEventType *btnEventType = btnEventInfo->buttonEventType;
-					for (int i = 0; i < btnEventInfo->buttonEventTypeSize; i++) {
-                        // TODO: CHeck if this is correct - looks a bit strange
-                        // and gives a warning on mac:  cast to 'char *' from smaller integer
-                        delete[](char *)(btnEventInfo->buttonEventType + i)->key;
-                        delete[](btnEventInfo->buttonEventType + i)->value;
-					}
-				}
-                delete[] btnEventInfo->buttonEventType;
-			}
-		}
-		delete[] buttonEvent->buttonEventInfo;
-	}
-	delete buttonEvent;
+      if (btnEventInfo.buttonTypeValue != nullptr) {
+        delete[] btnEventInfo.buttonTypeValue;
+      }
+
+      ButtonEventType *btnEventTypes = btnEventInfo.buttonEventType;
+      if (btnEventTypes != nullptr) {
+        for (int j = 0; i < btnEventInfo.buttonEventTypeSize; j++) {
+            ButtonEventType& btnEventType =  btnEventTypes[j];
+            if (btnEventType.value != nullptr) {
+              delete[] btnEventType.value;
+            }
+        }
+
+        delete[] btnEventTypes;
+      }
+    }
+    
+    delete[] btnEventInfos;
+  }
+
+  delete buttonEvent;
 }
-// TODO: Complete
 
-Napi::Value napi_GetButtonFocus(const Napi::CallbackInfo& info) {
-  const char * const functionName = __func__;
+// Common implementation for get/release focus functions:
+Napi::Value doGetReleaseButtonFocus(const Napi::CallbackInfo& info, const char * const functionName, const GetReleaseButtonFocusEnum getOrRelease) {
   Napi::Env env = info.Env();
 
-  if (util::verifyArguments(functionName, info, {util::NUMBER, util::OBJECT,util::FUNCTION})) {
-    const unsigned short buttonevent = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
-    Napi::Object buttonObject = info[1].As<Napi::Object>();
+  if (util::verifyArguments(functionName, info, {util::NUMBER, util::ARRAY, util::FUNCTION})) {
+    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
+    Napi::Array btnEvents = info[1].As<Napi::Array>();
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
-    ButtonEvent * const rawButtonEvent = toCType(buttonevent, buttonObject);
-    IF_LOG(plog::verbose) {
-    //   LOG_VERBOSE << "napi_GetButtonFocus translated button event input argument into raw object : '" << toString(rawButtonEvent) << "'";
-    }
+    ButtonEvent *rawButtonEvent = toButtonEventCType(btnEvents);
+
     (new util::JAsyncWorker<void, void>(
       functionName,
       javascriptResultCallback,
-      [functionName, buttonevent, rawButtonEvent](){
+      [functionName, deviceId, rawButtonEvent, getOrRelease](){
         Jabra_ReturnCode retv;
-        if ((retv = Jabra_GetButtonFocus(buttonevent, rawButtonEvent)) != Return_Ok) {
+        if (getOrRelease == GetReleaseButtonFocusEnum::GET_FOCUS) { 
+          retv = Jabra_GetButtonFocus(deviceId, rawButtonEvent);
+        } else if (getOrRelease == GetReleaseButtonFocusEnum::RELEASE_FOCUS) {
+          retv = Jabra_ReleaseButtonFocus(deviceId, rawButtonEvent);
+        } else {
+          retv = Jabra_ReturnCode::Not_Supported;
+        }
+
+        if (retv != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
       }, [rawButtonEvent]() {
         if (rawButtonEvent) {
-          Custom_FreeButtonEvents(rawButtonEvent);
+          Custom_FreeButtonEvent(rawButtonEvent);
         }
       }
     ))->Queue();
   }
 
   return env.Undefined();
-  
 }
-// TODO: Complete
+
+Napi::Value napi_GetButtonFocus(const Napi::CallbackInfo& info) {
+  return doGetReleaseButtonFocus(info, __func__, GetReleaseButtonFocusEnum::GET_FOCUS);
+}
+
 
 Napi::Value napi_ReleaseButtonFocus(const Napi::CallbackInfo& info) {
-  const char * const functionName = __func__;
-  Napi::Env env = info.Env();
-
-  if (util::verifyArguments(functionName, info, {util::NUMBER, util::OBJECT,util::FUNCTION})) {
-    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
-    Napi::Object buttonObject = info[1].As<Napi::Object>();
-    Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
-
-    ButtonEvent * const rawButtonEvent = toCType(deviceId, buttonObject);
-    IF_LOG(plog::verbose) {
-    //   LOG_VERBOSE << "napi_GetButtonFocus translated button event input argument into raw object : '" << toString(rawButtonEvent) << "'";
-    }
-    (new util::JAsyncWorker<void, void>(
-      functionName,
-      javascriptResultCallback,
-      [functionName, deviceId, rawButtonEvent](){
-        Jabra_ReturnCode retv;
-        if ((retv = Jabra_ReleaseButtonFocus(deviceId, rawButtonEvent)) != Return_Ok) {
-          util::JabraReturnCodeException::LogAndThrow(functionName, retv);
-        }
-      }, [rawButtonEvent]() {
-        if (rawButtonEvent) {
-          Custom_FreeButtonEvents(rawButtonEvent);
-        }
-      }
-    ))->Queue();
-  }
-
-  return env.Undefined();  
+   return doGetReleaseButtonFocus(info, __func__, GetReleaseButtonFocusEnum::RELEASE_FOCUS);
 }
 
 Napi::Value napi_SetDatetime(const Napi::CallbackInfo& info) {

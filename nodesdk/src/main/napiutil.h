@@ -157,6 +157,7 @@ enum FormalParameterType
     ARRAYBUFFER,
     TYPEDARRAY,
     OBJECT,
+    ARRAY,
     FUNCTION,
     PROMISE,
     DATAVIEW,
@@ -661,15 +662,16 @@ T JSyncWrapper(const char * const callerFunctionName, const Napi::CallbackInfo& 
 };
 
 
-} // namespace util
-
-// -------------------------------------------------------------------------------------------------------
-
 /**
  * Create a C-string suitable for storing in a settings object from a std:string 
  */
 char * newCString(const std::string& src);
+
 /**
- * Create a C-string suitable for storing in a settings object from a napi string/null object.
- */
+* Create a C-string suitable for storing in a settings object from a napi string/null object.
+**/
 char * newCString(const Napi::Value& src);
+
+} // namespace util
+
+// -------------------------------------------------------------------------------------------------------
