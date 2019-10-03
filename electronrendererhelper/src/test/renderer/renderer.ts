@@ -3,7 +3,7 @@
 console.log('renderer.js loaded');
 
 import { createApiClient } from '../../renderer/index';
-import { JabraType, ClassEntry, JabraEventsList, DeviceEventsList } from '@gnaudio/jabra-node-sdk';
+import { JabraType, ClassEntry, JabraEventsList, DeviceEventsList, enumDeviceBtnType } from '@gnaudio/jabra-node-sdk';
 
 createApiClient(window.electron.ipcRenderer).then((client) => {
     console.log("jabraApiClient initialized");
@@ -17,6 +17,11 @@ createApiClient(window.electron.ipcRenderer).then((client) => {
         device.getSerialNumberAsync().then((sn) => {
             console.log("Serial number is " + sn);
         });
+
+        device.on("btnPress", (btnType: enumDeviceBtnType, value: boolean) => {
+            console.log("Getting btnPress btnType = '" + JSON.stringify(btnType, null, 2) + "'");
+            console.log("Getting btnPress value = '" + JSON.stringify(value, null, 2) + "'");
+         });
     });
 
     client.on('detach', (device) => {

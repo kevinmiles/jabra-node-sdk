@@ -177,8 +177,8 @@ export class JabraApiServer
     
         // Setup forwarding for all device events:
         DeviceEventsList.forEach((e) => {
-            device.on(e as any, ((...args: any[]) => {
-                this.window.webContents.send(getDeviceTypeApiCallabackEventName(e, device.deviceID), ...arguments);
+            device.on(e as any, ((...args: any[]) => {         
+                this.window.webContents.send(getDeviceTypeApiCallabackEventName(e, device.deviceID), ...args);
             }));
         });
     }
