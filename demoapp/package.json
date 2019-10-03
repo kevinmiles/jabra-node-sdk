@@ -1,10 +1,12 @@
 {
   "name": "@gnaudio/jabra-electron-test-app",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-beta.1",
   "description": "A electon test application for Jabra Electron/Node SDK",
   "main": "dist/main/main.js",
+  "browser": "dist/renderer/renderer.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json && browserify src/renderer/renderer.ts -p tsify --debug -o dist/renderer/bundle.js && copyfiles -u 1 src/**/*.html dist",
+    "build": "tsc -p tsconfig.json && browserify src/renderer/renderer.ts -p tsify --debug -o dist/renderer/bundle.js",
+    "postbuild": "copyfiles -u 1 -e *.ts src/**/*.* dist && copyfiles -u 2 -E ./node_modules/notyf/notyf.min.css dist/renderer",
     "start": "npm run build && electron ./dist/main/main.js",
     "package": "electron-packager . --platform=win32 --arch=x64 --overwrite",
     "clean": "rimraf dist"
@@ -25,10 +27,13 @@
     "url": "https://developer.jabra.com/site/global/support/index.gsp"
   },
   "dependencies": {
-    "@gnaudio/jabra-node-sdk": "2.0.0-beta.1",
-    "@gnaudio/jabra-electron-renderer-helper": "1.0.0-beta.1"
+    "@gnaudio/jabra-node-sdk": "../nodesdk",
+    "@gnaudio/jabra-electron-renderer-helper": "../electronrendererhelper",
+    "jquery": "3.4.1",
+    "notyf": "3.0.4"
   },
   "devDependencies": {
+    "@types/notyf": "2.0.0",
     "electron": "6.0.10",
     "typescript": "3.6.3",
     "electron-packager": "14.0.6",

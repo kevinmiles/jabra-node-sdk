@@ -160,7 +160,7 @@ export class DeviceType implements DeviceInfo, MetaApi {
      * Set device's mute state to true i.e., device gets muted.
      * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
      */
-    setMuteAsync(): Promise<void> {
+    muteAsync(): Promise<void> {
         return util.promisify(sdkIntegration.SetMute)(this.deviceID, true);
     }
 
@@ -168,7 +168,7 @@ export class DeviceType implements DeviceInfo, MetaApi {
      * Set device's mute state to false i.e., device gets unmuted.
      * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
      */
-    setunmuteAsync(): Promise<void> {
+    unmuteAsync(): Promise<void> {
         return util.promisify(sdkIntegration.SetMute)(this.deviceID, false);
     }
 

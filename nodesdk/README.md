@@ -57,8 +57,8 @@ j.createJabraApplication('123').then((jabra) => { //123 is appID here
     jabra.on('attach', (device) => {
         console.log('Press any key on Jabra device ' + device.deviceName);
         
-        // If you are creating a softphone, consider using GN protocol when device supports it.
-        // E.g. device.setHidWorkingStateAsync(j.enumHidState.GN_HID);
+        // If you are creating a softphone, consider using GN protocol when device supports it
+        // in order to receive all events. E.g. device.setHidWorkingStateAsync(j.enumHidState.GN_HID);
         device.on('btnPress', (btnType, btnValue) => {
           console.log('New input from device is received: ', j.enumDeviceBtnType[btnType], btnValue);
         });
@@ -74,8 +74,8 @@ createJabraApplication('123').then((jabra) => { //123 is appID here
     jabra.on('attach', (device) => {
         console.log('Press any key on Jabra device ' + device.deviceName);
 
-        // If you are creating a softphone, consider using GN protocol when device supports it.
-        // E.g. device.setHidWorkingStateAsync(enumHidState.GN_HID);
+        // If you are creating a softphone, consider using GN protocol when device supports it
+        // in order to receive all events. E.g. device.setHidWorkingStateAsync(j.enumHidState.GN_HID);
         device.on('btnPress', (btnType, btnValue) => {
           console.log('New input from device is received: ', enumDeviceBtnType[btnType], btnValue);
         });
@@ -91,9 +91,6 @@ import { createJabraApplication } from '@gnaudio/jabra-node-sdk';
 
 createJabraApplication('123').then((jabra) => { //123 is appID here
     jabra.on('attach', (device) => {
-        // If you are creating a softphone, consider using GN protocol when device supports it.
-        // E.g. device.setHidWorkingStateAsync(enumHidState.GN_HID);
-
         device.isRingerSupportedAsync().then( (supported) => {
             if (supported) {
               device.offhookAsync().then ( () => {
@@ -119,7 +116,7 @@ createJabraApplication('123').then((jabra) => { //123 is appID here
 
         // In this demo example, we will auto shutdown once all jabra devices are removed:
         let remainingAttachedDevices = jabra.getAttachedDevices();
-        if (remainingAttachedDevices.size == 0) {
+        if (remainingAttachedDevices.length == 0) {
             jabra.disposeAsync().then (() => {}); // Cleanup and allow node process to exit.
         }
     });
@@ -129,35 +126,23 @@ createJabraApplication('123').then((jabra) => { //123 is appID here
 ### Multiple device management with typescript and async/await
 
 ```typescript
-import { createJabraApplication } from '@gnaudio/jabra-node-sdk';
+import { createJabraApplication } from '../main/index';
 
 (async () => {
     let jabra = await createJabraApplication('123'); //123 is appID here
 
-    let deviceIDList: number[] = [];
-
-    jabra.on('attach', (device) => {
-        deviceIDList.push(device.deviceID);
-    });
-    
-    jabra.on('detach', (device) => {
-        //logic to remove this deviceID from deviceIDList array
-    })
-
     await jabra.scanForDevicesDoneAsync(); // Wait for all pre-attached devices to be scanned.
 
-    // suppose at some time, deviceIDList = [1, 3, 5]
-
-    const deviceInstanceList = jabra.getAttachedDevices(); //returns the list(Map data structure) of devices
-    if (deviceInstanceList.size!=2) {
-        throw new Error("Please make sure two jabra devices are attached");
+    const deviceInstanceList = jabra.getAttachedDevices();
+    if (deviceInstanceList.length<2) {
+        throw new Error("Please make sure 2 jabra devices are attached");
     }
 
-    const device3 = deviceInstanceList.get(deviceIDList[1])!; //get device instance whose deviceID=3
-    await device3.ringAsync(); //ring device3
+    const firstDevice = deviceInstanceList[0]
+    await firstDevice.ringAsync();
 
-    const device1 = deviceInstanceList.get(deviceIDList[0])!; //get device instance whose deviceID=1
-    await device1.ringAsync(); //ring device1
+    const secondDevice = deviceInstanceList[1];
+    await secondDevice.ringAsync();
 
     // Disponse jabra sdk to enable node process to shutdown.
     await jabra.disposeAsync();

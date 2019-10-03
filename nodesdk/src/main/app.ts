@@ -241,8 +241,8 @@ export class JabraType implements MetaApi {
         return retPromise;
     }
 
-    getAttachedDevices(): Map<number, DeviceType> {
-        return this.deviceTypes;
+    getAttachedDevices(): DeviceType[] {
+        return Array.from(this.deviceTypes.values());
     }
     
     connectToJabraApplicationAsync(guid: string, softphoneName: string): Promise<boolean> {

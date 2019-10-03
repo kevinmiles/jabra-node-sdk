@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file
 
+### 2.0 Beta notes (tempoary beta process changes):
+- Beta2 : Renamed mute functions to muteAsync() and unmuteAsync()
+-         getAttachedDevices now returns an array instead of a map.
+
+
 ### 2.0.0 - 2019
 - New npm package with gnaudio scope "@gnaudio/jabra-node-sdk" that replaces previous "jabra" and "jabra-dev" packages.
   Complete rewrite in typescript based on N-API (Next generation APIs for Node.js)

@@ -11,7 +11,7 @@ import { activeDemoDeviceId, notyf, showError, setupDevices,
 createApiClient(window.electron.ipcRenderer).then((jabra) => {
     console.log("jabraApiClient initialized");
 
-    let devices = Array.from(jabra.getAttachedDevices().values());
+    let devices = jabra.getAttachedDevices();
 
     function executeOnActiveDemoDevice( callback: (device: DeviceType) => Promise<any>) {
         let activeDevice = devices.find(d => d.deviceID == activeDemoDeviceId);
@@ -46,7 +46,7 @@ createApiClient(window.electron.ipcRenderer).then((jabra) => {
            }
         });
 
-        devices = Array.from(jabra.getAttachedDevices().values());
+        devices = jabra.getAttachedDevices();
         setupDevices(devices);
     });
 
@@ -74,11 +74,11 @@ createApiClient(window.electron.ipcRenderer).then((jabra) => {
     }
 
     muteBtn.onclick = function () {
-        executeOnActiveDemoDevice((device) => device.setMuteAsync());
+        executeOnActiveDemoDevice((device) => device.muteAsync());
     }
 
     unmuteBtn.onclick = function () {
-        executeOnActiveDemoDevice((device) => device.setunmuteAsync());
+        executeOnActiveDemoDevice((device) => device.unmuteAsync());
     }
 
     holdBtn.onclick = function () {

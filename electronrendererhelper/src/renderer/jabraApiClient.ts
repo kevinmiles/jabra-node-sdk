@@ -261,7 +261,7 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
     function executeApiMethod(methodName: string, methodMeta: MethodEntry, ...args : any[]) : any {
         if (methodName == nameof<JabraType>("getAttachedDevices")) {
             // Return our own list of proxies devices for this method !!
-            return devices;
+            return Array.from(devices.values());
         } else {
             const thisMethodId = methodExecutionId++;
             let combinedEventArgs = [ methodName, thisMethodId, ...args];
