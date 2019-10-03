@@ -40,7 +40,7 @@ Below environment variables are defined for logging and debugging purpose. User 
 Environment Variable | Value | Description
 --- | --- | ---
 LIBJABRA_TRACE_LEVEL | fatal, error, warning(default), info, debug | Log levels
-LIBJABRA_RESOURCE_PATH | **On Mac:** ~/Library/Application Support/JabraSDK/ **On Windows:** %appdata%/JabraSDK  | This determine the system path where logs and device related files are written.
+LIBJABRA_RESOURCE_PATH | **On Mac:** ~/Library/Application Support/JabraSDK/ **On Windows:** %appdata%/Roaming/JabraSDK  | This determine the system path where logs and device related files are written.
 
 ## API Reference
 API doc is in html format. See doc folder inside installed module `node_modules\@gnaudio\jabra-node-sdk\dist\doc` and open `index.html`.
