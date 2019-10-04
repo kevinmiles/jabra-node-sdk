@@ -750,6 +750,7 @@ Napi::Value napi_GetVersion(const Napi::CallbackInfo& info) {
  * Do not call this function in production - it is for experiments only.
  */
 Napi::Value napi_SyncExperiment(const Napi::CallbackInfo& info) {
+  /*
   const char * const functionName = __func__;
   const Napi::Env env = info.Env();
 
@@ -813,5 +814,8 @@ Napi::Value napi_SyncExperiment(const Napi::CallbackInfo& info) {
     target->Set(target->Length(), keyValue);
   }
 
-  return buttonEvents; // env.Undefined();
+  return buttonEvents;
+  */
+ 
+  return env.Undefined();
 }
