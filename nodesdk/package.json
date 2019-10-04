@@ -23,7 +23,7 @@
     "build": "npm run build:dev",
     "build:dev": "node-gyp rebuild --debug && npm run tsc",
     "build:release": "node-gyp rebuild && npm run tsc",
-    "tsc": "tsc && copyfiles -u 1 src/**/*.js dist",
+    "tsc": "tsc",
     "prepare": "npm run tsc && npm run doc && node dist/script/generatemeta.js",
     "generatemeta": "ts-node src/script/generatemeta.ts",
     "manueltest1": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/manueltest/test1.ts",
@@ -53,17 +53,16 @@
   },
   "dependencies": {
     "bindings": "1.5.0",
-    "node-addon-api": "1.6.3"
+    "node-addon-api": "1.7.1"
   },
   "devDependencies": {
     "@types/bindings": "1.3.0",
-    "@types/node": "12.7.5",
-    "cross-env": "5.2.0",
+    "@types/node": "12.7.11",
+    "cross-env": "6.0.3",
     "replace-in-file": "4.1.3",
     "rimraf": "2.6.3",
     "ts-node": "8.4.1",
     "typedoc": "0.15.0",
-    "typescript": "3.6.3",
-    "copyfiles": "2.1.1"
+    "typescript": "3.6.3"
   }
 }
