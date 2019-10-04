@@ -18,6 +18,8 @@ For more information, refer to the [individual README files](#Project-Contents) 
 # Common references
 - [Changelog](CHANGELOG.md)
 - [License](LICENSE.md)
+- [FAQ](FAQ.md)
+
 
 # Bug reports
 If you find any bug or have any suggestion then fill in the form at [Jabra developer support site](https://developer.jabra.com/ticket/support/) with below details:

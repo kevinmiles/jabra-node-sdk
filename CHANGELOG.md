@@ -2,10 +2,12 @@
 All notable changes to this project will be documented in this file
 
 ### 2.0 SDK Beta notes (tempoary beta process changes):
-- Beta2 : All events/functions marked as TODO now implemented.
-          Renamed mute functions to muteAsync() and unmuteAsync() for consistency.
-          getAttachedDevices now returns an array instead of a map.
-          Misleading CTRs removed from meta.
+- Beta2 changed
+  - All events/functions marked as TODO now implemented.
+  - Renamed mute functions to muteAsync() and unmuteAsync() for consistency.
+  - getAttachedDevices now returns an array instead of a map.
+  - Misleading CTRs removed from meta.
+  - events bugfix in jabra-electron-renderer-helper
 
 ### 2.0.0 - 2019
 - New npm package with gnaudio scope "@gnaudio/jabra-node-sdk" that replaces previous "jabra" and "jabra-dev" packages.
