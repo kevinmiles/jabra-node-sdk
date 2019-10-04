@@ -16,7 +16,6 @@ Note that this package is optional and only potentially useful in a sandboxed el
     ```npm
     npm install @gnaudio/jabra-node-sdk
     npm install"@gnaudio/jabra-electron-renderer-helper
-    },
     ```
 
 3. Configure your existing MAIN process script
