@@ -27,6 +27,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   EXPORTS_SET(IsSoftphoneInFocus)
   EXPORTS_SET(GetErrorString)
 
+  EXPORTS_SET(SyncExperiment)
+
   // Framework:
   EXPORTS_SET(GetVersion)
 

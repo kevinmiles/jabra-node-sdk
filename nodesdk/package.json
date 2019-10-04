@@ -32,7 +32,7 @@
     "example1b": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/example/example1b.ts",
     "example2": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/example/example2.ts",
     "example3": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/example/example3.ts",
-    "doc": "typedoc --mode file --excludePrivate --out dist/doc src/main",
+    "doc": "typedoc --mode file --excludePrivate --excludeExternals --excludeNotExported --out dist/doc src/main",
     "clean": "node-gyp clean && rimraf dist",
     "pipeline-build-setversion": "node setversion.js"
   },

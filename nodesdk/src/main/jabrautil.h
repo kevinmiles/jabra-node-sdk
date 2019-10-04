@@ -92,4 +92,18 @@ struct EqualizerBandsListCountPair {
    unsigned int bandsCount;
 };
 
+/*
+* Determine if it is a get or a release focus operation.
+*/
 typedef enum { GET_FOCUS, RELEASE_FOCUS } GetReleaseButtonFocusEnum;
+
+/** 
+* Memory managed version of unpacked ButtonEvent information that can be safely moved around and inspected (no C-pointers, no nulls).
+*/
+struct ManagedButtonEventInfo {   
+  unsigned short buttonTypeKey;
+  std::string buttonTypeValue;
+
+	unsigned short key;
+	std::string value;
+};

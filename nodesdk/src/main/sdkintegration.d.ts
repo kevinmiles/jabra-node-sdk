@@ -49,6 +49,7 @@ export declare interface SdkIntegration {
                downloadFirmwareProgressCallback: (deviceId: number, type: enumFirmwareEventType, status: enumFirmwareEventStatus, dwnFirmPercentage: number) => void,
                uploadProgressCallback: (deviceId: number, status: enumUploadEventStatus, percentage: number) => void,
                registerPairingListCallback: (deviceId: number, pairedListInfo: PairedListInfo) => void,
+               onGNPBtnEventCallback: (deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void,
                configParams: ConfigParamsCloud) : void;
 
     /**
@@ -71,6 +72,15 @@ export declare interface SdkIntegration {
      * 
     */
     NativeAddonLog(severity: AddonLogSeverity, caller: string, msg: string | Error): void;
+
+
+    /**
+     * Template for calling experimental N-API code synchronously. For development use only for
+     * experiments only. Otherwise not called.
+     * 
+     * Do not call this function in production - it is for development experiments only.
+     */
+    SyncExperiment(param: any): any;
     
     // -----------------------------------------------------------------------------------------------------------------------
     // 1-1 non-blocking mappings of the non-device related SDK API using callbacks for results/completion.

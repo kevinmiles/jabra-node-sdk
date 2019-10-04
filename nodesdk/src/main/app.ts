@@ -212,6 +212,18 @@ export class JabraType implements MetaApi {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
                     sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onBTParingListChange callback", err)
                 }
+            }, (deviceId, buttonEvents) => {
+                try {
+                    let device = this.deviceTypes.get(deviceId);
+                    if (device) {
+                        device._eventEmitter.emit('onGNPBtnEvent', buttonEvents);
+                    } else {
+                        sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "onGNPBtnEventChange callback", "Could not lookup device with id " + deviceId);
+                    }
+                } catch (err) {
+                    // Log but do not propagate js errors into native caller (or node process will be aborted):
+                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onGNPBtnEventChange callback", err)
+                }
             },
             configCloudParams);  
         });
@@ -274,6 +286,15 @@ export class JabraType implements MetaApi {
 
     getErrorStringAsync(errStatusCode: number): Promise<string> {
         return util.promisify(sdkIntegration.GetErrorString)(errStatusCode);
+    }
+
+    /** 
+     * Internal function for N-API experimentation only - do not call.
+     * 
+     * @internal 
+     **/
+    _SyncExperiment(p?: any): any {
+        return sdkIntegration.SyncExperiment(p);
     }
 
     /**

@@ -13,3 +13,5 @@ Napi::Value napi_GetErrorString(const Napi::CallbackInfo& info);
 
 Napi::Value napi_GetVersion(const Napi::CallbackInfo& info);
 
+Napi::Value napi_SyncExperiment(const Napi::CallbackInfo& info);
+

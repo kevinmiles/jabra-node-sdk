@@ -1,5 +1,5 @@
 #include "stdafx.h"
-
+#include <unordered_map>
 #include "bt.h"
 
 // -----------------------------------------------------------
@@ -24,6 +24,7 @@ class StateJabraInitialize {
   ThreadSafeCallback *downloadFirmwareProgressCallback;
   ThreadSafeCallback *uploadProgressCallback;
   ThreadSafeCallback *registerPairingListCallback;
+  ThreadSafeCallback *gNPButtonEventCallBack;
 
   std::string proxy;
   std::string baseUrl_capabilities;
@@ -52,6 +53,7 @@ class StateJabraInitialize {
                            downloadFirmwareProgressCallback(nullptr),
                            uploadProgressCallback(nullptr),
                            registerPairingListCallback(nullptr),
+                           gNPButtonEventCallBack(nullptr),
                            initializationStartedState(false) {}
 
   void set(const Napi::Env& _env,
@@ -66,6 +68,7 @@ class StateJabraInitialize {
            ThreadSafeCallback* _downloadFirmwareProgressCallback,
            ThreadSafeCallback* _uploadProgressCallback,
            ThreadSafeCallback* _registerPairingListCallback,
+           ThreadSafeCallback* _gNPButtonEventCallBack,
            const std::string& _proxy,
            const std::string& _baseUrl_capabilities,
            const std::string& _baseUrl_fw,
@@ -84,6 +87,7 @@ class StateJabraInitialize {
       downloadFirmwareProgressCallback = _downloadFirmwareProgressCallback;
       uploadProgressCallback = _uploadProgressCallback;
       registerPairingListCallback = _registerPairingListCallback;
+      gNPButtonEventCallBack = _gNPButtonEventCallBack;
 
       proxy = _proxy;
       baseUrl_capabilities = _baseUrl_capabilities;
@@ -142,6 +146,11 @@ class StateJabraInitialize {
     return registerPairingListCallback;
   }
 
+  ThreadSafeCallback * getGNPButtonEventCallBack() {
+    return gNPButtonEventCallBack;
+  }
+
+
   std::string& getProxy() {
     return proxy;
   }
@@ -172,6 +181,7 @@ class StateJabraInitialize {
     releaseCallback(downloadFirmwareProgressCallback);
     releaseCallback(uploadProgressCallback);
     releaseCallback(registerPairingListCallback);
+    releaseCallback(gNPButtonEventCallBack);
  
     // Re-allow init again.
     initializationStartedState = false;
@@ -215,7 +225,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
       util::FUNCTION, util::FUNCTION, util::FUNCTION, 
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
-      util::FUNCTION,
+      util::FUNCTION, util::FUNCTION,
       util::OBJECT })) {
 
     int argNr = 0;
@@ -231,6 +241,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
     auto downloadFirmwareProgressCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto uploadProgressCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto registerPairingListCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
+    auto gNPButtonEventCallBack = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
 
     Napi::Object configParams = info[argNr++].As<Napi::Object>();
     
@@ -251,6 +262,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                                downloadFirmwareProgressCallback,
                                uploadProgressCallback,
                                registerPairingListCallback,
+                               gNPButtonEventCallBack,
                                proxy,
                                baseUrl_capabilities,
                                baseUrl_fw,
@@ -471,8 +483,65 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
             });
 
             Jabra_RegisterForGNPButtonEvent([] (unsigned short deviceID, ButtonEvent *buttonEvent) {
-              // TODO: Implement
-              Jabra_FreeButtonEvents(buttonEvent);
+              try {
+                LOG_VERBOSE << "Jabra_RegisterForGNPButtonEvent called with " << (buttonEvent!=nullptr ? std::to_string(buttonEvent->buttonEventCount) : "null") << " button events";
+
+                std::vector<ManagedButtonEventInfo> buttonInfos;
+                      
+                for (int i=0; i<buttonEvent->buttonEventCount; ++i) {
+                  const ButtonEventInfo src = buttonEvent->buttonEventInfo[i];
+
+                  const unsigned short buttonTypeKey = src.buttonTypeKey;
+                  const std::string buttonTypeValue = std::string(src.buttonTypeValue);
+
+                  for (int j=0; j<src.buttonEventTypeSize; ++j) {
+                    ManagedButtonEventInfo e = { buttonTypeKey, buttonTypeValue, src.buttonEventType[j].key, std::string(src.buttonEventType[j].value) };
+                    buttonInfos.push_back(e);
+                  }
+                }
+
+                auto gNPButtonEventCallBack = state_Jabra_Initialize.getGNPButtonEventCallBack();
+                if (gNPButtonEventCallBack) {
+                  gNPButtonEventCallBack->call([deviceID, buttonInfos](Napi::Env env, std::vector<napi_value>& args) {
+                      Napi::Array buttonEvents = Napi::Array::New(env);
+
+                      std::unordered_map<unsigned short, Napi::Array *> targets;
+                      for (auto itr = buttonInfos.begin(); itr != buttonInfos.end(); itr++) {
+                        const ManagedButtonEventInfo& src = *itr;
+
+                        if (targets.find(src.buttonTypeKey) == targets.end()) {
+                           Napi::Array buttonEventInfos = Napi::Array::New(env);
+                           targets.insert(std::pair<unsigned short, Napi::Array *>(src.buttonTypeKey, &buttonEventInfos));
+                           
+                           Napi::Object o = Napi::Object::New(env);
+                           o.Set(Napi::String::New(env, "buttonTypeKey"), Napi::Number::New(env, src.buttonTypeKey));
+                           o.Set(Napi::String::New(env, "buttonTypeValue"), Napi::String::New(env, src.buttonTypeValue));
+                           o.Set(Napi::String::New(env, "buttonEventType"), buttonEventInfos);
+
+                           buttonEvents.Set(buttonEvents.Length(), o);
+                        } 
+                        Napi::Array * target = targets[src.buttonTypeKey];
+                        assert(target != nullptr);
+
+                        Napi::Object keyValue = Napi::Object::New(env);
+                        keyValue.Set(Napi::String::New(env, "key"), Napi::Number::New(env, src.key));
+                        keyValue.Set(Napi::String::New(env, "value"), Napi::String::New(env, src.value));
+
+                        target->Set(target->Length(), keyValue);
+                      }
+
+                      args = { Napi::Number::New(env, deviceID), buttonEvents };
+                  });
+                }
+                
+                Jabra_FreeButtonEvents(buttonEvent);
+              } catch (const std::exception &e) {
+                const std::string errorMsg = "Jabra_RegisterForGNPButtonEvent callback failed: " + std::string(e.what());
+                LOG_FATAL << errorMsg;
+              } catch (...) {
+                const std::string errorMsg = "Jabra_RegisterForGNPButtonEvent callback failed failed with unknown exception";
+                LOG_FATAL << errorMsg;
+              }
             });
 
             Jabra_RegisterBatteryStatusUpdateCallback([] (unsigned short deviceID, int levelInPercent, bool charging, bool batteryLow) {
@@ -673,4 +742,76 @@ Napi::Value napi_GetVersion(const Napi::CallbackInfo& info) {
       return std::string(); // Dummy return - avoid compiler warnings.
     }
   }, [](const Napi::Env& env, const std::string& cppResult) { return Napi::String::New(env, cppResult); });
+}
+
+/**
+ * This function is for N-API experiments. Content may be deleted or replaced at will for new experiments.
+ * 
+ * Do not call this function in production - it is for experiments only.
+ */
+Napi::Value napi_SyncExperiment(const Napi::CallbackInfo& info) {
+  const char * const functionName = __func__;
+  const Napi::Env env = info.Env();
+
+  ButtonEvent *buttonEvent = new ButtonEvent();
+  buttonEvent->buttonEventCount = 2;
+  buttonEvent->buttonEventInfo = new ButtonEventInfo[2];
+  buttonEvent->buttonEventInfo[0].buttonEventType = new ButtonEventType[2];
+  buttonEvent->buttonEventInfo[0].buttonEventType[0].key = 100;
+  buttonEvent->buttonEventInfo[0].buttonEventType[0].value = "val1";
+  buttonEvent->buttonEventInfo[0].buttonEventType[1].key = 101;
+  buttonEvent->buttonEventInfo[0].buttonEventType[1].value = "val2";
+  buttonEvent->buttonEventInfo[0].buttonEventTypeSize = 2;
+  buttonEvent->buttonEventInfo[0].buttonTypeKey = 42;
+  buttonEvent->buttonEventInfo[0].buttonTypeValue = "42value";
+  buttonEvent->buttonEventInfo[1].buttonEventType = new ButtonEventType[1];
+  buttonEvent->buttonEventInfo[1].buttonEventType[0].key = 102;
+  buttonEvent->buttonEventInfo[1].buttonEventType[0].value = "val3";
+  buttonEvent->buttonEventInfo[1].buttonEventTypeSize = 1;
+  buttonEvent->buttonEventInfo[1].buttonTypeKey = 43;
+  buttonEvent->buttonEventInfo[1].buttonTypeValue = "43value";
+
+  std::vector<ManagedButtonEventInfo> buttonInfos;
+                      
+  for (int i=0; i<buttonEvent->buttonEventCount; ++i) {
+    const ButtonEventInfo src = buttonEvent->buttonEventInfo[i];
+
+    const unsigned short buttonTypeKey = src.buttonTypeKey;
+    const std::string buttonTypeValue = std::string(src.buttonTypeValue);
+
+    for (int j=0; j<src.buttonEventTypeSize; ++j) {
+      ManagedButtonEventInfo e = { buttonTypeKey, buttonTypeValue, src.buttonEventType[j].key, std::string(src.buttonEventType[j].value) };
+      buttonInfos.push_back(e);
+    }
+  }
+
+
+  Napi::Array buttonEvents = Napi::Array::New(env);
+
+  std::unordered_map<unsigned short, Napi::Array *> targets;
+  for (auto itr = buttonInfos.begin(); itr != buttonInfos.end(); itr++) {
+    const ManagedButtonEventInfo& src = *itr;
+
+    if (targets.find(src.buttonTypeKey) == targets.end()) {
+        Napi::Array buttonEventInfos = Napi::Array::New(env);
+        targets.insert(std::pair<unsigned short, Napi::Array *>(src.buttonTypeKey, &buttonEventInfos));
+        
+        Napi::Object o = Napi::Object::New(env);
+        o.Set(Napi::String::New(env, "buttonTypeKey"), Napi::Number::New(env, src.buttonTypeKey));
+        o.Set(Napi::String::New(env, "buttonTypeValue"), Napi::String::New(env, src.buttonTypeValue));
+        o.Set(Napi::String::New(env, "buttonEventType"), buttonEventInfos);
+
+        buttonEvents.Set(buttonEvents.Length(), o);
+    } 
+    Napi::Array * target = targets[src.buttonTypeKey];
+    assert(target != nullptr);
+
+    Napi::Object keyValue = Napi::Object::New(env);
+    keyValue.Set(Napi::String::New(env, "key"), Napi::Number::New(env, src.key));
+    keyValue.Set(Napi::String::New(env, "value"), Napi::String::New(env, src.value));
+
+    target->Set(target->Length(), keyValue);
+  }
+
+  return buttonEvents; // env.Undefined();
 }
