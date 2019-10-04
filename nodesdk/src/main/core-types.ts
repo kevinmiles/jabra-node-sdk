@@ -79,12 +79,6 @@ export interface FirmwareInfoType {
     releaseNotes: string;
 }
 
-// TODO: Consider deletion.
-export interface jabraStructs {
-    configParams_cloud: ConfigParamsCloud,
-    deviceCatalogParams: DeviceCatalogueParams
-}
-
 export interface SettingType {
     guid: string,
     name: string,
