@@ -22,7 +22,7 @@ export interface SymbolEntry {
  * Meta-data for reflective access to API classes.
  */
 export interface ClassEntry extends SymbolEntry {
-    constructors: MethodEntry[];
+    // constructors: MethodEntry[];
     methods:  MethodEntry[];
     properties:  PropertyEntry[];
 }
