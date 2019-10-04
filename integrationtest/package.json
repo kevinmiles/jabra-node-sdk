@@ -18,7 +18,7 @@
     "url": "https://developer.jabra.com/site/global/support/index.gsp"
   },
   "dependencies": {
-    "@gnaudio/jabra-node-sdk": "2.0.0-beta.1"
+    "@gnaudio/jabra-node-sdk": "2.0.0-beta.2"
   },
   "devDependencies": {
     "@types/bindings": "1.3.0",

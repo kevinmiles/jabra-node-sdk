@@ -38,11 +38,11 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "@gnaudio/jabra-node-sdk": ">=2.0.0-beta.1",
+    "@gnaudio/jabra-node-sdk": ">=2.0.0-beta.2",
     "electron": ">=2.0.0"
   },
   "devDependencies": {
-    "@gnaudio/jabra-node-sdk": ">=2.0.0-beta.1",
+    "@gnaudio/jabra-node-sdk": ">=2.0.0-beta.2",
     "electron": "6.0.10",
     "typescript": "3.6.3",
     "rimraf": "2.6.3",
