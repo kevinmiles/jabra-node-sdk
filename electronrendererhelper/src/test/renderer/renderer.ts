@@ -38,9 +38,3 @@ createApiClient(window.electron.ipcRenderer).then((client) => {
 }).catch( (err) => {
     console.error("Could not initialize Jabra Api client : " + err);
 });
-
-
-
-
-
-

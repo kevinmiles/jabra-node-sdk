@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "static-check": "tsc --noEmit",
-    "test": "cross-env LIBJABRA_TRACE_LEVEL=trace jest --verbose"
+    "test": "cross-env LIBJABRA_TRACE_LEVEL=trace jest --runInBand --verbose",
+    "manueltest1": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/manueltest/test1.ts"
   },
   "author": "GN Audio",
   "license": "MIT",
@@ -18,15 +19,16 @@
     "url": "https://developer.jabra.com/site/global/support/index.gsp"
   },
   "dependencies": {
-    "@gnaudio/jabra-node-sdk": "2.0.0-beta.2"
+    "@gnaudio/jabra-node-sdk": "file:../nodesdk"
   },
   "devDependencies": {
     "@types/bindings": "1.3.0",
-    "@types/jest": "24.0.12",
-    "@types/node": "11.12.2",
-    "cross-env": "5.2.0",
-    "jest": "24.8.0",
-    "ts-jest": "24.0.2",
+    "@types/jest": "24.0.18",
+    "@types/node": "12.7.11",
+    "cross-env": "6.0.3",
+    "jest": "24.9.0",
+    "ts-jest": "24.1.0",
+    "ts-node": "8.4.1",
     "typescript": "3.6.3"
   }
 }

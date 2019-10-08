@@ -5,11 +5,12 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "npm run build:dev",
-    "build:release": "tsc -p tsconfig.json",
-    "build:dev": "tsc -p tsconfig.json && browserify src/test/renderer/renderer.ts -p tsify --debug -o dist/test/renderer/bundle.js && copyfiles -u 1 src/**/*.html dist",
-    "start": "npm run build:dev && electron ./dist/test/main/main.js",
-    "prepare": "npm run build:release",
+    "build": "npm run compile && npm run browserify && npm run copyresources",
+    "compile": "tsc -p tsconfig.json",
+    "browserify": "browserify src/test/renderer/renderer.ts -p tsify --debug -o dist/test/renderer/bundle.js",
+    "copyresources": "copyfiles -u 1 src/**/*.html dist",
+    "start": "electron ./dist/test/main/main.js",
+    "prepare": "npm run build",
     "clean": "rimraf dist"
   },
   "files": [
@@ -38,11 +39,11 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "@gnaudio/jabra-node-sdk": ">=2.0.0-beta.2",
+    "@gnaudio/jabra-node-sdk": ">=2.0.0-beta.3",
     "electron": ">=2.0.0"
   },
   "devDependencies": {
-    "@gnaudio/jabra-node-sdk": ">=2.0.0-beta.2",
+    "@gnaudio/jabra-node-sdk": "file:../nodesdk",
     "electron": "6.0.10",
     "typescript": "3.6.3",
     "rimraf": "2.6.3",

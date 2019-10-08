@@ -66,9 +66,11 @@ let cachedClassesMeta: ClassEntry[] | null = null;
  * at first use and cached so 2nd use will be faster and there is no performance penality
  * for calling multiple times.
  * 
- * Nb. This function is for internal use. Use getMeta on api classes instead.
+ * Nb. This function is for internal use only. Use getMeta on api classes instead.
+ * 
+ * @hidden
  */
-export function getJabraApiMetaSync() : ClassEntry[] {
+export function _getJabraApiMetaSync() : ClassEntry[] {
     if (!cachedClassesMeta) {
         if (!isNodeJs()) {
             throw new Error("The getJabraApiMetaSync() function needs to run under NodeJs and not in a browser");

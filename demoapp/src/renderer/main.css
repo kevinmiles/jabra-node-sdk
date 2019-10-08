@@ -9,6 +9,10 @@
   max-width: 900px;
 }
 
+.errorMsg {
+  color: red;
+}
+
 header {
   border-bottom: 1px solid #ccc;
   /* color:white; */

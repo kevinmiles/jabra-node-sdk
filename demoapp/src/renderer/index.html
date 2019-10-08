@@ -13,7 +13,7 @@
     <header>
       <div class="wrapper center">
         <h1 class="title">Jabra NodeJS SDK</h1>
-        <p>Demo</p>
+        <p>Jabra call control in Electron demo</p>
       </div>
     </header>
     <section id="section">
@@ -23,12 +23,12 @@
         <div id="subTitles">
             <p id="subTitle1"></p>
             <p id="subTitle2"></p>
-            <b id="noDeviceFound"></b>
+            <b id="errorMsg"></b>
         </div>
         <br/>
         <h4>Basic:</h4>
         <button id="ring" type="button" disabled="true">ringAsync()</button>
-        <button id="unring" type="button" disabled="true">unringAsync()</button>        
+        <button id="unring" type="button" disabled="true">unringAsync()</button>
         <br/>
         <button id="offhook" type="button" disabled="true">offhookAsync()</button>
         <button id="onhook" type="button" disabled="true">onhookAsync()</button>
@@ -43,8 +43,7 @@
         <select id="deviceSelector"> 
         </select>
         <br/>
-      </div>
-    
+      </div>    
     </section>
     <footer>
       <div class="wrapper center">

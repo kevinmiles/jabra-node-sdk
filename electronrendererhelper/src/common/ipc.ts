@@ -6,6 +6,11 @@ import { JabraTypeEvents, DeviceTypeEvents } from '@gnaudio/jabra-node-sdk';
 export const createApiClientInitEventName = "jabraApiClientIntializing";
 
 /**
+ * Send when the client wants to log something to the native Jabra Log.
+ */
+export const jabraLogEventName = "jabraApiClientLog";
+
+/**
  * Event channel name for executing methods against a specific device.
  */
 export function getExecuteDeviceTypeApiMethodEventName(deviceID: number) {

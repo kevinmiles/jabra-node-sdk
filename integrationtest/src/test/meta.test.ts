@@ -1,9 +1,11 @@
 
-import { JabraType, ClassEntry, getJabraApiMetaSync, ConfigParamsCloud, 
+import { JabraType, ClassEntry, _getJabraApiMetaSync, ConfigParamsCloud, 
          createJabraApplication } from '@gnaudio/jabra-node-sdk';
 
 test('metaSync returns values', async () => {
-      let meta = getJabraApiMetaSync();
+      expect(_getJabraApiMetaSync).toBeTruthy();
+      
+      let meta = _getJabraApiMetaSync();
       
       expect(meta).toBeTruthy();
       expect(meta.length>0).toBeTruthy();

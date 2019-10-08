@@ -5,5 +5,6 @@ module.exports = {
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
-    testEnvironment: "node"
+    testEnvironment: "node",
+    resetModules: false
   }

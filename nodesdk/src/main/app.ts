@@ -1,4 +1,5 @@
-import { SdkIntegration, AddonLogSeverity } from "./sdkintegration";
+import { SdkIntegration } from "./sdkintegration";
+import { AddonLogSeverity } from "./core-types";
 import { isNodeJs } from './util';
 
 // Browser friendly type-only import:
@@ -12,7 +13,8 @@ let events: any;
 
 // @ts-ignore
 if (isNodeJs()) {
-    // This statement should be executed under nodejs only to avoid browserfy problems.
+    // These statements should be executed under nodejs only to avoid browserfy problems:
+    
     let bindings = require('bindings');
     sdkIntegration = bindings('sdkintegration');
 
@@ -27,7 +29,7 @@ import { enumAPIReturnCode, enumDeviceErrorStatus, enumDeviceBtnType, enumDevice
          enumFirmwareEventType, enumBTPairedListType, enumUploadEventStatus, audioFileFormat,
          enumDeviceFeature, enumHidState, enumWizardMode, enumLogging } from './jabra-enums';
 
-import { MetaApi, ClassEntry, getJabraApiMetaSync } from './meta';
+import { MetaApi, ClassEntry, _getJabraApiMetaSync } from './meta';
 
 import * as util from 'util';
 
@@ -84,10 +86,11 @@ export class JabraType implements MetaApi {
     /** @internal */
     private readonly firstScanForDevicesDonePromise: Promise<void>;
 
-    /** @internal */
+    /** 
+     * @internal 
+     * @hidden
+     **/
     constructor(appID: string, configCloudParams: ConfigParamsCloud, resolve: (value: JabraType) => void, reject: (reason: Error) => void) {
-        // super();
-
         if (!isNodeJs()) {
             throw new Error("This JabraType constructor() function needs to run under NodeJs and not in a browser");
         }
@@ -253,22 +256,37 @@ export class JabraType implements MetaApi {
         return retPromise;
     }
 
+    /**
+     * Get list of currently attached Jabra devices.
+     */
     getAttachedDevices(): DeviceType[] {
         return Array.from(this.deviceTypes.values());
     }
-    
+
+    /**
+     * Integrates softphone app to Jabra applications like Jabra Direct(JD) and Jabra Suite for Mac(JMS).
+     */   
     connectToJabraApplicationAsync(guid: string, softphoneName: string): Promise<boolean> {
         return util.promisify(sdkIntegration.ConnectToJabraApplication)(guid, softphoneName);
     }
 
+    /**
+     * Disconnects connected from Jabra applications.
+     */
     disconnectFromJabraApplicationAsync(): Promise<void> {
         return util.promisify(sdkIntegration.DisconnectFromJabraApplication)();
     }
 
+    /**
+     * Sets the softphone to Ready. Currently applicable for only Jabra Direct.
+     */
     setSoftphoneReadyAsync(isReady: boolean): Promise<void> {
         return util.promisify(sdkIntegration.SetSoftphoneReady)(isReady);
     }
 
+    /**
+     * Indicates whether the softphone is in focus.
+     */
     isSoftphoneInFocusAsync(): Promise<boolean> {
         return util.promisify(sdkIntegration.IsSoftphoneInFocus)();
     }
@@ -280,18 +298,26 @@ export class JabraType implements MetaApi {
         return this.firstScanForDevicesDonePromise;
     }    
 
+    /**
+     * Get the SDK version.
+     */
     getSDKVersionAsync(): Promise<string> {
         return util.promisify(sdkIntegration.GetVersion)();
     }
 
+    /**
+     * Get error string from a previously returned SDK error status.
+    */
     getErrorStringAsync(errStatusCode: number): Promise<string> {
         return util.promisify(sdkIntegration.GetErrorString)(errStatusCode);
     }
 
     /** 
-     * Internal function for N-API experimentation only - do not call.
+     * Internal function for N-API experimentation only - it may be removed/changed at 
+     * any time without warning - do not call.
      * 
      * @internal 
+     * @hidden
      **/
     _SyncExperiment(p?: any): any {
         return sdkIntegration.SyncExperiment(p);
@@ -303,17 +329,43 @@ export class JabraType implements MetaApi {
      */
     getMeta() : ClassEntry {
         const jabraClassName = this.constructor.name;
-        const apiMeta = getJabraApiMetaSync();
+        const apiMeta = _getJabraApiMetaSync();
         let jabraTypeMeta = apiMeta.find((c) => c.name === jabraClassName);
         if (!jabraTypeMeta)
             throw new Error("Could not find meta data for " + jabraClassName);
         return jabraTypeMeta;
     }
 
-    on(event: 'attach', listener: JabraTypeCallbacks.attach): this;   
+    /**
+     * Add event handler for attach device events. The attach event is 
+     * particulary important, since this callback is where you get a reference to a DeviceType
+     * object with detailed API for the device.
+     * 
+     * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+     */
+    on(event: 'attach', listener: JabraTypeCallbacks.attach): this; 
+    
+    /**
+     * Add event handler for detach device events.
+     * 
+     * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+     */
     on(event: 'detach', listener: JabraTypeCallbacks.detach): this;
+
+    /**
+     * Add event handler for firstScanDone device events.
+     * 
+     * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+     */
     on(event: 'firstScanDone', listener: JabraTypeCallbacks.firstScanDone): this;
 
+    /**
+     * Add event handler for attach, detach or firstScanDone device events. The attach event is 
+     * particulary important, since this callback is where you get a reference to a DeviceType
+     * object with detailed API for the device.
+     * 
+     * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+     */
     on(event: JabraTypeEvents,
         listener: JabraTypeCallbacks.attach | JabraTypeCallbacks.detach | JabraTypeCallbacks.firstScanDone): this {
 
@@ -322,10 +374,32 @@ export class JabraType implements MetaApi {
         return this;
     }
 
+    /**
+     * Remove previosly setup event handler for attach device events.
+     * 
+     * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+     */
     off(event: 'attach', listener: JabraTypeCallbacks.attach): this;
+
+    /**
+     * Remove previosly setup event handler for detach device events.
+     * 
+     * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+     */
     off(event: 'detach', listener: JabraTypeCallbacks.detach): this;
+
+    /**
+     * Remove previosly setup event handler for firstScanDone device events.
+     * 
+     * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+     */
     off(event: 'firstScanDone', listener: JabraTypeCallbacks.firstScanDone): this;
 
+    /**
+     * Remove previosly setup event handler for attach, detach or firstScanDone device events.
+     * 
+     * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+     */
     off(event: JabraTypeEvents,
         listener: JabraTypeCallbacks.attach | JabraTypeCallbacks.detach | JabraTypeCallbacks.firstScanDone): this {
 

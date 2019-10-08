@@ -4,10 +4,10 @@ type IpcRenderer = import('electron').IpcRenderer;
 
 import { ClassEntry, JabraType, DeviceInfo, 
          enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, PairedListInfo, enumUploadEventStatus,
-         JabraTypeEvents, DeviceTypeEvents, JabraEventsList, DeviceEventsList, DeviceType, MetaApi, MethodEntry } from '@gnaudio/jabra-node-sdk';
+         JabraTypeEvents, DeviceTypeEvents, JabraEventsList, DeviceEventsList, DeviceType, MetaApi, MethodEntry, AddonLogSeverity } from '@gnaudio/jabra-node-sdk';
 import { getExecuteDeviceTypeApiMethodEventName, getDeviceTypeApiCallabackEventName, getJabraTypeApiCallabackEventName, 
          getExecuteJabraTypeApiMethodEventName, getExecuteJabraTypeApiMethodResponseEventName, 
-         getExecuteDeviceTypeApiMethodResponseEventName, createApiClientInitEventName } from '../common/ipc';
+         getExecuteDeviceTypeApiMethodResponseEventName, createApiClientInitEventName, jabraLogEventName } from '../common/ipc';
 import { nameof, isBrowser } from '../common/util';
 
 /**
@@ -18,28 +18,44 @@ export function createApiClient(ipcRenderer: IpcRenderer) : Promise<JabraType> {
         return Promise.reject(new Error("This createApiClient() function needs to run in a browser process"));
     }
 
+    if (!ipcRenderer) {  
+        return Promise.reject(new Error("ipcRenderer argument missing to createApiClient() factory method"));
+    }
+
     return new Promise<JabraType>((resolve, reject) => {
         try {
-            let apiMeta = ipcRenderer.sendSync(createApiClientInitEventName);
+            JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.info, "createApiClient", "Looking up Jabra API meta data");
+            let apiMeta: ReadonlyArray<ClassEntry> | Error = ipcRenderer.sendSync(createApiClientInitEventName);
 
             if (apiMeta && Array.isArray(apiMeta)) {
                 const jabraClassName = JabraType.name;
                 let jabraTypeMeta = apiMeta.find((c) => c.name === jabraClassName);
-                if (!jabraTypeMeta)
-                    throw new Error("Could not find meta data for " + jabraClassName);
+                if (!jabraTypeMeta) {
+                    let error = new Error("Could not find meta data for " + jabraClassName);
+                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", error);
+                    return Promise.reject(error);
+                }
         
                 const deviceClassName = DeviceType.name;
                 let deviceTypeMeta = apiMeta.find((c) => c.name === deviceClassName);
-                if (!deviceTypeMeta)
-                    throw new Error("Could not find meta data for " + deviceClassName);
+                if (!deviceTypeMeta) {
+                    let error = new Error("Could not find meta data for " + deviceClassName);
+                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", error);
+                    return Promise.reject(error);
+                }
 
                 let result = doCreateRemoteJabraType(jabraTypeMeta, deviceTypeMeta, ipcRenderer);
+                
+                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.info, "createApiClient", "Client side JabraType proxy succesfully created");
                 return resolve(result);
             } else {
-                return reject(new Error("Unexpected error - no meta information available."));
+                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", apiMeta as Error);
+                return reject(apiMeta);
             }
         } catch (err) {
-            return reject(new Error("No meta information available. Got error " + err));
+            let combinedError = new Error("Internal error during meta retrivial / construction of remote proxy. Got error " + err);
+            JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", combinedError);
+            return reject(combinedError);
         }
     });
 }
@@ -110,7 +126,7 @@ function doCreateProxy<T extends (MetaApi & JabraEventManagementApi)>(meta: Clas
             } else if (meta.properties.find(p => p.name === propName)) {
                 // Properties (if any) are stored on local object (all readonly).
                 return Reflect.get(target, propKey);
-            } else if ((methodEntry = meta.methods.find(m => m.name === propName)) || propName=="_shutdown") {
+            } else if ((methodEntry = meta.methods.find(m => m.name === propName)) || propName.startsWith("_")) {
                 return (...args : any[]) => {
                     return methodExecutor(propKey.toString(), methodEntry!, ...args);
                 };
@@ -274,7 +290,10 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
             } else {
                 // For now, we only need to support async remote method (returning promises). If needed in the future, 
                 // such methods could be easily supported by calling ipcRenderer.sendSync instead and handle that on the server.
-                throw new Error("This remote client currently only support async remote methods that return promises unlike '" + methodName + "'.");
+                let error = new Error("This remote client currently only support async remote methods that return promises unlike '" + methodName + "'."); 
+                console.warn(error);
+                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "doCreateRemoteJabraType.executeApiMethod", error);
+                throw error;
             }
         }
     }
@@ -289,6 +308,8 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
             
             if (methodName !== promiseCallbacks.methodName) {
                 let internalError = new Error("Internal error - Expected method name " + methodName + " does match actual method name " + promiseCallbacks.methodName + " for executionId " + executionId);
+                console.warn(internalError.message);
+                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.warning, "doCreateRemoteJabraType", internalError);
                 promiseCallbacks.reject(internalError);
             } else if (err) {
                 promiseCallbacks.reject(err);
@@ -301,7 +322,8 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
             };
         } else {
             let internalError = new Error("Internal error - Could not find callback for method name " + methodName + " with executionId " + executionId);
-            console.error(internalError.message);
+            console.warn(internalError.message);
+            JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.warning, "doCreateRemoteJabraType", internalError);
         }
     });
 
@@ -319,7 +341,9 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
             device._shutdown();
         } else {
             // If we can't find the device it must be because it was attached in a previous session.
-            console.warn("Failure to find device with id " + deviceInfo.deviceID + " in mapping.");
+            let error = new Error("Failure to find device with id " + deviceInfo.deviceID + " in mapping.");
+            console.warn(error);
+            JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.warning, "doCreateRemoteJabraType", error);
         }
     });
 
@@ -340,6 +364,7 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
     }
 
     const proxyHandler = doCreateProxy<JabraType>(jabraTypeMeta, executeApiMethod, executeOn, executeOff);
+
     return new Proxy<JabraType>({} as JabraType, proxyHandler);
 }
 
@@ -379,7 +404,9 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo, deviceTypeMeta: ClassEnt
             } else {
                 // For now, we only need to support async remote method (returning promises). If needed in the future, 
                 // such methods could be easily supported by calling ipcRenderer.sendSync instead and handle that on the server.
-                throw new Error("This remote client currently only support async remote methods that return promises unlike '" + methodName + "'.");
+                let error = new Error("This remote client currently only support async remote methods that return promises unlike '" + methodName + "'.");
+                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createRemoteDeviceType", error);
+                throw error;
             }
         }
     }
@@ -395,6 +422,7 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo, deviceTypeMeta: ClassEnt
             if (methodName !== promiseCallbacks.methodName) {
                 let internalError = new Error("Internal error - Expected method name " + methodName + " does match actual method name " + promiseCallbacks.methodName + " for executionId " + executionId + " and device with Id " + deviceInfo.deviceID);
                 console.error(internalError.message);
+                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createRemoteDeviceType", internalError);
                 promiseCallbacks.reject(internalError);
             } else if (err) {
                 promiseCallbacks.reject(err);
@@ -403,7 +431,8 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo, deviceTypeMeta: ClassEnt
             }
         } else {
             let internalError = new Error("Internal error - Could not find callback for method name " + methodName + " with executionId " + executionId + " and device with Id " + deviceInfo.deviceID);
-            console.error(internalError.message);
+            console.warn(internalError.message);
+            JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.warning, "createRemoteDeviceType", internalError)
         }
     });
         
@@ -457,3 +486,16 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo, deviceTypeMeta: ClassEnt
     const proxyHandler = doCreateProxy(deviceTypeMeta, executeApiMethod, executeOn, executeOff);
     return new Proxy<DeviceType & DeviceTypeExtras>(deviceInfo as (DeviceType & DeviceTypeExtras), proxyHandler);
 }
+
+/**
+ * Internal helper for sending log info to Jabra native log - used to integrate logs for diagnosing errors.
+ */
+function JabraNativeAddonLog(ipcRenderer: IpcRenderer, severity: AddonLogSeverity, caller: string, msg: string | Error)
+{
+    try {
+      ipcRenderer.send(jabraLogEventName, severity, caller, msg);
+    } catch (e) { // Swallow exceptions to make this call safe to call anywhere.
+        console.error(e);
+    }
+}
+

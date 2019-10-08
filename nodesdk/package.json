@@ -1,6 +1,6 @@
 {
   "name": "@gnaudio/jabra-node-sdk",
-  "version": "2.0.0-beta.2",
+  "version": "2.0.0-beta.3",
   "description": "NodeJS SDK for Jabra Devices",
   "main": "dist/main/index.js",
   "types": "dist/main/index.d.ts",
@@ -21,8 +21,8 @@
   ],
   "scripts": {
     "build": "npm run build:dev",
-    "build:dev": "node-gyp rebuild --debug && npm run tsc",
-    "build:release": "node-gyp rebuild && npm run tsc",
+    "build:dev": "node-gyp rebuild --debug && npm run tsc && npm run generatemeta",
+    "build:release": "node-gyp rebuild && npm run tsc && npm run generatemeta",
     "tsc": "tsc",
     "prepare": "npm run tsc && npm run doc && node dist/script/generatemeta.js",
     "generatemeta": "ts-node src/script/generatemeta.ts",

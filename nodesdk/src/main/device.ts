@@ -1,4 +1,5 @@
-import { SdkIntegration, AddonLogSeverity } from "./sdkintegration";
+import { SdkIntegration } from "./sdkintegration";
+import { AddonLogSeverity } from "./core-types";
 import { isNodeJs } from './util';
 
 // Browser friendly type-only import:
@@ -12,7 +13,8 @@ let events: any;
 
 // @ts-ignore
 if (isNodeJs()) { 
-    // This statement should be executed under nodejs only to avoid browserfy problems.
+    // These statements should be executed under nodejs only to avoid browserfy problems:
+    
     let bindings = require('bindings');
     sdkIntegration = bindings('sdkintegration');
 
@@ -28,7 +30,7 @@ import { enumAPIReturnCode, enumDeviceErrorStatus, enumDeviceBtnType, enumDevice
     enumDeviceFeature, enumHidState, enumWizardMode, enumLogging } from './jabra-enums';
 import * as _jabraEnums from './jabra-enums';
 
-import { MetaApi, ClassEntry, getJabraApiMetaSync } from './meta';
+import { MetaApi, ClassEntry, _getJabraApiMetaSync } from './meta';
 
 import * as util from 'util';
 
@@ -51,10 +53,16 @@ export const DeviceEventsList : DeviceTypeEvents[] = ['btnPress', 'busyLightChan
  * Represents a concrete Jabra device and the operations that can be done on it.   
  */
 export class DeviceType implements DeviceInfo, MetaApi {
-    /** @internal */
+    /** 
+    * @internal 
+    * @hidden
+    */
     readonly _eventEmitter: _EventEmitter;
 
-    /** @internal */
+    /** 
+     * @internal 
+     * @hidden
+     **/
     constructor(deviceInfo: DeviceInfo | DeviceType) {
         if (!isNodeJs()) {
             throw new Error("This JabraType constructor() function needs to run under NodeJs and not in a browser");
@@ -743,7 +751,7 @@ export class DeviceType implements DeviceInfo, MetaApi {
      */
     setWizardModeAsync(wizardMode: enumWizardMode) : Promise<void>  {
        return util.promisify(sdkIntegration.SetWizardMode)(this.deviceID,wizardMode);
-        }
+    }
 
     /**
     * @brief Reads the current wizard mode (whether a full setup wizard, a limited
@@ -754,9 +762,7 @@ export class DeviceType implements DeviceInfo, MetaApi {
     * @return Return_Ok if the current wizard mode was retrieved successfully.
     * @return Not_Supported if the functionality is not supported.
     * @return Device_Unknown id the device is not known.
-    */
-
-  
+    */ 
     getWizardModeAsync() : Promise<enumWizardMode>  {
 
        return util.promisify(sdkIntegration.GetWizardMode)(this.deviceID);
@@ -872,22 +878,74 @@ export class DeviceType implements DeviceInfo, MetaApi {
    */
    getMeta() : ClassEntry {
       const deviceClassName = this.constructor.name;
-      const apiMeta = getJabraApiMetaSync();
+      const apiMeta = _getJabraApiMetaSync();
       let deviceTypeMeta = apiMeta.find((c) => c.name === deviceClassName);
       if (!deviceTypeMeta)
          throw new Error("Could not find meta data for " + deviceClassName);
       return deviceTypeMeta;
    }
 
+   /**
+   * Add event handler for btnPress device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    on(event: 'btnPress', listener: DeviceTypeCallbacks.btnPress): this;
+
+   /**
+   * Add event handler for busyLightChange device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */   
    on(event: 'busyLightChange', listener: DeviceTypeCallbacks.busyLightChange): this;
+      
+   /**
+   * Add event handler for downloadFirmwareProgress device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    on(event: 'downloadFirmwareProgress', listener: DeviceTypeCallbacks.downloadFirmwareProgress): this;
+      
+   /**
+   * Add event handler for onBTParingListChange device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    on(event: 'onBTParingListChange', listener: DeviceTypeCallbacks.onBTParingListChange): this;
+      
+   /**
+   * Add event handler for onGNPBtnEvent device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    on(event: 'onGNPBtnEvent', listener: DeviceTypeCallbacks.onGNPBtnEvent): this;
+      
+   /**
+   * Add event handler for onDevLogEvent device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    on(event: 'onDevLogEvent', listener: DeviceTypeCallbacks.onDevLogEvent): this;
+         
+   /**
+   * Add event handler for onBatteryStatusUpdate device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    on(event: 'onBatteryStatusUpdate', listener: DeviceTypeCallbacks.onBatteryStatusUpdate): this;
+      
+   /**
+   * Add event handler for onUploadProgress device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    on(event: 'onUploadProgress', listener: DeviceTypeCallbacks.onUploadProgress): this;
 
+    /**
+     * Add event handler for one of the different device events.
+     * 
+     * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+     */
    on(event: DeviceTypeEvents,
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
                 DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onUploadProgress): this {
@@ -897,15 +955,67 @@ export class DeviceType implements DeviceInfo, MetaApi {
       return this;
    }
 
+   /**
+   * Remove event handler for previosly setup btnPress device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    off(event: 'btnPress', listener: DeviceTypeCallbacks.btnPress): this;
+   
+   /**
+   * Remove event handler for previosly setup busyLightChange device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    off(event: 'busyLightChange', listener: DeviceTypeCallbacks.busyLightChange): this;
+   
+   /**
+   * Remove event handler for previosly setup downloadFirmwareProgress device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    off(event: 'downloadFirmwareProgress', listener: DeviceTypeCallbacks.downloadFirmwareProgress): this;
+   
+   /**
+   * Remove event handler for previosly setup onBTParingListChange device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    off(event: 'onBTParingListChange', listener: DeviceTypeCallbacks.onBTParingListChange): this;
+   
+   /**
+   * Remove event handler for previosly setup onGNPBtnEvent device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    off(event: 'onGNPBtnEvent', listener: DeviceTypeCallbacks.onGNPBtnEvent): this;
+   
+   /**
+   * Remove event handler for previosly setup onDevLogEvent device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    off(event: 'onDevLogEvent', listener: DeviceTypeCallbacks.onDevLogEvent): this;
+   
+   /**
+   * Remove event handler for previosly setup onBatteryStatusUpdate device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    off(event: 'onBatteryStatusUpdate', listener: DeviceTypeCallbacks.onBatteryStatusUpdate): this;
+   
+   /**
+   * Remove event handler for previosly setup onUploadProgress device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
    off(event: 'onUploadProgress', listener: DeviceTypeCallbacks.onUploadProgress): this;
 
+    /**
+     * Remove previosly setup event handler for device events.
+     * 
+     * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+     */
    off(event: DeviceTypeEvents,
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
                 DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onUploadProgress): this {

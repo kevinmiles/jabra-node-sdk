@@ -6,13 +6,13 @@ type IpcMain = import('electron').IpcMain;
 
 import { isNodeJs, nameof } from '../common/util';
 
-import { getJabraApiMetaSync, createJabraApplication, JabraType, ConfigParamsCloud,
-         DeviceEventsList, ClassEntry, DeviceType } from '@gnaudio/jabra-node-sdk';
+import { _getJabraApiMetaSync, createJabraApplication, JabraType, ConfigParamsCloud,
+         DeviceEventsList, ClassEntry, DeviceType, _JabraNativeAddonLog, AddonLogSeverity } from '@gnaudio/jabra-node-sdk';
 import { getExecuteDeviceTypeApiMethodEventName, getDeviceTypeApiCallabackEventName, 
          getJabraTypeApiCallabackEventName, getExecuteJabraTypeApiMethodEventName, 
          getExecuteJabraTypeApiMethodResponseEventName, 
          getExecuteDeviceTypeApiMethodResponseEventName,
-         createApiClientInitEventName } from '../common/ipc';
+         createApiClientInitEventName, jabraLogEventName } from '../common/ipc';
 
 /**
  * This factory create the server side Jabra API server that serves events and forwards commands for the
@@ -25,23 +25,58 @@ import { getExecuteDeviceTypeApiMethodEventName, getDeviceTypeApiCallabackEventN
 export class JabraApiServerFactory
 {
     private readonly ipcMain: IpcMain;
-    private readonly jabraApiMeta: ClassEntry[];
+    private jabraApiMeta: ClassEntry[];
+    private startupError: Error | undefined;
 
     /**
      * Construct an JabraApiServer factory using a ready ipcMain instance. This constructor should
      * be called BEFORE any GUI is created.
+     * 
+     * This constructor only throws an error if called from a browser. Other server-side errors in the
+     * constructor are catched and result subsequently in a rejected create() promise. This happens
+     * to ensure the election main process is not terminated before an error can be shown.
      */
     public constructor(ipcMain: IpcMain) {
         if (!isNodeJs()) {
-            throw new Error("This JabraApiServerFactory class needs to run under NodeJs and not in a browser");
+            let error = new Error("This JabraApiServerFactory class needs to run under NodeJs and not in a browser");
+            console.error(error); // Nb. In this case we can't log the error _JabraNativeAddonLog !
+            throw error;
         }
 
+        this.startupError = undefined;
         this.ipcMain = ipcMain;
-        this.jabraApiMeta = getJabraApiMetaSync();
+        this.jabraApiMeta = [];
 
-        this.ipcMain.on(createApiClientInitEventName, (syncEvent) => {
-            syncEvent.returnValue = this.jabraApiMeta;
-        });
+        try {
+            this.ipcMain = ipcMain;
+            this.jabraApiMeta = _getJabraApiMetaSync();
+        } catch (e) {
+            this.startupError = e;
+            _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServerFactory.constructor", e);
+        }
+
+        
+        if (ipcMain) {                    
+            try {
+                this.ipcMain.on(createApiClientInitEventName, (syncEvent) => {
+                    _JabraNativeAddonLog(AddonLogSeverity.info, "JabraApiServerFactory.constructor", "Jabra meta data requested by createApiClient");
+                    syncEvent.returnValue =  this.startupError || this.jabraApiMeta;
+                });
+
+                this.ipcMain.on(jabraLogEventName, (event, severity: AddonLogSeverity, caller: string, msg: string | Error) => {
+                    _JabraNativeAddonLog(severity, caller, msg);
+                });
+            } catch (e) {
+                this.startupError = e;
+                _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServerFactory.constructor", e);
+            }
+        } else {
+            this.startupError = new Error("ipcMain argument missing to JabraApiServerFactory constructor");
+        }
+
+        if (!this.startupError) {
+            _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServerFactory.constructor", "JabraApiServerFactory sucessfully initialized");
+        }
     }
 
     /**
@@ -52,7 +87,11 @@ export class JabraApiServerFactory
      * 
      */
     public create(appID: string, configCloudParams: ConfigParamsCloud, fullyLoadedWindow: BrowserWindow) : Promise<JabraApiServer> {
-        return JabraApiServer.create(appID, configCloudParams, this.ipcMain, this.jabraApiMeta, fullyLoadedWindow);
+        if (!this.startupError) {
+            return JabraApiServer.create(appID, configCloudParams, this.ipcMain, this.jabraApiMeta, fullyLoadedWindow);
+        } else {
+            return Promise.reject(this.startupError);
+        }
     }
 }
 
@@ -80,6 +119,7 @@ export class JabraApiServer
     public static create(appID: string, configCloudParams: ConfigParamsCloud, ipcMain: IpcMain, jabraApiMeta: ClassEntry[], window: BrowserWindow) : Promise<JabraApiServer> {
         return createJabraApplication(appID, configCloudParams).then( (jabraApi) => {
             const server = new JabraApiServer(jabraApi, ipcMain, jabraApiMeta, window);
+            _JabraNativeAddonLog(AddonLogSeverity.info, "JabraApiServer.create", "JabraApiServer server ready");
             return server;
         });
     }
@@ -151,6 +191,7 @@ export class JabraApiServer
                     this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, undefined, result);
                 }
             } catch (err) {
+                _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServer.setupElectonEvents", err);
                 this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, err, undefined);
             }
         });
@@ -170,6 +211,7 @@ export class JabraApiServer
                     this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, undefined, result);
                 }
             } catch (err) {
+                _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServer.subscribeDeviceTypeEvents", err);
                 this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, err, undefined);
             }
         });
@@ -209,6 +251,7 @@ export class JabraApiServer
     */
     public shutdown() : Promise<void> {
         this.ipcMain.removeAllListeners(getExecuteJabraTypeApiMethodEventName());
+        this.ipcMain.removeAllListeners(jabraLogEventName);
 
         if (this.jabraApi) {
             const api = this.jabraApi;
@@ -219,7 +262,7 @@ export class JabraApiServer
             });
 
             return api.disposeAsync().then(() => {
-              // console.log("API Now shutdown");
+                _JabraNativeAddonLog(AddonLogSeverity.info, "JabraApiServer.shutdown()", "Server shutdown");
             });
         } else {
             return Promise.resolve();

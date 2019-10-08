@@ -7,18 +7,6 @@
 import { ConfigParamsCloud, enumHidState, DeviceSettings, DeviceInfo, PairedListInfo, NamedAsset } from './core-types';
 import { enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, enumUploadEventStatus, enumBTPairedListType } from './jabra-enums';
 
-/** @internal */
-export declare const enum AddonLogSeverity
-{
-        none = 0,
-        fatal = 1,
-        error = 2,
-        warning = 3,
-        info = 4,
-        debug = 5,
-        verbose = 6
-};
-
 /** 
  * Declares all natively implemented n-api functions that call into the Jabra C SDK.
  * 
@@ -72,7 +60,6 @@ export declare interface SdkIntegration {
      * 
     */
     NativeAddonLog(severity: AddonLogSeverity, caller: string, msg: string | Error): void;
-
 
     /**
      * Template for calling experimental N-API code synchronously. For development use only for
