@@ -353,7 +353,7 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
         if (methodName == nameof<JabraType>("getAttachedDevices")) {
             // Return our own list of proxies devices for this method !!
             return Array.from(devices.values());
-        } else {
+        } else if (methodMeta) {
             const thisMethodId = methodExecutionId++;
             let combinedEventArgs = [ methodName, thisMethodId, ...args];
             ipcRenderer.send(getExecuteJabraTypeApiMethodEventName(), ...combinedEventArgs);
@@ -370,6 +370,8 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
                 JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "doCreateRemoteJabraType.executeApiMethod", error);
                 throw error;
             }
+        } else {
+          JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "doCreateRemoteJabraType.executeApiMethod", "Do not know how to execute " + methodName);
         }
     }
 
@@ -484,11 +486,11 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo & DeviceTiming, deviceTyp
         if (methodName == nameof<DeviceTypeExtras>("_shutdown")) {
             // Special local handling for when we are finshed with the device.
             shutdown();
-        } if (methodName == nameof<DeviceTypeExtras>("_update_detached_time_ms"))  {
+        } else if (methodName == nameof<DeviceTypeExtras>("_update_detached_time_ms"))  {
             const time_ms = args[0];
             // Assign to detached_time_ms even though it is formally a readonly because we don't want clients to change it.
             (deviceInfo.detached_time_ms as DeviceType['detached_time_ms']) = time_ms;
-        } else {
+        } else if (methodMeta) {
             const thisMethodExecutionId = methodExecutionId++;
             let combinedEventArgs = [ methodName, thisMethodExecutionId, ...args];
             if (methodMeta.jsType===Promise.name) {
@@ -500,9 +502,11 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo & DeviceTiming, deviceTyp
                 // For now, we only need to support async remote method (returning promises). If needed in the future, 
                 // such methods could be easily supported by calling ipcRenderer.sendSync instead and handle that on the server.
                 let error = new Error("This remote client currently only support async remote methods that return promises unlike '" + methodName + "'.");
-                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createRemoteDeviceType", error);
+                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createRemoteDeviceType.executeApiMethod", error);
                 throw error;
             }
+        } else {
+            JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createRemoteDeviceType.executeApiMethod", "Do not know how to execute " + methodName);
         }
     }
 
