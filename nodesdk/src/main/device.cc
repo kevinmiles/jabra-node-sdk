@@ -643,7 +643,7 @@ static void Custom_FreeButtonEvent(ButtonEvent* buttonEvent) {
 
       ButtonEventType *btnEventTypes = btnEventInfo.buttonEventType;
       if (btnEventTypes != nullptr) {
-        for (int j = 0; i < btnEventInfo.buttonEventTypeSize; j++) {
+        for (int j = 0; j < btnEventInfo.buttonEventTypeSize; j++) {
             ButtonEventType& btnEventType =  btnEventTypes[j];
             if (btnEventType.value != nullptr) {
               delete[] btnEventType.value;
