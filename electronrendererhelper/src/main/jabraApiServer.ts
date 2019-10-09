@@ -4,10 +4,11 @@
 type BrowserWindow = import('electron').BrowserWindow;
 type IpcMain = import('electron').IpcMain;
 
-import { isNodeJs, nameof } from '../common/util';
+import { isNodeJs, nameof, serializeError } from '../common/util';
 
 import { _getJabraApiMetaSync, createJabraApplication, JabraType, ConfigParamsCloud,
-         DeviceEventsList, ClassEntry, DeviceType, _JabraNativeAddonLog, AddonLogSeverity } from '@gnaudio/jabra-node-sdk';
+         DeviceEventsList, ClassEntry, DeviceType, 
+         _JabraNativeAddonLog, NativeAddonLogConfig, AddonLogSeverity, _JabraGetNativeAddonLogConfig } from '@gnaudio/jabra-node-sdk';
 import { getExecuteDeviceTypeApiMethodEventName, getDeviceTypeApiCallabackEventName, 
          getJabraTypeApiCallabackEventName, getExecuteJabraTypeApiMethodEventName, 
          getExecuteJabraTypeApiMethodResponseEventName, 
@@ -26,6 +27,7 @@ export class JabraApiServerFactory
 {
     private readonly ipcMain: IpcMain;
     private jabraApiMeta: ClassEntry[];
+    private jabraNativeAddonLogConfig: NativeAddonLogConfig | undefined;
     private startupError: Error | undefined;
 
     /**
@@ -46,24 +48,33 @@ export class JabraApiServerFactory
         this.startupError = undefined;
         this.ipcMain = ipcMain;
         this.jabraApiMeta = [];
+        this.jabraNativeAddonLogConfig = undefined;
 
         try {
             this.ipcMain = ipcMain;
             this.jabraApiMeta = _getJabraApiMetaSync();
+            this.jabraNativeAddonLogConfig = _JabraGetNativeAddonLogConfig();
+            if (!this.jabraNativeAddonLogConfig)
+              throw new Error("Could not lookup Jabra log configuration");
         } catch (e) {
             this.startupError = e;
-            _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServerFactory.constructor", e);
+            _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServerFactory.constructor", JSON.stringify(e, null, 3));
         }
 
         
         if (ipcMain) {                    
             try {
+                // Serve configuration data to client api (or error if failed to init):
                 this.ipcMain.on(createApiClientInitEventName, (syncEvent) => {
                     _JabraNativeAddonLog(AddonLogSeverity.info, "JabraApiServerFactory.constructor", "Jabra meta data requested by createApiClient");
-                    syncEvent.returnValue =  this.startupError || this.jabraApiMeta;
+                    syncEvent.returnValue = serializeError(this.startupError) || {
+                        logConfig: this.jabraNativeAddonLogConfig,
+                        apiMeta: this.jabraApiMeta
+                    };
                 });
 
-                this.ipcMain.on(jabraLogEventName, (event, severity: AddonLogSeverity, caller: string, msg: string | Error) => {
+                // Log any string (!) messages received:
+                this.ipcMain.on(jabraLogEventName, (event, severity: AddonLogSeverity, caller: string, msg: string) => {
                     _JabraNativeAddonLog(severity, caller, msg);
                 });
             } catch (e) {
@@ -75,7 +86,7 @@ export class JabraApiServerFactory
         }
 
         if (!this.startupError) {
-            _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServerFactory.constructor", "JabraApiServerFactory sucessfully initialized");
+            _JabraNativeAddonLog(AddonLogSeverity.info, "JabraApiServerFactory.constructor", "JabraApiServerFactory sucessfully initialized");
         }
     }
 
@@ -185,14 +196,14 @@ export class JabraApiServer
                     result.then( (v) => {
                         this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, undefined, v);
                     }).catch( (err) => {
-                        this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, err, undefined);
+                        this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, serializeError(err), undefined);
                     });
                 } else {
                     this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, undefined, result);
                 }
             } catch (err) {
                 _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServer.setupElectonEvents", err);
-                this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, err, undefined);
+                this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, serializeError(err), undefined);
             }
         });
     }
@@ -205,14 +216,14 @@ export class JabraApiServer
                     result.then( (v) => {
                         this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, undefined, v);
                     }).catch( (err) => {
-                        this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, err, undefined);
+                        this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, serializeError(err), undefined);
                     });
                 } else {
                     this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, undefined, result);
                 }
             } catch (err) {
                 _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServer.subscribeDeviceTypeEvents", err);
-                this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, err, undefined);
+                this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, serializeError(err), undefined);
             }
         });
     
@@ -269,5 +280,6 @@ export class JabraApiServer
         }
     }
 }
+
 
 

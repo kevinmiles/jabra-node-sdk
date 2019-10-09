@@ -14,6 +14,18 @@ createApiClient(window.electron.ipcRenderer).then((client) => {
         console.log("device name is " + device.deviceName);
         console.log("ESN is " + device.ESN);
 
+        device.getButtonFocusAsync([
+            {
+                buttonTypeKey: 27,
+                buttonTypeValue: "hej",
+                buttonEventType: [ { key: 42, value: "bla" }]
+            }
+         ]).then((result) => {
+            console.log("getButtonFocusAsync returned " + JSON.stringify(result, null, 2));
+        }).catch(err => {
+            console.log("getButtonFocusAsync failed with error " + err);
+        });
+
         device.getSerialNumberAsync().then((sn) => {
             console.log("Serial number is " + sn);
         });

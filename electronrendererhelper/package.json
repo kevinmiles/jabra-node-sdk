@@ -9,7 +9,7 @@
     "compile": "tsc -p tsconfig.json",
     "browserify": "browserify src/test/renderer/renderer.ts -p tsify --debug -o dist/test/renderer/bundle.js",
     "copyresources": "copyfiles -u 1 src/**/*.html dist",
-    "start": "electron ./dist/test/main/main.js",
+    "start": "cross-env LIBJABRA_TRACE_LEVEL=trace electron ./dist/test/main/main.js",
     "prepare": "npm run build",
     "clean": "rimraf dist"
   },
@@ -47,6 +47,7 @@
     "electron": "6.0.10",
     "typescript": "3.6.3",
     "rimraf": "2.6.3",
+    "cross-env": "6.0.3",
     "copyfiles": "2.1.1",
     "browserify": "16.5.0",
     "tsify": "4.0.1"
