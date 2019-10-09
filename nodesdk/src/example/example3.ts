@@ -1,4 +1,4 @@
-import { createJabraApplication } from '../main/index';
+import { createJabraApplication, JabraError } from '../main/index';
 
 (async () => {
     let jabra = await createJabraApplication('A7tSsfD42VenLagL2mM6i2f0VafP/842cbuPCnC+uE8=');

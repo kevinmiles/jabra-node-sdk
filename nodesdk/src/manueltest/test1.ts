@@ -5,7 +5,7 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-import { createJabraApplication, DeviceType, JabraType, jabraEnums, enumHidState, enumWizardMode } from '../main/index';
+import { createJabraApplication, DeviceType, JabraType, jabraEnums, enumHidState, enumWizardMode, JabraError } from '../main/index';
 
 let reserved1 = {
     proxy: "this.httpProxyService.getProxy()",
@@ -54,7 +54,7 @@ let reserved1 = {
                 }
              ]).then((result) => {
                 console.log("getButtonFocusAsync returned " + JSON.stringify(result, null, 2));
-            }).catch(err => {
+            }).catch((err: JabraError) => {
                 console.log("getButtonFocusAsync failed with error " + err);
             });
 

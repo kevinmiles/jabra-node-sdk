@@ -5,6 +5,16 @@
 
 import { enumDeviceConnectionType, enumSettingCtrlType, enumSettingDataType, enumAPIReturnCode, enumBTPairedListType } from './jabra-enums';
 
+/**
+ * The type of error returned from rejected Jabra API promises.
+ */
+export declare type JabraError = Error & {
+    /**
+     * Jabra return code from native sdk.
+     */
+    code?: number 
+};
+
 /** 
  * Logging level for logging to the native log.
  * 
