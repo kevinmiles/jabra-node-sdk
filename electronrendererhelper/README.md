@@ -4,7 +4,7 @@ This optional package allows a secure render process in ElectronJs (https://elec
 
 Note that this package is optional and only potentially useful in a sandboxed electron setup, where the render process does not have access rights to call into the node modules such as the Jabra Node.js API npm module. Even in this case this package is optional, as electron applications can perfectly decide to manage any such messaging themselves.
 
-**Warning: ALL software released here is in BETA. All software can be considered unstable, possibly untested and might be updated at any time. Use at your own risk. If you want to use something stable, please await completion of our development and Q/A process OR consider using our previous ["jabra"](https://www.npmjs.com/package/jabra) package (util it will be deprecated at a later stage).**
+**Warning: ALL software released here is in BETA. All software can be considered unstable, possibly untested and might be updated at any time. Use at your own risk. If you want to use something stable, please await completion of our development and Q/A process OR consider using our previous ["jabra"](https://www.npmjs.com/package/jabra) package (until it will be deprecated at a later stage).**
 
 
 # Usage tips
@@ -15,7 +15,7 @@ Note that this package is optional and only potentially useful in a sandboxed el
 
     ```npm
     npm install @gnaudio/jabra-node-sdk
-    npm install"@gnaudio/jabra-electron-renderer-helper
+    npm install @gnaudio/jabra-electron-renderer-helper
     ```
 
 3. Configure your existing MAIN process script
@@ -23,7 +23,7 @@ Note that this package is optional and only potentially useful in a sandboxed el
     Add a top level imports and global:
 
     ```typescript
-    import { app, BrowserWindow, ipcMain } from "electron";
+    import { app, BrowserWindow, ipcMain } from 'electron';
     import { ConfigParamsCloud } from '@gnaudio/jabra-node-sdk';
     import { JabraApiServerFactory, JabraApiServer } from '@gnaudio/jabra-electron-renderer-helper';
 

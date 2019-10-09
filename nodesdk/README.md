@@ -13,10 +13,10 @@ Jabra Node.js SDK - BETA RELEASE
 - [License](https://github.com/gnaudio/jabra-node-sdk/blob/master/LICENSE.md)
 - [FAQ](https://github.com/gnaudio/jabra-node-sdk/blob/master/FAQ.md)
 
-**Warning: ALL software released here is in BETA. All software can be considered unstable, possibly untested and might be updated at any time. In addition, this documentation is not fully updated. Use at your own risk. If you want to use something stable, please await completion of our development and Q/A process OR consider using our previous ["jabra" npm](https://www.npmjs.com/package/jabra) package (util it will be deprecated at a later stage).**
+**Warning: ALL software released here is in BETA. All software can be considered unstable, possibly untested and might be updated at any time. In addition, this documentation is not fully updated. Use at your own risk. If you want to use something stable, please await completion of our development and Q/A process OR consider using our previous ["jabra" npm](https://www.npmjs.com/package/jabra) package (until it will be deprecated at a later stage).**
 
 ## Pre-requisite
-1. Node.js v8.x or later && `node-gyp`.
+1. Node.js v8.x or later & `node-gyp`.
 2. **On MacOS:** `xcode` & `python 2.7`. By default, Python is installed on macOS but make sure correct version(2.7.x) is installed. Install Xcode from App store or download it from [here](https://developer.apple.com/xcode/download/).
 3. **On Windows:** `Visual C++ Build Tools` & `Python 2.7`. You can install all of these using command `npm install --global --production --add-python-to-path windows-build-tools`. To know more about this tool, see [this link.](https://github.com/felixrieseberg/windows-build-tools)
 4. **On Linux:** `build-essential` package for C++ compilation &  & `Python 2.7`.
@@ -54,7 +54,7 @@ For all examples, user should first register the app on [Jabra developer site](h
 
 ```javascript
 const j = require("@gnaudio/jabra-node-sdk");
-j.createJabraApplication('123').then((jabra) => { //123 is appID here
+j.createJabraApplication('123').then((jabra) => { // 123 is appID here
     jabra.on('attach', (device) => {
         console.log('Press any key on Jabra device ' + device.deviceName);
         
@@ -70,13 +70,13 @@ j.createJabraApplication('123').then((jabra) => { //123 is appID here
 ### Simple button events example using typescript and plain promises
 
 ```typescript
-import { createJabraApplication, enumDeviceBtnType } from '../main/index';
-createJabraApplication('123').then((jabra) => { //123 is appID here
+import { createJabraApplication, enumDeviceBtnType, enumHidState } from '@gnaudio/jabra-node-sdk';
+createJabraApplication('123').then((jabra) => { // 123 is appID here
     jabra.on('attach', (device) => {
         console.log('Press any key on Jabra device ' + device.deviceName);
 
         // If you are creating a softphone, consider using GN protocol when device supports it
-        // in order to receive all events. E.g. device.setHidWorkingStateAsync(j.enumHidState.GN_HID);
+        // in order to receive all events. E.g. device.setHidWorkingStateAsync(enumHidState.GN_HID);
         device.on('btnPress', (btnType, btnValue) => {
           console.log('New input from device is received: ', enumDeviceBtnType[btnType], btnValue);
         });
@@ -90,22 +90,22 @@ This example shows how to ring a Jabra device
 ```typescript
 import { createJabraApplication, JabraError } from '@gnaudio/jabra-node-sdk';
 
-createJabraApplication('123').then((jabra) => { //123 is appID here
+createJabraApplication('123').then((jabra) => { // 123 is appID here
     jabra.on('attach', (device) => {
         device.isRingerSupportedAsync().then( (supported) => {
             if (supported) {
-              device.offhookAsync().then ( () => {
-                console.log("ringing");
+              device.ringAsync().then ( () => {
+                console.log('ringing');
               }).catch ((err: JabraError) => {
-                console.log("ring failed with error " + err);
-              }); //ring the device
+                console.log('ring failed with error ' + err);
+              }); // ring the device
               setTimeout(() => {
                 device.unringAsync().then(() => {
-                    console.log("stopped ringing");
+                    console.log('stopped ringing');
                 }).catch ((err: JabraError) => {
-                    console.log("unring failed with error " + err);
+                    console.log('unring failed with error ' + err);
                 });
-              }, 5000); //stop ringing the device after 5 second
+              }, 5000); // stop ringing the device after 5 second
             }          
         }).catch( (err: JabraError) => {
             console.error('Jabra call failed with error ' + err)
@@ -127,25 +127,25 @@ createJabraApplication('123').then((jabra) => { //123 is appID here
 ### Multiple device management with typescript and async/await
 
 ```typescript
-import { createJabraApplication } from '../main/index';
+import { createJabraApplication } from '@gnaudio/jabra-node-sdk';
 
 (async () => {
-    let jabra = await createJabraApplication('123'); //123 is appID here
+    let jabra = await createJabraApplication('123'); // 123 is appID here
 
     await jabra.scanForDevicesDoneAsync(); // Wait for all pre-attached devices to be scanned.
 
     const deviceInstanceList = jabra.getAttachedDevices();
     if (deviceInstanceList.length<2) {
-        throw new Error("Please make sure 2 jabra devices are attached");
+        throw new Error('Please make sure 2 jabra devices are attached');
     }
 
-    const firstDevice = deviceInstanceList[0]
+    const firstDevice = deviceInstanceList[0];
     await firstDevice.ringAsync();
 
     const secondDevice = deviceInstanceList[1];
     await secondDevice.ringAsync();
 
-    // Disponse jabra sdk to enable node process to shutdown.
+    // Dispose jabra sdk to enable node process to shutdown.
     await jabra.disposeAsync();
 })();
 ```

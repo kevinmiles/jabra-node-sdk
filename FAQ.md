@@ -7,7 +7,7 @@ This file lists a few commen questions/issues and answers
    - Before doing npm install, please follow [setup directions](nodesdk/README.md#Pre-requisite)
    under NodeJS SDK pre-requisites.
 
-2. Who do I not get all 'btnPress' events in my softphone ?
+2. Why do I not get all 'btnPress' events in my softphone ?
    - To get all 'btnPress', GN_HID must be enabled for supporting devices.
    See device.isGnHidStdHidSupportedAsync() and device.setHidWorkingStateAsync()
 
