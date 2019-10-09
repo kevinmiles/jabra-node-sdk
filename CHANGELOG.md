@@ -2,7 +2,12 @@
 All notable changes to this project will be documented in this file
 
 ### 2.0 SDK Beta notes (tempoary beta process changes):
-- Beta2 changed
+- Beta3 changes:
+  - Improved logging and extended it to jabra-electron-renderer-helper
+  - Bugfixes and documentation fixes.
+  - Improved error handling, added releated JabraError types. 
+
+- Beta2 changes:
   - All events/functions marked as TODO now implemented.
   - Renamed mute functions to muteAsync() and unmuteAsync() for consistency.
   - getAttachedDevices now returns an array instead of a map.
@@ -11,7 +16,9 @@ All notable changes to this project will be documented in this file
 
 ### 2.0.0 - 2019
 - New npm package with gnaudio scope "@gnaudio/jabra-node-sdk" that replaces previous "jabra" and "jabra-dev" packages.
-  Complete rewrite in typescript based on N-API (Next generation APIs for Node.js)
+- New optional "@gnaudio/jjabra-electron-renderer-helper to make secure client-side access to Jabra api much easier from Electron.
+
+- Complete rewrite in typescript based on N-API (Next generation APIs for Node.js)
   Provided API is ~95% identical but there are few breaking changes and bugfixes such as:
     - The default initializeer function export (antipattern) is removed!
       The initializer function is now a plain function export called "createJabraApplication" that unlike the previous function 
@@ -19,9 +26,11 @@ All notable changes to this project will be documented in this file
       (See examples for new usage syntax).
     - Added scanForDevicesDoneAsync async on JabraType and removed similar sync function on DeviceType.
     - device deattach event takes a DeviceType as single argument.
+    - getAttachedDevices now returns an array instead of a map.
     - Some settings functions renamed, also now uses DeviceSettings as type.
     - Various bugfixes in typescript declarations.
     - Removed all FFI related artifacts, incl. constants and error codes.
+  
 
 ### 1.0.5 (2017-02-27)
 - Minor changes in documentation. 

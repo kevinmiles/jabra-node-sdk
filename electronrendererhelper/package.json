@@ -1,6 +1,6 @@
 {
   "name": "@gnaudio/jabra-electron-renderer-helper",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "description": "Makes jabra-node-sdk available for Electron's renderer process",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
