@@ -86,7 +86,12 @@ export class JabraType implements MetaApi {
     /** @internal */
     private readonly firstScanForDevicesDonePromise: Promise<void>;
 
-    public readonly appID: string;
+    /**
+     * The application Id used to instantiate the Api.
+     * 
+     * Nb. Not applicable for client side proxies.
+     */
+    public readonly appID?: string;
 
     /** 
      * @internal 

@@ -422,7 +422,11 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
 
     const proxyHandler = doCreateProxy<JabraType>(jabraTypeMeta, executeApiMethod, executeOn, executeOff);
 
-    return new Proxy<JabraType>({} as JabraType, proxyHandler);
+    const jabraTypeReadonlyProperties = { 
+        appID: undefined // unsupported by proxy at this time (and properly for good for security).
+    };
+
+    return new Proxy<JabraType>(jabraTypeReadonlyProperties as JabraType, proxyHandler);
 }
 
 /**
