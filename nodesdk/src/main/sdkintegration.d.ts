@@ -29,9 +29,9 @@ export declare interface SdkIntegration {
      */
     Initialize(appId: string,
                success: (error: Error | null, result: void) => void,
-               firstScanDone: () => void,
-               attached: (deviceId: DeviceInfo) => void,
-               deAttached: (deviceId: number) => void,
+               firstScanDone: (event_time_ms: number) => void,
+               attached: (deviceId: DeviceInfo, event_time_ms: number) => void,
+               deAttached: (deviceId: number, event_time_ms: number) => void,
                buttonInDataTranslated: (deviceID: number, translatedInData: enumDeviceBtnType, buttonInData: bool) => void,
                devLogCallback: (deviceId: number, json: string) => void,
                batteryStatusCallback: (deviceId: number, levelInPercent: number, isCharging: boolean, isBatteryLow: boolean) => void,

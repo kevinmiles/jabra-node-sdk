@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <unordered_map>
+#include <chrono>
 #include "bt.h"
 
 // -----------------------------------------------------------
@@ -188,6 +189,12 @@ class StateJabraInitialize {
   }
 };
 
+/**
+ * Get ms since epoc.
+ */
+static std::uint64_t getTimeSinceEpoc() {
+   return std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+}
 
 /** 
  * As a hack, use global to pass state between thread and callbacks. Could be avoided if
@@ -289,10 +296,12 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
               try {
                 LOG_DEBUG << "First scan done";
 
+                auto eventTime = getTimeSinceEpoc();
+
                 auto firstScanCallback = state_Jabra_Initialize.getFirstScanDoneCallback();
                 if (firstScanCallback) {
-                  firstScanCallback->call([](Napi::Env env, std::vector<napi_value>& args) {
-                          args = { };
+                  firstScanCallback->call([eventTime](Napi::Env env, std::vector<napi_value>& args) {
+                    args = { Napi::Number::New(env, eventTime) };
                   });            
                 }
               } catch (const std::exception &e) {       
@@ -306,6 +315,8 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
               try {
                 LOG_DEBUG << "Device #" << _deviceInfo.deviceID << " attached";
 
+                auto eventTime = getTimeSinceEpoc();
+
                 auto attachedCallback = state_Jabra_Initialize.getAttachedCallback();
 
                 if (attachedCallback) {
@@ -313,7 +324,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                   ManagedDeviceInfo deviceInfo(_deviceInfo);                
                   Jabra_FreeDeviceInfo(_deviceInfo);
 
-                  attachedCallback->call([deviceInfo](Napi::Env env, std::vector<napi_value>& args) {
+                  attachedCallback->call([deviceInfo, eventTime](Napi::Env env, std::vector<napi_value>& args) {
                       Napi::Object result = Napi::Object::New(env);
                       result.Set(Napi::String::New(env, "deviceID"), (Napi::Number::New(env, deviceInfo.deviceID)));
                       result.Set(Napi::String::New(env, "productID"), (Napi::Number::New(env, deviceInfo.productID)));
@@ -334,7 +345,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                       result.Set(Napi::String::New(env, "connectionId"), (Napi::Number::New(env, deviceInfo.connectionId)));
                       result.Set(Napi::String::New(env, "parentDeviceId"), (Napi::Number::New(env, deviceInfo.parentDeviceId)));
 
-                      args = { result };
+                      args = { result, Napi::Number::New(env, eventTime) };
                   });
                 }
               } catch (const std::exception &e) {       
@@ -348,10 +359,12 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
               try {
                 LOG_DEBUG << "Device #" << deviceID << " de-attached";
 
+                auto eventTime = getTimeSinceEpoc();
+
                 auto deAttachedCallback = state_Jabra_Initialize.getDeAttachedCallback();
                 if (deAttachedCallback) {
-                  deAttachedCallback->call([deviceID](Napi::Env env, std::vector<napi_value>& args) {
-                        args = { Napi::Number::New(env, deviceID) };
+                  deAttachedCallback->call([deviceID, eventTime](Napi::Env env, std::vector<napi_value>& args) {
+                    args = { Napi::Number::New(env, deviceID), Napi::Number::New(env, eventTime) };
                   });
                 }
 

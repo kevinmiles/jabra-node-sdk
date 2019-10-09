@@ -97,6 +97,21 @@ export interface DeviceInfo {
     parentDeviceId?: number; // Not currently exposed in js so marked as optional.
 }
 
+/** 
+ * Device attach/detach timing information.
+ **/
+export interface DeviceTiming {
+  /**
+     * The time since EPOC that the device was attached.
+     */
+    readonly attached_time_ms: number;
+    /**
+     * The time since EPOC that the device was subsequently detached (if no longer attached only).
+     *
+     */
+    readonly detached_time_ms?: number;
+}
+
 export interface RCCStatus {
     isMuted: boolean,
     isOffHooked: boolean,

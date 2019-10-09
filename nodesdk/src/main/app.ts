@@ -122,7 +122,7 @@ export class JabraType implements MetaApi {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
                     sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::success callback", err);
                 }
-            }, () => {
+            }, (event_time_ms) => {
                 try {
                     this.eventEmitter.emit('firstScanDone', undefined);
                     firstScanForDevicesDoneResolve();
@@ -130,19 +130,21 @@ export class JabraType implements MetaApi {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
                     sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::firstScanDone callback", err);
                 }
-            }, (deviceData) => {
+            }, (deviceData, event_time_ms) => {
                 try {
-                    let deviceType = new DeviceType(deviceData);
+                    let deviceType = new DeviceType(deviceData, event_time_ms);
                     this.deviceTypes.set(deviceData.deviceID, deviceType);
                     this.eventEmitter.emit('attach', deviceType);
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
                     sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::attach callback", err);
                 }
-            }, (deviceId) => {
+            }, (deviceId, event_time_ms) => {
                 try {
                     let deviceType = this.deviceTypes.get(deviceId);
                     if (deviceType) {
+                        // Assign to detached_time_ms even though it is formally a readonly because we don't want clients to change it.
+                        (deviceType.detached_time_ms as DeviceType['detached_time_ms']) = event_time_ms;
                         this.deviceTypes.delete(deviceId);
                         this.eventEmitter.emit('detach', deviceType);                        
                     } else {

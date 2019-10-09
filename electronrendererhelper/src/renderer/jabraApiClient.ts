@@ -5,11 +5,11 @@ type IpcRenderer = import('electron').IpcRenderer;
 import { ClassEntry, JabraType, DeviceInfo, 
          enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, PairedListInfo, enumUploadEventStatus,
          JabraTypeEvents, DeviceTypeEvents, JabraEventsList, DeviceEventsList, DeviceType, MetaApi, MethodEntry, 
-         AddonLogSeverity, NativeAddonLogConfig } from '@gnaudio/jabra-node-sdk';
+         AddonLogSeverity, NativeAddonLogConfig, DeviceTiming } from '@gnaudio/jabra-node-sdk';
 import { getExecuteDeviceTypeApiMethodEventName, getDeviceTypeApiCallabackEventName, getJabraTypeApiCallabackEventName, 
          getExecuteJabraTypeApiMethodEventName, getExecuteJabraTypeApiMethodResponseEventName, 
-         getExecuteDeviceTypeApiMethodResponseEventName, createApiClientInitEventName, 
-         jabraLogEventName, ApiClientInitEventData } from '../common/ipc';
+         getExecuteDeviceTypeApiMethodResponseEventName, createApiClientInitEventName,
+         jabraApiClientReadyEventName, jabraLogEventName, ApiClientInitEventData } from '../common/ipc';
 import { nameof, isBrowser, serializeError } from '../common/util';
 
 /**
@@ -83,8 +83,26 @@ export function createApiClient(ipcRenderer: IpcRenderer) : Promise<JabraType> {
                     }
 
                     let result = doCreateRemoteJabraType(jabraTypeMeta, deviceTypeMeta, ipcRenderer);
+
+                    // Calulate the ready time used to replay old events. There is a potential unsolved
+                    // theoretical problem if events hanppened while doCreateRemoteJabraType is being executed.
+                    // We could improve this marginally by setting the ready time inside this function at 
+                    // the exact right place after event handlers are setup, but even that might fail
+                    // in theory. However, as USB scanning takes time (so events will come after this
+                    // code) these kind of problems are unlikely to happen in real life.
+                    // 
+                    // Another potential problem with this timing call, is that the browser values are
+                    // by design fuzzied because of secruity issues with Meltdown/Spectre. The time 
+                    // returned here might thus be off by a couple of milliseconds which creates
+                    // another potential race condition, that might cause a attach event to be missed
+                    // or repeated if we are extremely unlucky.
+                    const clientReadyTime = Date.now();
                     
-                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.info, "createApiClient", "Client side JabraType proxy succesfully created");
+                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.info, "createApiClient", "Client side JabraType proxy succesfully created at t=" + clientReadyTime);
+
+                    // Ask server to re-send attach events before now
+                    ipcRenderer.send(jabraApiClientReadyEventName, clientReadyTime);
+
                     return resolve(result);
                 } else {
                     let failure;
@@ -126,6 +144,15 @@ interface DeviceTypeExtras {
      * so relevant resources can be freed.
      */
     _shutdown(): void;
+
+    /**
+     * Internal method that is called when a device is deatached.
+     */
+    _update_detached_time_ms(time_ms: number): void;
+}
+
+interface JabraTypeExtras {
+    // Nothing so far.
 }
 
 /**
@@ -301,12 +328,14 @@ class SimpleEventEmitter<T extends string> {
 /**
  * Create remote remote JabraType using a proxy that forwards events and commands using ipc
  */
-function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: ClassEntry, ipcRenderer: IpcRenderer) : JabraType {
+function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: ClassEntry, ipcRenderer: IpcRenderer) : JabraType & JabraTypeExtras {
     const devices = new Map<number, DeviceType & DeviceTypeExtras>();
     const resultsByExecutionId = new Map<Number, PromiseCallbacks>();
 
     const eventEmitter = new SimpleEventEmitter<JabraTypeEvents>(JabraEventsList);
     let methodExecutionId : number = 0;
+
+    let eventsHandlersSetupTime_ms: number = 0;
 
     function emitEvent(eventName: JabraTypeEvents, ...args: any[]) {
         eventEmitter.emit(eventName, ...args);
@@ -378,7 +407,7 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
         }
     });
 
-    ipcRenderer.on(getJabraTypeApiCallabackEventName('attach'), (event, deviceInfo: DeviceInfo) => {
+    ipcRenderer.on(getJabraTypeApiCallabackEventName('attach'), (event, deviceInfo: (DeviceInfo & DeviceTiming)) => {
         // First make it easier to debug/inspect results:
         addToStringToDeserializedObject(deviceInfo);
 
@@ -387,13 +416,14 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
         emitEvent('attach', device);
     });
   
-    ipcRenderer.on(getJabraTypeApiCallabackEventName('detach'), (event, deviceInfo: DeviceInfo) => {
+    ipcRenderer.on(getJabraTypeApiCallabackEventName('detach'), (event, deviceInfo: (DeviceInfo & DeviceTiming)) => {
         // First make it easier to debug/inspect results:
         addToStringToDeserializedObject(deviceInfo);
 
         let device = devices.get(deviceInfo.deviceID);
         if (device) {
             devices.delete(deviceInfo.deviceID);
+            device._update_detached_time_ms(deviceInfo.detached_time_ms!);
             emitEvent('detach', device);
             device._shutdown();
         } else {
@@ -426,13 +456,13 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
         appID: undefined // unsupported by proxy at this time (and properly for good for security).
     };
 
-    return new Proxy<JabraType>(jabraTypeReadonlyProperties as JabraType, proxyHandler);
+    return new Proxy<JabraType & JabraTypeExtras>(jabraTypeReadonlyProperties as (JabraType & JabraTypeExtras), proxyHandler);
 }
 
 /**
  * Create remote DeviceType using a proxy that forwards events and commands using ipc.
  */
-function createRemoteDeviceType(deviceInfo: DeviceInfo, deviceTypeMeta: ClassEntry, ipcRenderer: IpcRenderer) : DeviceType & DeviceTypeExtras {
+function createRemoteDeviceType(deviceInfo: DeviceInfo & DeviceTiming, deviceTypeMeta: ClassEntry, ipcRenderer: IpcRenderer) : DeviceType & DeviceTypeExtras {
     const eventEmitter = new SimpleEventEmitter<DeviceTypeEvents>(DeviceEventsList);
 
     const resultsByExecutionId = new Map<Number, PromiseCallbacks>();
@@ -454,6 +484,10 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo, deviceTypeMeta: ClassEnt
         if (methodName == nameof<DeviceTypeExtras>("_shutdown")) {
             // Special local handling for when we are finshed with the device.
             shutdown();
+        } if (methodName == nameof<DeviceTypeExtras>("_update_detached_time_ms"))  {
+            const time_ms = args[0];
+            // Assign to detached_time_ms even though it is formally a readonly because we don't want clients to change it.
+            (deviceInfo.detached_time_ms as DeviceType['detached_time_ms']) = time_ms;
         } else {
             const thisMethodExecutionId = methodExecutionId++;
             let combinedEventArgs = [ methodName, thisMethodExecutionId, ...args];

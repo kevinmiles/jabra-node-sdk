@@ -17,6 +17,14 @@ export const createApiClientInitEventName = "jabraApiClientIntializing";
 export const jabraLogEventName = "jabraApiClientLog";
 
 /**
+ * Send when the client is ready and wants to receive any prior attach events.
+ * Nb. This event might be missed by the server if the client is ready before
+ * the server is. This should not be a problem though as there should then
+ * be no prior attach events to resend.
+ */
+export const jabraApiClientReadyEventName  = "jabraApiClientReadyEventName";
+
+/**
  * Event channel name for executing methods against a specific device.
  */
 export function getExecuteDeviceTypeApiMethodEventName(deviceID: number) {

@@ -1,5 +1,5 @@
 import { SdkIntegration } from "./sdkintegration";
-import { AddonLogSeverity } from "./core-types";
+import { AddonLogSeverity, DeviceTiming } from "./core-types";
 import { isNodeJs } from './util';
 
 // Browser friendly type-only import:
@@ -33,6 +33,7 @@ import * as _jabraEnums from './jabra-enums';
 import { MetaApi, ClassEntry, _getJabraApiMetaSync } from './meta';
 
 import * as util from 'util';
+import { throws } from "assert";
 
 export namespace DeviceTypeCallbacks {
     export type btnPress = (btnType: enumDeviceBtnType, value: boolean) => void;
@@ -52,7 +53,7 @@ export const DeviceEventsList : DeviceTypeEvents[] = ['btnPress', 'busyLightChan
 /** 
  * Represents a concrete Jabra device and the operations that can be done on it.   
  */
-export class DeviceType implements DeviceInfo, MetaApi {
+export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /** 
     * @internal 
     * @hidden
@@ -63,7 +64,7 @@ export class DeviceType implements DeviceInfo, MetaApi {
      * @internal 
      * @hidden
      **/
-    constructor(deviceInfo: DeviceInfo | DeviceType) {
+    constructor(deviceInfo: DeviceInfo | DeviceType, attached_time_ms: number) {
         if (!isNodeJs()) {
             throw new Error("This JabraType constructor() function needs to run under NodeJs and not in a browser");
         }
@@ -80,6 +81,8 @@ export class DeviceType implements DeviceInfo, MetaApi {
         this.errorStatus = deviceInfo.errorStatus;
         this.isDongleDevice = deviceInfo.isDongleDevice;
         this.isInFirmwareUpdateMode = deviceInfo.isInFirmwareUpdateMode;
+        this.attached_time_ms = attached_time_ms;
+        this.detached_time_ms = undefined;
     }
 
     readonly ESN: string;
@@ -92,6 +95,17 @@ export class DeviceType implements DeviceInfo, MetaApi {
     readonly productID: number;
     readonly vendorID: number;
     readonly variant: string;
+
+    /**
+     * The time since EPOC that the device was attached.
+     */
+    readonly attached_time_ms: number;
+
+    /**
+     * The time since EPOC that the device was subsequently detached (if no longer attached only).
+     * 
+     */
+    readonly detached_time_ms?: number;
 
     //CallControl
     /**

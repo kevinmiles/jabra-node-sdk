@@ -30,7 +30,7 @@ let reserved1 = {
         jabra.on('attach', async (device: DeviceType) => {
             device.setHidWorkingStateAsync(enumHidState.GN_HID);
 
-            console.log("Device attached with device " + JSON.stringify(device));
+            console.log("Device attached with device " + JSON.stringify(device, null, 2));
 
             // await device.connectNewDeviceAsync("myname", "010AFF000F07", true);
 

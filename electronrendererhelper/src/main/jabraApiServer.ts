@@ -14,7 +14,7 @@ import { getExecuteDeviceTypeApiMethodEventName, getDeviceTypeApiCallabackEventN
          getJabraTypeApiCallabackEventName, getExecuteJabraTypeApiMethodEventName, 
          getExecuteJabraTypeApiMethodResponseEventName, 
          getExecuteDeviceTypeApiMethodResponseEventName,
-         createApiClientInitEventName, jabraLogEventName, ApiClientInitEventData } from '../common/ipc';
+         createApiClientInitEventName, jabraLogEventName, ApiClientInitEventData, jabraApiClientReadyEventName } from '../common/ipc';
 
 /**
  * This factory singleton is responsible for creating the server side Jabra API server that serves 
@@ -185,41 +185,58 @@ export class JabraApiServer
     }
 
     private setupJabraEvents(jabraApi: JabraType) {
-        jabraApi.on('attach', (device) => {
-            // Filter out internal data structures when forwarding data:
-            let deviceData = Object.keys(device).filter(key => !key.startsWith("_")).reduce((obj, key) => {
-                return {
-                ...obj,
-                [key]: (device as any)[key]
-                };
-            }, {});
-      
+        jabraApi.on('attach', (device: DeviceType) => {
+            let deviceData = this.getPublicDeviceData(device);      
            
             this.subscribeDeviceTypeEvents(device);
         
             this.window.webContents.send(getJabraTypeApiCallabackEventName('attach'), deviceData);
           });
       
-        jabraApi.on('detach', (device) => {
-            // Filter out internal data structures when forwarding data:
-            let deviceData = Object.keys(device).filter(key => !key.startsWith("_")).reduce((obj, key) => {
-              return {
-                ...obj,
-                [key]: (device as any)[key]
-              };
-            }, {});
+        jabraApi.on('detach', (device: DeviceType) => {
+            let deviceData = this.getPublicDeviceData(device);
 
             this.unsubscribeDeviceTypeEvents(device);
 
             this.window.webContents.send(getJabraTypeApiCallabackEventName('detach'), deviceData);
         });
       
-        jabraApi.on('firstScanDone', () => {     
+        jabraApi.on('firstScanDone', () => {
             this.window.webContents.send(getJabraTypeApiCallabackEventName('firstScanDone'));
         });
     }
 
+    /**
+     * Helper that filter out internal data structures when forwarding data:
+     */
+    private getPublicDeviceData(device: DeviceType) {
+        return Object.keys(device).filter(key => !key.startsWith("_")).reduce((obj, key) => {
+            return {
+              ...obj,
+              [key]: (device as any)[key]
+            };
+        }, {});
+    }
+
     private setupElectonEvents(jabraApi: JabraType) {
+        // Normally the client will be ready before the server, but if client
+        // is ready after the server (in case of a refresh) the client will be
+        // missing some important attach events. Thus, we here listen for client
+        // becoming ready after the server and replay attach events.
+        this.ipcMain.on(jabraApiClientReadyEventName, (event, clientReadyTime: number) => {
+            const devices = jabraApi.getAttachedDevices().filter(device => device.attached_time_ms < clientReadyTime);
+            if (devices.length > 0) {
+                const deviceIds = devices.map(device => device.deviceID);
+                _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServer.setupElectonEvents", "Replaying attach events to client for devices " + deviceIds.join(","));
+
+                devices.forEach((device) => {
+                    const deviceData = this.getPublicDeviceData(device);
+                    this.window.webContents.send(getJabraTypeApiCallabackEventName('attach'), deviceData);
+                });
+            }
+        });
+
+        // Receive JabraType api method calls from client:
         this.ipcMain.on(getExecuteJabraTypeApiMethodEventName(), (event, methodName: string, executionId: number, ...args: any[]) => {
             try {
                 let result = this.executeJabraApiCall(jabraApi, methodName, ...args);
@@ -240,6 +257,7 @@ export class JabraApiServer
     }
 
     private subscribeDeviceTypeEvents(device: DeviceType) {
+        // Receive DeviceType api method calls from client:
         this.ipcMain.on(getExecuteDeviceTypeApiMethodEventName(device.deviceID), (event, methodName: string, executionId: number, ...args: any[]) => {
             try {
                 let result = this.executeDeviceApiCall(device, methodName, ...args);
