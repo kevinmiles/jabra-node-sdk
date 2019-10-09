@@ -7,21 +7,24 @@ type IpcMain = import('electron').IpcMain;
 import { isNodeJs, nameof, serializeError } from '../common/util';
 
 import { _getJabraApiMetaSync, createJabraApplication, JabraType, ConfigParamsCloud,
-         DeviceEventsList, ClassEntry, DeviceType, 
-         _JabraNativeAddonLog, NativeAddonLogConfig, AddonLogSeverity, _JabraGetNativeAddonLogConfig } from '@gnaudio/jabra-node-sdk';
+         DeviceEventsList, ClassEntry, DeviceType,
+         _JabraGetNativeAddonLogConfig, _JabraNativeAddonLog, NativeAddonLogConfig, AddonLogSeverity } from '@gnaudio/jabra-node-sdk';
+
 import { getExecuteDeviceTypeApiMethodEventName, getDeviceTypeApiCallabackEventName, 
          getJabraTypeApiCallabackEventName, getExecuteJabraTypeApiMethodEventName, 
          getExecuteJabraTypeApiMethodResponseEventName, 
          getExecuteDeviceTypeApiMethodResponseEventName,
-         createApiClientInitEventName, jabraLogEventName } from '../common/ipc';
+         createApiClientInitEventName, jabraLogEventName, ApiClientInitEventData } from '../common/ipc';
 
 /**
- * This factory create the server side Jabra API server that serves events and forwards commands for the
- * corresponding (client side) createApiClient() helper. Creation of the server, is a two-step process.
+ * This factory singleton is responsible for creating the server side Jabra API server that serves 
+ * events and forwards commands for the corresponding (client side) createApiClient() helper.
+ * 
+ * Creation of the server, is a two-step process:
  * First this factory class must be instantiated BEFORE any window(s) are loaded, secondly after
  * the window(s) has been fully loaded, the factory create method can be called 
  * 
- * Nb. This factory should be created only once.
+ * Nb. This factory is a singleton. Create only one instance of this class and in the main thread of Electron
  */
 export class JabraApiServerFactory
 {
@@ -29,6 +32,12 @@ export class JabraApiServerFactory
     private jabraApiMeta: ClassEntry[];
     private jabraNativeAddonLogConfig: NativeAddonLogConfig | undefined;
     private startupError: Error | undefined;
+    private cachedApiServer: {
+        server: Promise<JabraApiServer>,
+        appID: string, 
+        configCloudParams: ConfigParamsCloud, 
+        fullyLoadedWindow: BrowserWindow;
+    } | null;
 
     /**
      * Construct an JabraApiServer factory using a ready ipcMain instance. This constructor should
@@ -49,6 +58,7 @@ export class JabraApiServerFactory
         this.ipcMain = ipcMain;
         this.jabraApiMeta = [];
         this.jabraNativeAddonLogConfig = undefined;
+        this.cachedApiServer = null;
 
         try {
             this.ipcMain = ipcMain;
@@ -67,7 +77,7 @@ export class JabraApiServerFactory
                 // Serve configuration data to client api (or error if failed to init):
                 this.ipcMain.on(createApiClientInitEventName, (syncEvent) => {
                     _JabraNativeAddonLog(AddonLogSeverity.info, "JabraApiServerFactory.constructor", "Jabra meta data requested by createApiClient");
-                    syncEvent.returnValue = serializeError(this.startupError) || {
+                    syncEvent.returnValue = serializeError(this.startupError) || <ApiClientInitEventData>{
                         logConfig: this.jabraNativeAddonLogConfig,
                         apiMeta: this.jabraApiMeta
                     };
@@ -91,15 +101,32 @@ export class JabraApiServerFactory
     }
 
     /**
-     * Constructs a Jabra API server object after any GUI is loaded.
+     * Constructs a Jabra API server singleton instance after any GUI is loaded.
+     * 
+     * If called multiple times, this function must be called with same arguments as result is a singelton.
      * 
      * Nb. Importantly, the provided window must be fully loaded (use promise returned by electron's loadFile or
      * wait for electron's 'did-finish-load' event) before creating this object !
      * 
      */
     public create(appID: string, configCloudParams: ConfigParamsCloud, fullyLoadedWindow: BrowserWindow) : Promise<JabraApiServer> {
-        if (!this.startupError) {
-            return JabraApiServer.create(appID, configCloudParams, this.ipcMain, this.jabraApiMeta, fullyLoadedWindow);
+        if (this.cachedApiServer != null) {
+            if (this.cachedApiServer.appID !== appID 
+                || this.cachedApiServer.configCloudParams !== configCloudParams 
+                || this.cachedApiServer.fullyLoadedWindow !== fullyLoadedWindow) {
+                    return Promise.reject("JabraApiServerFactory.create must be called with identical parameters if called multiple times as return value is a singleton");
+                }
+
+            return this.cachedApiServer.server;
+        } else if (!this.startupError) {
+            let server = JabraApiServer.create(appID, configCloudParams, this.ipcMain, this.jabraApiMeta, fullyLoadedWindow);
+            this.cachedApiServer = {
+                server,
+                appID,
+                configCloudParams,
+                fullyLoadedWindow
+            };
+            return server;
         } else {
             return Promise.reject(this.startupError);
         }
@@ -114,10 +141,15 @@ export class JabraApiServerFactory
  */
 export class JabraApiServer
 {
+    /**
+     * Internal reference to api instance.
+     * 
+     * Use public getter to access from outside.
+     */
     private jabraApi: JabraType | null;
-    private readonly jabraApiMeta: ClassEntry[];
-    private readonly ipcMain: IpcMain;
-    private readonly window: BrowserWindow;
+    
+    public readonly ipcMain: IpcMain;
+    public readonly window: BrowserWindow;
 
     /**
      * Constructs a Jabra API server object.
@@ -145,7 +177,6 @@ export class JabraApiServer
 
     private constructor(jabraApi: JabraType, ipcMain: IpcMain, jabraApiMeta: ClassEntry[], window: BrowserWindow) {
         this.jabraApi = jabraApi;
-        this.jabraApiMeta = jabraApiMeta;
         this.ipcMain = ipcMain;
         this.window = window;
 

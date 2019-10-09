@@ -86,6 +86,8 @@ export class JabraType implements MetaApi {
     /** @internal */
     private readonly firstScanForDevicesDonePromise: Promise<void>;
 
+    public readonly appID: string;
+
     /** 
      * @internal 
      * @hidden
@@ -94,6 +96,8 @@ export class JabraType implements MetaApi {
         if (!isNodeJs()) {
             throw new Error("This JabraType constructor() function needs to run under NodeJs and not in a browser");
         }
+
+        this.appID = appID;
 
         this.eventEmitter = new events.EventEmitter();
     

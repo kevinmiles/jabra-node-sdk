@@ -8,7 +8,8 @@ import { ClassEntry, JabraType, DeviceInfo,
          AddonLogSeverity, NativeAddonLogConfig } from '@gnaudio/jabra-node-sdk';
 import { getExecuteDeviceTypeApiMethodEventName, getDeviceTypeApiCallabackEventName, getJabraTypeApiCallabackEventName, 
          getExecuteJabraTypeApiMethodEventName, getExecuteJabraTypeApiMethodResponseEventName, 
-         getExecuteDeviceTypeApiMethodResponseEventName, createApiClientInitEventName, jabraLogEventName } from '../common/ipc';
+         getExecuteDeviceTypeApiMethodResponseEventName, createApiClientInitEventName, 
+         jabraLogEventName, ApiClientInitEventData } from '../common/ipc';
 import { nameof, isBrowser, serializeError } from '../common/util';
 
 /**
@@ -22,7 +23,12 @@ declare type SerializedError = {
 };
 
 /**
-* Factory method for creating promise returning remote client-side instance of JabraType.
+ * Promise singleton tthat createApiClient creates/reuses.
+ */
+let cachedApiClientPromise: Promise<JabraType> | null = null;
+
+/**
+* Factory method for creating promise returning remote client-side singleton instance of JabraType.
 */
 export function createApiClient(ipcRenderer: IpcRenderer) : Promise<JabraType> {
     if (!isBrowser()) {
@@ -33,71 +39,73 @@ export function createApiClient(ipcRenderer: IpcRenderer) : Promise<JabraType> {
         return Promise.reject(new Error("ipcRenderer argument missing to createApiClient() factory method"));
     }
 
-    return new Promise<JabraType>((resolve, reject) => {
-        try {
-            JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.info, "createApiClient", "Looking up Jabra API meta data");
+    if (cachedApiClientPromise) {
+        return cachedApiClientPromise;
+    } else {
+        cachedApiClientPromise = new Promise<JabraType>((resolve, reject) => {           
+            try {
+                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.info, "createApiClient", "Looking up Jabra API meta data");
 
-            // Sync setup call to get configuration (the only sync call we use).
-            // TODO: Replace with two unsync events to avoid blocking processes!
+                // Sync setup call to get configuration (the only sync call we use).
+                // TODO: Replace with two unsync events to avoid blocking processes!
 
-            const setupConfigResponse: SerializedError | {
-                logConfig: NativeAddonLogConfig,
-                apiMeta: ReadonlyArray<ClassEntry>
-            } = ipcRenderer.sendSync(createApiClientInitEventName);
+                const setupConfigResponse: SerializedError | ApiClientInitEventData = ipcRenderer.sendSync(createApiClientInitEventName);
 
-            // Make return value easier to use and print:
-            addToStringToDeserializedObject(setupConfigResponse);
+                // Make return value easier to use and print:
+                addToStringToDeserializedObject(setupConfigResponse);
 
-            // If we have some log configuration, save it locally for optimaization purposes.
-            if (setupConfigResponse && setupConfigResponse.hasOwnProperty("logConfig")) {
-                logConfig = (setupConfigResponse as any).logConfig;
-                
-                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createApiClient", "Set jabra log configuration:" + JSON.stringify(logConfig, null, 3));
-            }
-
-            // Get meta information from setup response.
-            if (setupConfigResponse && setupConfigResponse.hasOwnProperty("apiMeta")) {
-                const apiMeta : ReadonlyArray<ClassEntry> = (setupConfigResponse as any).apiMeta;
-                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createApiClient", "Got jabra apiMeta:" + JSON.stringify(apiMeta, null, 3));
-
-                const jabraClassName = JabraType.name;
-                let jabraTypeMeta = apiMeta.find((c) => c.name === jabraClassName);
-                if (!jabraTypeMeta) {
-                    let error = new Error("Could not find meta data for " + jabraClassName);
-                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", error);
-                    return Promise.reject(error);
-                }
-        
-                const deviceClassName = DeviceType.name;
-                let deviceTypeMeta = apiMeta.find((c) => c.name === deviceClassName);
-                if (!deviceTypeMeta) {
-                    let error = new Error("Could not find meta data for " + deviceClassName);
-                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", error);
-                    return Promise.reject(error);
+                // If we have some log configuration, save it locally for optimaization purposes.
+                if (setupConfigResponse && setupConfigResponse.hasOwnProperty("logConfig")) {
+                    logConfig = (setupConfigResponse as any).logConfig;
+                    
+                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createApiClient", "Set jabra log configuration:" + JSON.stringify(logConfig, null, 3));
                 }
 
-                let result = doCreateRemoteJabraType(jabraTypeMeta, deviceTypeMeta, ipcRenderer);
-                
-                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.info, "createApiClient", "Client side JabraType proxy succesfully created");
-                return resolve(result);
-            } else {
-                let failure;
-                if ((setupConfigResponse as any).name) {
-                    failure = deserializeError(setupConfigResponse as SerializedError);
-                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", failure);
+                // Get meta information from setup response.
+                if (setupConfigResponse && setupConfigResponse.hasOwnProperty("apiMeta")) {
+                    const apiMeta : ReadonlyArray<ClassEntry> = (setupConfigResponse as any).apiMeta;
+                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createApiClient", "Got jabra apiMeta:" + JSON.stringify(apiMeta, null, 3));
+
+                    const jabraClassName = JabraType.name;
+                    let jabraTypeMeta = apiMeta.find((c) => c.name === jabraClassName);
+                    if (!jabraTypeMeta) {
+                        let error = new Error("Could not find meta data for " + jabraClassName);
+                        JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", error);
+                        return Promise.reject(error);
+                    }
+            
+                    const deviceClassName = DeviceType.name;
+                    let deviceTypeMeta = apiMeta.find((c) => c.name === deviceClassName);
+                    if (!deviceTypeMeta) {
+                        let error = new Error("Could not find meta data for " + deviceClassName);
+                        JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", error);
+                        return Promise.reject(error);
+                    }
+
+                    let result = doCreateRemoteJabraType(jabraTypeMeta, deviceTypeMeta, ipcRenderer);
+                    
+                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.info, "createApiClient", "Client side JabraType proxy succesfully created");
+                    return resolve(result);
                 } else {
-                    failure = setupConfigResponse;
+                    let failure;
+                    if ((setupConfigResponse as any).name) {
+                        failure = deserializeError(setupConfigResponse as SerializedError);
+                        JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", failure);
+                    } else {
+                        failure = setupConfigResponse;
+                    }
+                    return reject(failure);
                 }
-                return reject(failure);
+            } catch (err) {
+                let combinedError = new Error("Internal error during meta retrivial / construction of remote proxy. Got error " + err);
+                JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", combinedError);
+                return reject(combinedError);
             }
-        } catch (err) {
-            let combinedError = new Error("Internal error during meta retrivial / construction of remote proxy. Got error " + err);
-            JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", combinedError);
-            return reject(combinedError);
-        }
-    });
+        });
+    
+        return cachedApiClientPromise;
+    }
 }
-
 
 /**
  * The generalized event callback used for jabra api.

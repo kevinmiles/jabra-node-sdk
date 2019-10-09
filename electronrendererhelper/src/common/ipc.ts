@@ -1,4 +1,10 @@
-import { JabraTypeEvents, DeviceTypeEvents } from '@gnaudio/jabra-node-sdk';
+import { JabraTypeEvents, DeviceTypeEvents, NativeAddonLogConfig, ClassEntry } from '@gnaudio/jabra-node-sdk';
+
+
+export interface ApiClientInitEventData {
+    logConfig: NativeAddonLogConfig;
+    apiMeta: ReadonlyArray<ClassEntry>;
+};
 
 /**
  * Send when the client is initializing asking the Api server for meta data.
