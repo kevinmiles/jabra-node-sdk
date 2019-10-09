@@ -114,7 +114,7 @@ export class JabraApiServerFactory
             if (this.cachedApiServer.appID !== appID 
                 || this.cachedApiServer.configCloudParams !== configCloudParams 
                 || this.cachedApiServer.fullyLoadedWindow !== fullyLoadedWindow) {
-                    return Promise.reject("JabraApiServerFactory.create must be called with identical parameters if called multiple times as return value is a singleton");
+                    return Promise.reject(new Error("JabraApiServerFactory.create must be called with identical parameters if called multiple times as return value is a singleton"));
                 }
 
             return this.cachedApiServer.server;

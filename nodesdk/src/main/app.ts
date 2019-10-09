@@ -254,12 +254,12 @@ export class JabraType implements MetaApi {
         if (!sdkIntegration.UnInitialize()) {
             sdkIntegration.NativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API failed.")
 
-            retPromise=Promise.reject("Failed uninitializing");
+            retPromise = Promise.reject(new Error("Failed uninitializing"));
         } else {
             this.deviceTypes.clear();
             jabraApp = null;
             sdkIntegration.NativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API succeded")
-            retPromise=Promise.resolve();
+            retPromise = Promise.resolve();
         }
 
         return retPromise;
