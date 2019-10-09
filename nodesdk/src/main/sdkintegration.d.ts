@@ -4,7 +4,8 @@
  * supplied for maximum type safety internally for this module.
  */
 
-import { ConfigParamsCloud, enumHidState, DeviceSettings, DeviceInfo, PairedListInfo, NamedAsset } from './core-types';
+import { ConfigParamsCloud, enumHidState, DeviceSettings, DeviceInfo, PairedListInfo, 
+         NamedAsset, AddonLogSeverity } from './core-types';
 import { enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, enumUploadEventStatus, enumBTPairedListType } from './jabra-enums';
 
 /** 
@@ -49,7 +50,7 @@ export declare interface SdkIntegration {
     UnInitialize(): boolean;
     
     /***
-     * Add a message to native log file (general utility, not directly Jabra SDK related).
+     * Add a message to native log file (internal utility, not directly Jabra SDK related).
      * 
      * This function is blocking(!) and is also not optimized for speed. Depending on OS, the logging code alone takes 
      * from 8-70 ms to run excluding the n-api wrapping itself. 
@@ -60,6 +61,14 @@ export declare interface SdkIntegration {
      * 
     */
     NativeAddonLog(severity: AddonLogSeverity, caller: string, msg: string | Error): void;
+
+    /**
+     * Get native log configuration (internal utility, not directly Jabra SDK related).
+     * 
+     * This function is blocking(!) and is also not optimized for speed. Clients should 
+     * call this once and than cache the value.
+     */
+    GetNativeAddonLogConfig() : NativeAddonLogConfig;
 
     /**
      * Template for calling experimental N-API code synchronously. For development use only for

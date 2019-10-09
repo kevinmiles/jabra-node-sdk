@@ -1,4 +1,5 @@
-import { createJabraApplication, DeviceType, JabraType, jabraEnums, _getJabraApiMetaSync } from '../main/index';
+import { createJabraApplication, DeviceType, JabraType, jabraEnums, 
+         _getJabraApiMetaSync, _JabraNativeAddonLog, AddonLogSeverity } from '../main/index';
 
 (async () => {
     try {
@@ -6,6 +7,8 @@ import { createJabraApplication, DeviceType, JabraType, jabraEnums, _getJabraApi
 
         let meta = _getJabraApiMetaSync();
         console.log("Got Jabra meta " + JSON.stringify(meta, null, 2));
+
+        _JabraNativeAddonLog(AddonLogSeverity.info, "test2", "this is a test");
 
         jabra.getSDKVersionAsync().then(v => {
             console.log("SDK version is '" + v + "'");

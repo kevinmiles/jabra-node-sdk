@@ -21,6 +21,18 @@ export declare const enum AddonLogSeverity
         verbose = 6
 };
 
+/** 
+ * Native log configuration.
+ * 
+ * For internal use only!
+ */
+export declare interface NativeAddonLogConfig
+{
+    maxSeverity: AddonLogSeverity;
+    maxSeverityString: AddonLogSeverity;
+    configuredLogPath: string;
+};
+
 /**
  * @param blockAllNetworkAccess - if true, all network access is blocked
  * @param baseUrl_capabilities -

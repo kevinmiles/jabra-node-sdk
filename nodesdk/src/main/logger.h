@@ -26,3 +26,8 @@ void logSimpleString(const plog::Severity severity, const std::string str);
  */
 Napi::Value napi_NativeAddonLog(const Napi::CallbackInfo& info);
 
+/**
+ * Expose method to get native log configuration from node.
+ */
+Napi::Value napi_GetNativeAddonLogConfig(const Napi::CallbackInfo& info);
+

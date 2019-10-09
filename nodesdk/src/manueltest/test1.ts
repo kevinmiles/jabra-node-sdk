@@ -44,7 +44,7 @@ let reserved1 = {
                 console.log("getEqualizerParametersAsync failed with error " + err);
             });
             */
-           /*
+           
 
             device.getButtonFocusAsync([
                 {
@@ -57,7 +57,7 @@ let reserved1 = {
             }).catch(err => {
                 console.log("getButtonFocusAsync failed with error " + err);
             });
-*/
+
             /*
             device.setDateTimeAsync({
                 sec: 12, min: 38, hour: 10, mday: 24, mon: 8, year: 119, wday: 2 

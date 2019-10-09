@@ -120,6 +120,28 @@ Napi::Value napi_NativeAddonLog(const Napi::CallbackInfo& info) {
   return env.Undefined();
 }
 
+/**
+ * Expose a log configuration to node.
+ */
+Napi::Value napi_GetNativeAddonLogConfig(const Napi::CallbackInfo& info) {
+  const Napi::Env env = info.Env();
+
+  if (util::verifyArguments(__func__, info, { })) {
+    plog::Severity maxSeverity = plog::get()->getMaxSeverity();
+    std::string maxSeverityStr = std::string(plog::severityToString(maxSeverity));
+
+    Napi::Object config = Napi::Object::New(env);
+
+    config.Set(Napi::String::New(env, "maxSeverity"), Napi::Number::New(env, maxSeverity));
+    config.Set(Napi::String::New(env, "maxSeverityString"), Napi::String::New(env, maxSeverityStr));
+    config.Set(Napi::String::New(env, "configuredLogPath"), Napi::String::New(env, configuredLogPath));
+
+    return config;
+  }
+
+  return env.Undefined();
+}
+
 /*
 void log_exception(plog::Severity severity, const std::exception& e, const std::string& contextString, int level) {
     LOG(severity) << "Standard error " << contextString << " : " << e.what();

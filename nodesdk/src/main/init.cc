@@ -143,6 +143,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
 
   // Setup logging.
   EXPORTS_SET(NativeAddonLog);
+  EXPORTS_SET(GetNativeAddonLogConfig);
 
   // Call control
   EXPORTS_SET(SetHold);
