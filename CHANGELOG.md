@@ -1,11 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file
 
-### 2.0 SDK Beta notes (tempoary beta process changes):
+### 2.0 SDK Beta notes (temporary beta process changes):
 - Beta3 changes:
   - Improved logging and extended it to jabra-electron-renderer-helper
   - Bugfixes and documentation fixes.
-  - Improved error handling, added releated JabraError types. 
+  - Improved error handling, added related JabraError types. 
 
 - Beta2 changes:
   - All events/functions marked as TODO now implemented.
@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file
 
 ### 2.0.0 - 2019
 - New npm package with gnaudio scope "@gnaudio/jabra-node-sdk" that replaces previous "jabra" and "jabra-dev" packages.
-- New optional "@gnaudio/jjabra-electron-renderer-helper to make secure client-side access to Jabra api much easier from Electron.
+- New optional "@gnaudio/jabra-electron-renderer-helper" to make secure client-side access to Jabra api much easier from Electron.
 
 - Complete rewrite in typescript based on N-API (Next generation APIs for Node.js)
   Provided API is ~95% identical but there are few breaking changes and bugfixes such as:
