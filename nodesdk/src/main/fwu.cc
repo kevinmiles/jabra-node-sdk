@@ -38,7 +38,7 @@ Napi::Value napi_UpdateFirmware(const Napi::CallbackInfo& info) {
     const std::string firmFile = info[1].As<Napi::String>();
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
-    (new util::JAsyncWorker<int, Napi::Object>(
+    (new util::JAsyncWorker<void, void>(
       functionName, 
       javascriptResultCallback,
       [functionName, deviceId, firmFile](){ 
@@ -46,13 +46,6 @@ Napi::Value napi_UpdateFirmware(const Napi::CallbackInfo& info) {
         if (ret != Return_Async) {
           throw util::JabraReturnCodeException(functionName, ret);
         }
-        return 0;
-      },
-      [](const Napi::Env& env, int) { 
-        Napi::Object napiResult = Napi::Object::New(env);
-        return napiResult;
-      }, [](int) {
-        // No cleanup
       }
     ))->Queue();
   }
@@ -105,13 +98,11 @@ Napi::Value napi_GetFirmwareFilePath(const Napi::CallbackInfo& info) {
           Jabra_FreeString(result);
           return managedResult;
         }
-        return std::string("");
+        throw util::JabraException(functionName, "Jabra_GetFirmwareFilePath yielded no result");
       },
-      [](const Napi::Env& env, std::string filePath) { 
+      [](const Napi::Env& env, const std::string& filePath) { 
         Napi::String napiResult = Napi::String::New(env, filePath.c_str());
         return napiResult;
-      }, [](std::string) {
-        // No cleanup
       }))->Queue();
   }
   return env.Undefined();
@@ -269,7 +260,7 @@ Napi::Value napi_GetLastFirmwareUpdateErrorInfo(const Napi::CallbackInfo& info) 
         Jabra_FirmwareErrorInfo * const fwUpdateErrorInfo = Jabra_GetLastFirmwareUpdateErrorInfo(deviceId);
 
         if (!fwUpdateErrorInfo) {
-          util::JabraException::LogAndThrow(functionName, "null returned");
+          util::JabraException::LogAndThrow(functionName, "GetLastFirmwareUpdateErrorInfo yielded no result");
         } else {
             IF_LOG(plog::verbose) {
               //LOG_VERBOSE << "napi_GetLastFirmwareUpdateErrorInfo got raw object : '" << toString(fwUpdateErrorInfo) << "'";

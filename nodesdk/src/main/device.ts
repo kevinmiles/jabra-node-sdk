@@ -409,9 +409,9 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * Downloads the specified firmware version file.
      * @param {string} version - Version for which file download needs to be initiated.
      * @param {string} [authorization] - Authorization Id.
-     * @returns {Promise<string|null, Error>} - Resolve dwnldPath `string|null` if successful otherwise Reject with `error`.   
+     * @returns {Promise<string, Error>} - Resolve dwnldPath `string` if successful otherwise Reject with `error`.   
      */
-    downloadFirmwareAsync(version: string, authorization?: string): Promise<void | null> {
+    downloadFirmwareAsync(version: string, authorization?: string): Promise<void> {
         return util.promisify(sdkIntegration.DownloadFirmware)(this.deviceID, version, authorization || "");
     }
 
@@ -435,7 +435,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @see Jabra_CancelFirmwareDownload
      * @see Jabra_RegisterFirmwareProgressCallBack
      */
-    getFirmwareFilePathAsync(version: string): Promise<string | null> {
+    getFirmwareFilePathAsync(version: string): Promise<string> {
         return util.promisify(sdkIntegration.GetFirmwareFilePath)(this.deviceID, version);
     }
 
@@ -451,14 +451,14 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @param {string} firmwareFilePath - firmware file path.
      * @returns {Promise<undefined, Error>} Resolve `undefined` if successful otherwise Reject with `error`.  
      */
-    updateFirmwareAsync(firmwareFilePath: string): Promise<string | null> {
+    updateFirmwareAsync(firmwareFilePath: string): Promise<void> {
         return util.promisify(sdkIntegration.UpdateFirmware)(this.deviceID, firmwareFilePath);
     }
     /**
      * Get the detailed error response for the last firmware update action performed(Check for firmware update/ Get the firmware info list/ download firmware).
-     * @returns {Promise<{errorExceptionType: string, errorMessage: string, errorDetails: string}, Error>}  - Resolve errDetail `object|null` if successful otherwise Reject with `error`.
+     * @returns {Promise<{errorExceptionType: string, errorMessage: string, errorDetails: string}, Error>}  - Resolve errDetail `object` if successful otherwise Reject with `error`.
      */
-    getLastFirmwareUpdateErrorInfoAsync(): Promise<{ errorExceptionType: string, errorMessage: string, errorDetails: string } | null> {
+    getLastFirmwareUpdateErrorInfoAsync(): Promise<{ errorExceptionType: string, errorMessage: string, errorDetails: string }> {
         return util.promisify(sdkIntegration.GetLastFirmwareUpdateErrorInfo)(this.deviceID);
     }
 
@@ -798,7 +798,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @param {string} [authorization] - Authorization Id.
      * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
      */
-    downloadFirmwareUpdaterAsync(authorization?: string): Promise<void | null>  {
+    downloadFirmwareUpdaterAsync(authorization?: string): Promise<void>  {
         return util.promisify(sdkIntegration.DownloadFirmwareUpdater)(this.deviceID, authorization || "");
     }
     

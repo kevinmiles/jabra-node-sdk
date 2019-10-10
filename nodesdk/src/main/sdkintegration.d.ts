@@ -5,8 +5,9 @@
  */
 
 import { ConfigParamsCloud, enumHidState, DeviceSettings, DeviceInfo, PairedListInfo, 
-         NamedAsset, AddonLogSeverity } from './core-types';
-import { enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, enumUploadEventStatus, enumBTPairedListType } from './jabra-enums';
+         NamedAsset, AddonLogSeverity, JabraError } from './core-types';
+import { enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, 
+         enumUploadEventStatus, enumBTPairedListType } from './jabra-enums';
 
 /** 
  * Declares all natively implemented n-api functions that call into the Jabra C SDK.
@@ -28,7 +29,7 @@ export declare interface SdkIntegration {
      * for all events.
      */
     Initialize(appId: string,
-               success: (error: Error | null, result: void) => void,
+               success: (error: JabraError, result: void) => void,
                firstScanDone: (event_time_ms: number) => void,
                attached: (deviceId: DeviceInfo, event_time_ms: number) => void,
                deAttached: (deviceId: number, event_time_ms: number) => void,
@@ -82,129 +83,129 @@ export declare interface SdkIntegration {
     // 1-1 non-blocking mappings of the non-device related SDK API using callbacks for results/completion.
     // ------------------------------------------------------------------------------------------------------------------------
 
-    ConnectToJabraApplication(guid: string, softphoneName: string, callback: (error: Error | null, result: boolean) => void): void;
-    DisconnectFromJabraApplication(callback: (error: Error | null, result: void) => void): void;
+    ConnectToJabraApplication(guid: string, softphoneName: string, callback: (error: JabraError, result: boolean) => void): void;
+    DisconnectFromJabraApplication(callback: (error: JabraError, result: void) => void): void;
 
-    SetSoftphoneReady(isReady: boolean, callback: (error: Error | null, result: void) => void): void;
-    IsSoftphoneInFocus(callback: (error: Error | null, result: boolean) => void): void;
+    SetSoftphoneReady(isReady: boolean, callback: (error: JabraError, result: void) => void): void;
+    IsSoftphoneInFocus(callback: (error: JabraError, result: boolean) => void): void;
 
-    GetErrorString(errStatusCode: number, callback: (error: Error | null, result: string) => void): void;
+    GetErrorString(errStatusCode: number, callback: (error: JabraError, result: string) => void): void;
 
     // ------------------------------------------------------------------------------------------------------------------------
     // 1-1 non-blocking mappings of the device related SDK API using callbacks for results/completion.
     // ------------------------------------------------------------------------------------------------------------------------
 
-    GetLatestFirmwareInformation(deviceId: number, string: authorizationId, callback: (error: Error | null, result: FirmwareInfoType) => void): void;
-    GetFirmwareVersion(deviceId: number, callback: (error: Error | null, result: string) => void): void;
-    IsFirmwareLockEnabled(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
+    GetLatestFirmwareInformation(deviceId: number, string: authorizationId, callback: (error: JabraError, result: FirmwareInfoType) => void): void;
+    GetFirmwareVersion(deviceId: number, callback: (error: JabraError, result: string) => void): void;
+    IsFirmwareLockEnabled(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
 
-    IsDevLogEnabled(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    EnableDevLog(deviceId: number, enabled: boolean, callback: (error: Error | null, result: void) => void): void;
+    IsDevLogEnabled(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    EnableDevLog(deviceId: number, enabled: boolean, callback: (error: JabraError, result: void) => void): void;
 
-    GetDeviceImagePath(deviceId: number, callback: (error: Error | null, result: string) => void): void;
-    GetDeviceImageThumbnailPath(deviceId: number, callback: (error: Error | null, result: string) => void): void;
+    GetDeviceImagePath(deviceId: number, callback: (error: JabraError, result: string) => void): void;
+    GetDeviceImageThumbnailPath(deviceId: number, callback: (error: JabraError, result: string) => void): void;
 
-    IsGnHidStdHidSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    GetHidWorkingState(deviceId: number, callback: (error: Error | null, result: enumHidState) => void): void;
-    SetHidWorkingState(deviceId: number, state: enumHidState, callback: (error: Error | null, result: void) => void): void;
+    IsGnHidStdHidSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    GetHidWorkingState(deviceId: number, callback: (error: JabraError, result: enumHidState) => void): void;
+    SetHidWorkingState(deviceId: number, state: enumHidState, callback: (error: JabraError, result: void) => void): void;
 
-    GetSettings(deviceId: number, callback: (error: Error | null, result: DeviceSettings) => void): void;
-    GetSetting(deviceId: number, guid: string, callback: (error: Error | null, result: DeviceSettings) => void): void;
-    SetSettings(deviceId: number, settings: DeviceSettings, callback: (error: Error | null, result: void) => void): void;
+    GetSettings(deviceId: number, callback: (error: JabraError, result: DeviceSettings) => void): void;
+    GetSetting(deviceId: number, guid: string, callback: (error: JabraError, result: DeviceSettings) => void): void;
+    SetSettings(deviceId: number, settings: DeviceSettings, callback: (error: JabraError, result: void) => void): void;
     
     
-    FactoryReset(deviceId: number, callback: (error: Error | null, result: void) => void): void;
-    IsFactoryResetSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
+    FactoryReset(deviceId: number, callback: (error: JabraError, result: void) => void): void;
+    IsFactoryResetSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
 
-    IsSettingProtectionEnabled(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
+    IsSettingProtectionEnabled(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
 
-    IsUploadRingtoneSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    IsUploadImageSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
+    IsUploadRingtoneSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    IsUploadImageSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
 
-    IsRingerSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    SetRinger(deviceId: number, enable: boolean, callback: (error: Error | null, result: void) => void): void;
+    IsRingerSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    SetRinger(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
 
-    IsOffHookSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    SetOffHook(deviceId: number, enable: boolean, callback: (error: Error | null, result: void) => void): void;
+    IsOffHookSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    SetOffHook(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
 
-    GetVersion(callback: (error: Error | null, result: string) => void) : void;
+    GetVersion(callback: (error: JabraError, result: string) => void) : void;
 
-    GetBatteryStatus(deviceId: number, callback: (error: Error | null, result: BatteryStatusType) => void): void;
-    IsBatteryStatusSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
+    GetBatteryStatus(deviceId: number, callback: (error: JabraError, result: BatteryStatusType) => void): void;
+    IsBatteryStatusSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
     
-    UploadRingtone(deviceId: number, filename: string, callback: (error: Error | null, result: void) => void): void;
-    UploadWavRingtone(deviceId: number, filename: string, callback: (error: Error | null, result: void) => void): void;
+    UploadRingtone(deviceId: number, filename: string, callback: (error: JabraError, result: void) => void): void;
+    UploadWavRingtone(deviceId: number, filename: string, callback: (error: JabraError, result: void) => void): void;
 
-    UploadImage(deviceId: number, filename: string, callback: (error: Error | null, result: void) => void): void;
+    UploadImage(deviceId: number, filename: string, callback: (error: JabraError, result: void) => void): void;
 
-    GetNamedAsset(deviceId: number, filename: assetName, callback: (error: Error | null, result: NamedAsset) => void): void;
+    GetNamedAsset(deviceId: number, filename: assetName, callback: (error: JabraError, result: NamedAsset) => void): void;
 
-    GetPanics(deviceId: number, callback: (error: Error | null, result: string[]) => void): void;
+    GetPanics(deviceId: number, callback: (error: JabraError, result: string[]) => void): void;
 
-    DownloadFirmware(deviceId: number, version: string, authorization?: string, callback: (error: Error | null, result: void) => void): void;
-    UpdateFirmware(deviceId: number, firmFile: string, callback: (error: Error | null, result: string) => void): void;
-    DownloadFirmwareUpdater(deviceId: number, authorization?: string, callback: (error: Error | null, result: void) => void): void;
-    GetFirmwareFilePath(deviceId: number, version: string, callback: (error: Error | null, result: string) => void): void;
+    DownloadFirmware(deviceId: number, version: string, authorization?: string, callback: (error: JabraError, result: void) => void): void;
+    UpdateFirmware(deviceId: number, firmFile: string, callback: (error: JabraError, result: void) => void): void;
+    DownloadFirmwareUpdater(deviceId: number, authorization?: string, callback: (error: JabraError, result: void) => void): void;
+    GetFirmwareFilePath(deviceId: number, version: string, callback: (error: JabraError, result: string) => void): void;
 
-    SearchNewDevices(deviceId: number, callback: (error: Error | null, result: void) => void): void;
-    ConnectBTDevice(deviceId: number, callback: (error: Error | null, result: void) => void): void;
-    ConnectNewDevice(deviceId: number, deviceName: string, deviceBTAddr: string, isConnected: boolean, callback: (error: Error | null, result: void) => void): void;
-    ConnectPairedDevice(deviceId: number, deviceName: string, deviceBTAddr: string, isConnected: boolean, callback: (error: Error | null, result: void) => void): void;
-    GetConnectedBTDeviceName(deviceId: number, callback: (error: Error | null, result: string) => void): void;
-    GetSearchDeviceList(deviceId: number, callback: (error: Error | null, result: Array<{ deviceName: string, deviceBTAddr: string, isConnected: boolean }>) => void): void;
+    SearchNewDevices(deviceId: number, callback: (error: JabraError, result: void) => void): void;
+    ConnectBTDevice(deviceId: number, callback: (error: JabraError, result: void) => void): void;
+    ConnectNewDevice(deviceId: number, deviceName: string, deviceBTAddr: string, isConnected: boolean, callback: (error: JabraError, result: void) => void): void;
+    ConnectPairedDevice(deviceId: number, deviceName: string, deviceBTAddr: string, isConnected: boolean, callback: (error: JabraError, result: void) => void): void;
+    GetConnectedBTDeviceName(deviceId: number, callback: (error: JabraError, result: string) => void): void;
+    GetSearchDeviceList(deviceId: number, callback: (error: JabraError, result: Array<{ deviceName: string, deviceBTAddr: string, isConnected: boolean }>) => void): void;
     
-    DisconnectBTDevice(deviceId: number, callback: (error: Error | null, result: void) => void): void;
-    DisconnectPairedDevice(deviceId: number, deviceName: string, deviceBTAddr: string, isConnected: boolean, callback: (error: Error | null, result: void) => void): void;
+    DisconnectBTDevice(deviceId: number, callback: (error: JabraError, result: void) => void): void;
+    DisconnectPairedDevice(deviceId: number, deviceName: string, deviceBTAddr: string, isConnected: boolean, callback: (error: JabraError, result: void) => void): void;
  
-    GetAutoPairing(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    SetAutoPairing(deviceId: number, enable: boolean, callback: (error: Error | null, result: void) => void): void;
-    IsPairingListSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    GetPairingList(deviceId: number, callback: (error: Error | null, result: Array<{ deviceName: string, deviceBTAddr: string, isConnected: boolean }>) => void): void;
+    GetAutoPairing(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    SetAutoPairing(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
+    IsPairingListSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    GetPairingList(deviceId: number, callback: (error: JabraError, result: Array<{ deviceName: string, deviceBTAddr: string, isConnected: boolean }>) => void): void;
 
-    ClearPairingList(deviceId: number, callback: (error: Error | null, result: void) => void): void;
-    ClearPairedDevice(deviceId: number, deviceName: string, deviceBTAddr: string, isConnected: boolean, callback: (error: Error | null, result: void) => void): void;
+    ClearPairingList(deviceId: number, callback: (error: JabraError, result: void) => void): void;
+    ClearPairedDevice(deviceId: number, deviceName: string, deviceBTAddr: string, isConnected: boolean, callback: (error: JabraError, result: void) => void): void;
     
-    StopBTPairing(deviceId: number, callback: (error: Error | null, result: void) => void): void;
-    SetBTPairing(deviceId: number, callback: (error: Error | null, result: void) => void): void;
+    StopBTPairing(deviceId: number, callback: (error: JabraError, result: void) => void): void;
+    SetBTPairing(deviceId: number, callback: (error: JabraError, result: void) => void): void;
        
-    GetSupportedButtonEvents(deviceId: number, callback: (error: Error | null, result: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void): void;
+    GetSupportedButtonEvents(deviceId: number, callback: (error: JabraError, result: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void): void;
     
-    IsMuteSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    SetMute(deviceId: number, enable: boolean, callback: (error: Error | null, result: void) => void): void;
-    setUnmute(deviceId: number, enable: boolean, callback: (error: Error | null, result: void) => void): void;
+    IsMuteSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    SetMute(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
+    setUnmute(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
 
-    IsHoldSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
+    IsHoldSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
 
-    IsBusyLightSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    SetHold(deviceId: number, enable: boolean, callback: (error: Error | null, result: void) => void): void;
-    GetBusyLightStatus(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    SetBusyLightStatus(deviceId: number, enable: boolean, callback: (error: Error | null, result: void) => void): void;
-    SetOnline(deviceId: number, online: boolean, callback: (error: Error | null, result: void) => void): void;
+    IsBusyLightSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    SetHold(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
+    GetBusyLightStatus(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    SetBusyLightStatus(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
+    SetOnline(deviceId: number, online: boolean, callback: (error: JabraError, result: void) => void): void;
 
-    IsSetDateTimeSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    IsFeatureSupported(deviceId: number, feature: number, callback: (error: Error | null, result: boolean) => void): void;
-    GetWizardMode(deviceId: number, callback: (error: Error | null, result: number) => void): void;   
-    IsEqualizerSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    IsEqualizerEnabled(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
-    EnableEqualizer(deviceId: number, enable: boolean, callback: (error: Error | null, result: void) => void): void;
+    IsSetDateTimeSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    IsFeatureSupported(deviceId: number, feature: number, callback: (error: JabraError, result: boolean) => void): void;
+    GetWizardMode(deviceId: number, callback: (error: JabraError, result: number) => void): void;   
+    IsEqualizerSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    IsEqualizerEnabled(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    EnableEqualizer(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
     
-    IsOnlineSupported(deviceId: number, callback: (error: Error | null, result: boolean) => void): void;
+    IsOnlineSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
     
-    CancelFirmwareDownload( deviceId: number, callback: (error: Error | null, result: void) => void): void;
-    SetTimestamp( deviceId: number, timeStamp: number, callback: (error: Error | null, result: void) => void): void;
-    SetEqualizerParameters( deviceId: number,bands:Array<number>,nbands:number, callback: (error: Error | null, result: void) => void): void;
-    CheckForFirmwareUpdate( deviceId: number, authorization:string, callback: (error: Error | null, result: boolean) => void): void;
-    PlayRingTone( deviceId: number,level:number,type:number,callback: (error: Error | null, result:void) => void): void;
-    GetESN(deviceId: number, callback: (error: Error | null, result: string) => void): void;
-    GetLastFirmwareUpdateErrorInfo(deviceId: number, callback: (error: Error | null, result: { errorExceptionType: string, errorMessage: string, errorDetails: string } | null) => void): void;
-    GetFailedSettingNames(deviceId: number, callback: (error: Error | null, result: Array<string>) => void): void;
-    GetTimestamp(deviceId: number, callback: (error: Error | null, result: number) => void): void;
-    SetWizardMode(deviceId: number,wizardModes:number, callback: (error: Error | null, result: void) => void): void;
-    GetAudioFileParametersForUpload(deviceId: number, callback: (error: Error | null, result: { audioFileType: number, numChannels: number, bitsPerSample: number, sampleRate: number, maxFileSize: number }) => void): void;
-    SetDatetime(deviceId: number, dateTime: { sec: number, min: number, hour: number, mday: number, mon: number, year: number, wday: number }, callback: (error: Error | null, result: void) => void): void;
-    GetEqualizerParameters(deviceId: number, maxNBands:number, callback: (error: Error | null, result: Array<{ max_gain: number, centerFrequency: number, currentGain: number }>) => void): void;
-    GetSupportedFeatures(deviceId: number, callback: (error: Error | null, result: Array<enumDeviceFeature>) => void): void;
+    CancelFirmwareDownload( deviceId: number, callback: (error: JabraError, result: void) => void): void;
+    SetTimestamp( deviceId: number, timeStamp: number, callback: (error: JabraError, result: void) => void): void;
+    SetEqualizerParameters( deviceId: number,bands:Array<number>,nbands:number, callback: (error: JabraError, result: void) => void): void;
+    CheckForFirmwareUpdate( deviceId: number, authorization:string, callback: (error: JabraError, result: boolean) => void): void;
+    PlayRingTone( deviceId: number,level:number,type:number,callback: (error: JabraError, result:void) => void): void;
+    GetESN(deviceId: number, callback: (error: JabraError, result: string) => void): void;
+    GetLastFirmwareUpdateErrorInfo(deviceId: number, callback: (error: JabraError, result: { errorExceptionType: string, errorMessage: string, errorDetails: string }) => void): void;
+    GetFailedSettingNames(deviceId: number, callback: (error: JabraError, result: Array<string>) => void): void;
+    GetTimestamp(deviceId: number, callback: (error: JabraError, result: number) => void): void;
+    SetWizardMode(deviceId: number,wizardModes:number, callback: (error: JabraError, result: void) => void): void;
+    GetAudioFileParametersForUpload(deviceId: number, callback: (error: JabraError, result: { audioFileType: number, numChannels: number, bitsPerSample: number, sampleRate: number, maxFileSize: number }) => void): void;
+    SetDatetime(deviceId: number, dateTime: { sec: number, min: number, hour: number, mday: number, mon: number, year: number, wday: number }, callback: (error: JabraError, result: void) => void): void;
+    GetEqualizerParameters(deviceId: number, maxNBands:number, callback: (error: JabraError, result: Array<{ max_gain: number, centerFrequency: number, currentGain: number }>) => void): void;
+    GetSupportedFeatures(deviceId: number, callback: (error: JabraError, result: Array<enumDeviceFeature>) => void): void;
 
-    GetButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>, callback: (error: Error | null, result: void) => void): void;
-    ReleaseButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>, callback: (error: Error | null, result: void) => void): void;
+    GetButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>, callback: (error: JabraError, result: void) => void): void;
+    ReleaseButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>, callback: (error: JabraError, result: void) => void): void;
 }
