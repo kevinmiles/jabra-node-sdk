@@ -246,7 +246,7 @@ export class JabraType implements MetaApi {
     /**
      * The user must call this function when finished using the wrapper. Otherwise
      * the node process will not shutdown properly.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`. 
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`. 
      */
     disposeAsync(): Promise<void> {
         sdkIntegration.NativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API started");
@@ -288,7 +288,7 @@ export class JabraType implements MetaApi {
 
     /**
      * Disconnects connected from Jabra applications.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`. 
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`. 
      */
     disconnectFromJabraApplicationAsync(): Promise<void> {
         return util.promisify(sdkIntegration.DisconnectFromJabraApplication)();
@@ -297,7 +297,7 @@ export class JabraType implements MetaApi {
     /**
      * Sets the softphone to Ready. Currently applicable for only Jabra Direct.
      * @param {boolean} isReady Sets the softphone readiness state.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setSoftphoneReadyAsync(isReady: boolean): Promise<void> {
         return util.promisify(sdkIntegration.SetSoftphoneReady)(isReady);

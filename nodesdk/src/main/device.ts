@@ -164,7 +164,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Set device's offhook state to true (Async).
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     offhookAsync(): Promise<void> {
         return util.promisify(sdkIntegration.SetOffHook)(this.deviceID, true);
@@ -172,7 +172,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
      /**
      * Set device's offhook state to false.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     onhookAsync(): Promise<void> {
         return util.promisify(sdkIntegration.SetOffHook)(this.deviceID, false);
@@ -180,7 +180,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Set device's mute state to true i.e., device gets muted.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     muteAsync(): Promise<void> {
         return util.promisify(sdkIntegration.SetMute)(this.deviceID, true);
@@ -188,7 +188,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
      /**
      * Set device's mute state to false i.e., device gets unmuted.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     unmuteAsync(): Promise<void> {
         return util.promisify(sdkIntegration.SetMute)(this.deviceID, false);
@@ -196,7 +196,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Set device's ringer state to true.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     ringAsync(): Promise<void> {
         return util.promisify(sdkIntegration.SetRinger)(this.deviceID, true);
@@ -204,7 +204,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Set device's ringer state to false.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     unringAsync(): Promise<void> {
         return util.promisify(sdkIntegration.SetRinger)(this.deviceID, false);
@@ -212,7 +212,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Set device's hold state to true.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     holdAsync(): Promise<void> {
        return util.promisify(sdkIntegration.SetHold)(this.deviceID, true);
@@ -220,7 +220,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Set device's hold state to false.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     resumeAsync(): Promise<void> {
         return util.promisify(sdkIntegration.SetHold)(this.deviceID, false);
@@ -229,7 +229,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * It opens radio link between base/dongle and device.
      * @param {boolean} audiolink - Boolean value to set Online On/Off
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
     
      */
     setOnlineAsync(audiolink: boolean): Promise<void> {
@@ -239,7 +239,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Set busylight status (Async).
      * @param {boolean} status - Boolean value to set busylight on / off.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setBusyLightStatusAsync(status: boolean): Promise<void> {
         return util.promisify(sdkIntegration.SetBusyLightStatus)(this.deviceID, status);
@@ -256,8 +256,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Get serial number.
-     * @returns {string, Error} - Resolve `string` if successful otherwise Reject with `error`.
-     
+     * @returns {Promise<string, Error>} - Resolve `string` if successful otherwise Reject with `error`.
      */
     getSerialNumberAsync(): Promise<string> {
         return this.ESN ? Promise.resolve(this.ESN) : Promise.reject(new Error("No serial number"));
@@ -265,7 +264,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Get ESN (electronic serial number).
-     * @returns {string, Error} - Resolve `string` if successful otherwise Reject with `error`.
+     * @returns {Promise<string, Error>} - Resolve `string` if successful otherwise Reject with `error`.
      */
     getESNAsync(): Promise<string> {
         return util.promisify(sdkIntegration.GetESN)(this.deviceID);
@@ -273,7 +272,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Get asset with name.
-     * @returns Promise<{NamedAsset, Error}> - Resolve NamedAsset `object` if successful otherwise Reject with `error`.
+     * @returns {Promise<NamedAsset, Error>} - Resolve NamedAsset `object` if successful otherwise Reject with `error`.
      */
     getNamedAssetAsyngetNamec(assetName: string): Promise<NamedAsset> {
         return util.promisify(sdkIntegration.GetNamedAsset)(this.deviceID, assetName);
@@ -324,7 +323,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Enable/disable logging for a device.
      * @param {boolean} enable - whether to enable device log.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     enableDevLogAsync(enable: boolean): Promise<void> {
         return util.promisify(sdkIntegration.EnableDevLog)(this.deviceID, enable);
@@ -342,7 +341,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Gets the unique setting identified by a GUID of a device.
      * @param {string} guid - the unique setting identifier.
-     * @returns {Promise<Array<Setting>, Error>}  - Resolve setting `array` if successful otherwise Reject with `error`.
+     * @returns {Promise<Array<DeviceSettings>, Error>}  - Resolve setting `array` if successful otherwise Reject with `error`.
      */
     getSettingAsync(guid: string): Promise<DeviceSettings> {
         return util.promisify(sdkIntegration.GetSetting)(this.deviceID, guid);
@@ -350,15 +349,15 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Sets all the settings( including all groups and its settings) for a device.
-     * @param {Array<Setting>} settings - pass only changed settings in an array
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @param {Array<DeviceSettings>} settings - pass only changed settings in an array
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setSettingsAsync(settings: DeviceSettings): Promise<void> {
         return util.promisify(sdkIntegration.SetSettings)(this.deviceID, settings);
     }
     /**
      * Restore factory settings to device.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     resetSettingsAsync(): Promise<void> {
         return util.promisify(sdkIntegration.FactoryReset)(this.deviceID);
@@ -415,7 +414,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * Downloads the specified firmware version file.
      * @param {string} version - Version for which file download needs to be initiated.
      * @param {string} [authorization] - Authorization Id.
-     * @returns {Promise<void, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.   
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.   
      */
     downloadFirmwareAsync(version: string, authorization?: string): Promise<void> {
         return util.promisify(sdkIntegration.DownloadFirmware)(this.deviceID, version, authorization || "");
@@ -433,7 +432,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Cancels the firmware download (Async).
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     cancelFirmwareDownloadAsync(): Promise<void> {
         return util.promisify(sdkIntegration.CancelFirmwareDownload)(this.deviceID);
@@ -441,7 +440,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Upgrades / Updates the firmware for the target device with specified version.
      * @param {string} firmwareFilePath - firmware file path.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.  
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.  
      */
     updateFirmwareAsync(firmwareFilePath: string): Promise<void> {
         return util.promisify(sdkIntegration.UpdateFirmware)(this.deviceID, firmwareFilePath);
@@ -459,14 +458,14 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     // bluetooth APIs
     /**
      * Set the bluetooth device in pairing mode.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setBTPairingAsync(): Promise<void> {
         return util.promisify(sdkIntegration.SetBTPairing)(this.deviceID);
     }
     /**
      * Stop search for available Bluetooth devices.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     stopBTPairingAsync(): Promise<void> {
         return util.promisify(sdkIntegration.StopBTPairing)(this.deviceID);
@@ -474,14 +473,14 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     
     /**
      * Search for available Bluetooth devices which are switched on, within range and ready to connect.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     searchNewDevicesAsync(): Promise<void> {
         return util.promisify(sdkIntegration.SearchNewDevices)(this.deviceID);
     }
     /**
      * Connect/Reconnect Bluetooth device to the Jabra Bluetooth adapter. Ensure the Bluetooth device is switched on and within range.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     connectBTDeviceAsync(): Promise<void> {
         return util.promisify(sdkIntegration.ConnectBTDevice)(this.deviceID);
@@ -491,7 +490,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @param {string} deviceName - name of device to be connected.
      * @param {string} deviceBTAddr -  BTAddress of device to be connected.
      * @param {boolean} isConnected - current status of device to be connected.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
     */
     connectNewDeviceAsync(deviceName: string, deviceBTAddr: string, isConnected: boolean): Promise<void> {
         return util.promisify(sdkIntegration.ConnectNewDevice)(this.deviceID, deviceName, deviceBTAddr, isConnected);
@@ -501,7 +500,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @param {string} deviceName - name of device to be connected.
      * @param {string} deviceBTAddr -  BTAddress of device to be connected.
      * @param {boolean} isConnected - current status of device to be connected.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      * - **Note**       : After device connection, getPairingListAsync api has to be called to get updated connection status.
      */
     connectPairedDeviceAsync(deviceName: string, deviceBTAddr: string, isConnected: boolean): Promise<void> {
@@ -510,7 +509,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Disconnect  Bluetooth device from  Bluetooth adapter.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     disconnectBTDeviceAsync(): Promise<void> {
         return util.promisify(sdkIntegration.DisconnectBTDevice)(this.deviceID);
@@ -521,7 +520,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @param {string} deviceName - name of device to be disconnected.
      * @param {string} deviceBTAddr -  BTAddress of device to be disconnected.
      * @param {boolean} isConnected - current status of device to be disconnected.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      * - **Note**       : After device disconnection, getPairingListAsync api has to be called to get updated connection status.
      */
     disconnectPairedDeviceAsync(deviceName: string, deviceBTAddr: string, isConnected: boolean): Promise<void> {
@@ -531,7 +530,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * When Bluetooth adapter is plugged into the PC it will attempt to connect with the last connected Bluetooth device. If it cannot connect, it will automatically search for new Bluetooth devices to connect to.
      * @param {boolean} value - enable or disable for auto pairing.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setAutoPairingAsync(value: boolean): Promise<void> {
         return util.promisify(sdkIntegration.SetAutoPairing)(this.deviceID, value);
@@ -565,7 +564,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Clear list of paired BT devices from BT adapter.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     clearPairingListAsync(): Promise<void> {
         return util.promisify(sdkIntegration.ClearPairingList)(this.deviceID);
@@ -600,7 +599,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Configures the remote MMI events for a device.
      * @param {Array<{buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{key: number, value: string}>}>} btnEvents
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     getButtonFocusAsync(btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>): Promise<void> {
         return util.promisify(sdkIntegration.GetButtonFocus)(this.deviceID, btnEvents);    
@@ -609,7 +608,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Releases the remote MMI events configured in the device.
      * @param {Array<{buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{key: number, value: string}>}>} btnEvents
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     releaseButtonFocusAsync(btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>): Promise<void> {
         return util.promisify(sdkIntegration.ReleaseButtonFocus)(this.deviceID, btnEvents);
@@ -627,7 +626,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Upload ringtone to device  (Async).
      * @param {string} filePath filepath of image file to be uploaded.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     uploadRingtoneAsync(filePath: string): Promise<void> {
         return util.promisify(sdkIntegration.UploadRingtone)(this.deviceID, filePath);
@@ -644,7 +643,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Upload ringtone to device in .wav format.
      * @param {string} filePath filepath of image file to be uploaded.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     uploadWavRingtoneAsync(filePath: string): Promise<void> {
         return util.promisify(sdkIntegration.UploadWavRingtone)(this.deviceID, filePath);
@@ -653,7 +652,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Feature of configuring time to device (Async).
      * @param {DateTimeParam} timedate date and time in object format
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setDateTimeAsync(timedate: { sec: number, min: number, hour: number, mday: number, mon: number, year: number, wday: number }): Promise<void> {
        return util.promisify(sdkIntegration.SetDatetime)(this.deviceID, timedate);
@@ -680,7 +679,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Upload image to device.
      * @param {string} filePath filepath of image file to be uploaded.
-     * @return {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`. 
+     * @return {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`. 
      */
     uploadImageAsync(filePath: string): Promise<void> {
         return util.promisify(sdkIntegration.UploadImage)(this.deviceID, filePath);
@@ -733,7 +732,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Sets the HID working state to either standard HID (usb.org HID specification) or GN HID.
      * @param {number} hidState - state HID working state (`enumHidState`)
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setHidWorkingStateAsync(hidState: enumHidState): Promise<void>  {
         return util.promisify(sdkIntegration.SetHidWorkingState)(this.deviceID, hidState);
@@ -753,7 +752,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * to query feature support enumDeviceFeature.FullWizardMode or
      * enumDeviceFeature.LimitedWizardMode.
      * @param {number} wizardMode Wizard mode to be set (one of WizardModes).
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setWizardModeAsync(wizardMode: enumWizardMode) : Promise<void>  {
        return util.promisify(sdkIntegration.SetWizardMode)(this.deviceID,wizardMode);
@@ -776,7 +775,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @param {string} deviceName - name of device to be connected.
      * @param {string} deviceBTAddr -  BTAddress of device to be connected.
      * @param {boolean} isConnected - current status of device to be connected.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     clearPairedDeviceAsync(deviceName: string, deviceBTAddr: string, isConnected: boolean): Promise<void>  {
         return util.promisify(sdkIntegration.ClearPairedDevice)(this.deviceID, deviceName, deviceBTAddr, isConnected);
@@ -785,7 +784,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Downloads the latest FW updater relevant for this device
      * @param {string} [authorization] - Authorization Id.
-     * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     downloadFirmwareUpdaterAsync(authorization?: string): Promise<void>  {
         return util.promisify(sdkIntegration.DownloadFirmwareUpdater)(this.deviceID, authorization || "");
@@ -794,7 +793,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Sets a static timestamp in the device. Can be used for later referencing using Jabra_GetTime.
      * @param {Number} timeStamp - Timestamp to be set. Unix epoch.
-     * @return {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+     * @return {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setTimestampAsync(timeStamp: number) : Promise<void>  {
         return util.promisify(sdkIntegration.SetTimestamp)(this.deviceID, timeStamp);
@@ -812,7 +811,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     * Play Ringtone in Device.
     * @param {number} level volume Level to Play.
     * @param {number} type ringtone Type to Play.
-    * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+    * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
     */
     playRingtoneAsync(level: number, type: number): Promise<void>  {
         return util.promisify(sdkIntegration.PlayRingTone)(this.deviceID,level,type);
@@ -839,7 +838,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    /**
    * Enable/disable equalizer.
    * @param {boolean} enable Enable or disable equalizer.
-   * @returns {Promise<undefined, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+   * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
    */
    enableEqualizerAsync(enable: boolean): Promise<void> {
     return util.promisify(sdkIntegration.EnableEqualizer)(this.deviceID, true);
@@ -858,7 +857,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     * Set equalizer parameters
     * @param {Array<number>} bands Caller-owned array containing the band gains to set in dB
     * (must be within range of +/- max_gain).
-    * @returns {Promise<void>, Error>} - Resolve `undefined` if successful otherwise Reject with `error`.
+    * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
    */
    setEqualizerParametersAsync(bands: Array<number>, nband:number): Promise<void> {
     return util.promisify(sdkIntegration.SetEqualizerParameters)(this.deviceID, bands, nband);
