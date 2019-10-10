@@ -1,7 +1,7 @@
 {
-  "name": "@gnaudio/jabra-electron-test-app",
+  "name": "@gnaudio/jabra-electron-demo-app",
   "version": "1.0.0-beta.2",
-  "description": "A electon test application for Jabra Electron/Node SDK",
+  "description": "A electon demo application for Jabra Electron/Node SDK",
   "main": "dist/main/main.js",
   "browser": "dist/renderer/renderer.js",
   "scripts": {
