@@ -246,6 +246,7 @@ export class JabraType implements MetaApi {
     /**
      * The user must call this function when finished using the wrapper. Otherwise
      * the node process will not shutdown properly.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`. 
      */
     disposeAsync(): Promise<void> {
         sdkIntegration.NativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API started");
@@ -276,6 +277,10 @@ export class JabraType implements MetaApi {
 
     /**
      * Integrates softphone app to Jabra applications like Jabra Direct(JD) and Jabra Suite for Mac(JMS).
+     * @param {string} guid Client unique ID.
+     * @param {string} softphoneName Name of the application to be shown in JD or JMS.
+     * @returns {Promise<boolean, Error>} - Resolve `boolean` if successful otherwise Reject with `error`. 
+     * - Returns `true` if softphone app integrates to Jabra application, `false` otherwise.
      */   
     connectToJabraApplicationAsync(guid: string, softphoneName: string): Promise<boolean> {
         return util.promisify(sdkIntegration.ConnectToJabraApplication)(guid, softphoneName);
@@ -283,6 +288,7 @@ export class JabraType implements MetaApi {
 
     /**
      * Disconnects connected from Jabra applications.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`. 
      */
     disconnectFromJabraApplicationAsync(): Promise<void> {
         return util.promisify(sdkIntegration.DisconnectFromJabraApplication)();
@@ -290,6 +296,8 @@ export class JabraType implements MetaApi {
 
     /**
      * Sets the softphone to Ready. Currently applicable for only Jabra Direct.
+     * @param {boolean} isReady Sets the softphone readiness state.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setSoftphoneReadyAsync(isReady: boolean): Promise<void> {
         return util.promisify(sdkIntegration.SetSoftphoneReady)(isReady);
@@ -297,6 +305,8 @@ export class JabraType implements MetaApi {
 
     /**
      * Indicates whether the softphone is in focus.
+     * @returns {Promise<boolean, Error>} - Resolve `boolean` if successful otherwise Reject with `error`.
+     * - Returns `true` if softphone is in focus, `false` otherwise.
      */
     isSoftphoneInFocusAsync(): Promise<boolean> {
         return util.promisify(sdkIntegration.IsSoftphoneInFocus)();
@@ -311,6 +321,7 @@ export class JabraType implements MetaApi {
 
     /**
      * Get the SDK version.
+     * @returns {Promise<string, Error>} - Resolve SDK version `string` if successful otherwise Reject with `error`.
      */
     getSDKVersionAsync(): Promise<string> {
         return util.promisify(sdkIntegration.GetVersion)();
@@ -318,6 +329,8 @@ export class JabraType implements MetaApi {
 
     /**
      * Get error string from a previously returned SDK error status.
+     * @param {number} errStatusCode Status code of the error from the Jabra Device.
+     * @returns {Promise<string, Error>} - Resolve Error String `string` if successful otherwise Reject with `error`.
     */
     getErrorStringAsync(errStatusCode: number): Promise<string> {
         return util.promisify(sdkIntegration.GetErrorString)(errStatusCode);
