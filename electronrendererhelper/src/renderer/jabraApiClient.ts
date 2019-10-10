@@ -187,7 +187,7 @@ function doCreateProxy<T extends (MetaApi & JabraEventManagementApi)>(meta: Clas
             } else if (propName === "toJSON") {
                 return () => target;
             } else if (propName ===  nameof<T>("getMeta")) {
-                return meta; // Use local value for efficiency rather than server side value.
+                return () => meta; // Use local value for efficiency rather than server side value.
             } else if (propName === nameof<T>("on")) {
                 return (eventName: string, callback: EventCallback) => {
                     on(eventName, callback);  
