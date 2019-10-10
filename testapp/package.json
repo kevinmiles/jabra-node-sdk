@@ -1,0 +1,48 @@
+{
+  "name": "@gnaudio/jabra-electron-test-app",
+  "version": "1.0.0-beta.2",
+  "description": "A electon test application for Jabra Electron/Node SDK",
+  "main": "dist/main/main.js",
+  "browser": "dist/renderer/renderer.js",
+  "scripts": {
+    "build": "npm run tsc && npm run browserify",
+    "tsc": "tsc -p tsconfig.json",
+    "browserify": "browserify src/renderer/renderer.ts -p tsify --debug -o dist/renderer/bundle.js",
+    "postbuild": "copyfiles -u 1 -e *.ts src/**/*.* dist && copyfiles -u 2 -E ./node_modules/notyf/notyf.min.css dist/renderer",
+    "start": "cross-env LIBJABRA_TRACE_LEVEL=trace electron ./dist/main/main.js",
+    "package": "electron-packager . --platform=win32 --arch=x64 --overwrite",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "jabra",
+    "test"
+  ],
+  "author": "GN Audio",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://github.com/gnaudio/jabra-node-sdk/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gnaudio/jabra-node-sdk.git"
+  },
+  "bugs": {
+    "url": "https://developer.jabra.com/site/global/support/index.gsp"
+  },
+  "dependencies": {
+    "@gnaudio/jabra-node-sdk": "file:../nodesdk",
+    "@gnaudio/jabra-electron-renderer-helper": "file:../electronrendererhelper",
+    "jquery": "3.4.1",
+    "notyf": "3.0.4"
+  },
+  "devDependencies": {
+    "@types/notyf": "2.0.0",
+    "electron": "6.0.12",
+    "typescript": "3.6.4",
+    "electron-packager": "14.0.6",
+    "rimraf": "2.6.3",
+    "copyfiles": "2.1.1",
+    "browserify": "16.5.0",
+    "tsify": "4.0.1",
+    "cross-env": "6.0.3"
+  }
+}

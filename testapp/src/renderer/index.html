@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval';" />
+  <title>Jabra NodeJS SDK Api Test</title>
+  <base href="">
+  <link href="main.css" rel="stylesheet" />
+  <link href="notyf.min.css" rel="stylesheet" />
+</head>
+<body>
+  <a href="https://github.com/gnaudio/jabra-node-sdk"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+  <header>
+  <div class="wrapper center">
+    <h1 class="title">Jabra NodeJS SDK API Test</h1>
+    <p>
+      <span>@gnaudio/jabra-electron-test-app v</span><span id="testAppVersion"></span>, @gnaudio/jabra-node-sdk v<span id="nodeSdkVersion"></span>, @gnaudio/jabra-electron-test-app v<span id="electronHelperVersion"></span>, Electron v<span id="electronVersion"></span>, Node v<span id="nodeVersion"></span>, OS <span id="osType"></span></span>
+      <span id="nativeSdkVersionContainer" style="display:none">, Native SDK v<span id="nativeSdkVersion">Press CheckInstall / call getSDKVersionAsync to view</span></span>
+   </p>
+  </div>
+</header>
+<section id="section">
+  <div id="subTitles">
+        <p id="subTitle1"></p>
+        <p id="subTitle2"></p>
+        <b id="errorMsg"></b>
+  </div>
+  
+  <div class="wrapper">
+    <table>
+        <tr> 
+            <td>
+                <input id="initSDKBtn" type="button" value="Init" title="Initialize API and subscribe to ALL events (must be called prior to anything else) - Alias for init call followed by addEventListener call with catch all /.*/ argument"/>
+            </td>
+            <td>
+                <input id="unInitSDKBtn" type="button" value="UnInit" disabled="true" title="De-Initialize API (incl. unsubscribe everything) - may optionally be called when finished using API - Alias for shutdown call"/>
+            </td>
+            <td>&nbsp;&nbsp;&nbsp;</td>
+            <td>
+                <input id="apiReference" type="button" value="Api reference" title="Lookup api reference documentation"/>
+            </td>
+            <td>
+                <input id="setupUserMediaPlaybackBtn" type="button" value="Setup user media playback" title="Activates microphone and speaker for playback - equivalent to call into getUserDeviceMediaExt followed by trySetDeviceOutput" disabled="true"/>
+            </td>
+            <td>
+                <input id="checkInstallBtn" type="button" value="CheckInstall" title="Check and show installed SDK version" disabled="true"/>
+            </td>
+            <td>
+                <input id="devicesBtn" type="button" value="Refresh Devices" title="Alias for call into getDevices" disabled="true"/>
+            </td>
+        </tr>   
+    </table>
+      
+    <br/>
+    <audio id="player" muted autoplay></audio>
+    <br/>
+    
+    <table>
+        <tr>
+            <td>Device</td>
+            <td>ApiClass</td>
+            <td>Method</td>
+            <td>Internals</td>
+            <td>Invoke</td>
+        </tr>
+        <tr>
+            <td>
+              <select id="deviceSelector"> 
+              </select>   
+            </td>
+            <td>
+              <select id="apiClassSelector"> 
+              </select>   
+            </td>
+            <td>
+              <select id="methodSelector">                  
+              </select>
+            </td>
+            <td>
+                <input type="checkbox" id="filterInternalsAndDeprecatedMethodsChk" value="true" title="Filter out internals/deprecated methods" checked />
+            </td>
+            <td>
+                <input id="invokeApiBtn" type="button" value="Invoke" title="Invoke selected API function (1 time)"/>
+            </td>
+        </tr>
+    </table>
+
+    <p>&nbsp;</p>
+
+    <div id="methodHelp" class="methodHelp"></div>
+   
+    <table>
+        <tr>
+            <td>
+                Parameter 1
+            </td>
+            <td>
+                Parameter 2
+            </td>
+            <td>
+                Parameter 3
+            </td>
+            <td>
+                Parameter 4
+            </td>
+            <td>
+                Parameter 5
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" class="param" id="txtParam1" />
+            </td>
+            <td>
+                <input type="text" class="param" id="txtParam2" />
+            </td>
+            <td>
+                <input type="text" class="param" id="txtParam3" />
+            </td>
+            <td>
+                <input type="text" class="param" id="txtParam4" />
+            </td>
+            <td>
+                <input type="text" class="param" id="txtParam5" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span id="param1Hint" class="paramHint"></span>
+            </td>
+            <td>
+                <span id="param2Hint" class="paramHint"></span>
+            </td>
+            <td>
+                <span id="param3Hint" class="paramHint"></span>
+            </td>
+            <td>
+                <span id="param4Hint" class="paramHint"></span>
+            </td>
+            <td>
+                <span id="param5Hint" class="paramHint"></span>
+            </td>
+        </tr>
+    </table>
+
+    <br/>
+
+    <table>
+        <tr>
+            <td>
+              Message/events (<span id="messagesCount">0</span> entries): <input id="clearMessageAreaBtn" type="button" value="Clear" title="Clear text"/>&nbsp;<input id="toggleScrollMessageAreaBtn" type="button" value="Scroll ON" title="Toggle text scrolling on/off" />&nbsp;<input id="copyMessages" type="button" value="Copy" title="Copy to clipboard" />&nbsp;&nbsp;
+              <label for="messageFilter">Filter: </label>&nbsp;<input type="text" class="filter" id="messageFilter" title="Filter messages" />
+            </td>
+            <td>&nbsp;</td>
+            <td>
+              Errors (<span id="errorsCount">0</span> entries): <input id="clearErrorAreaBtn" type="button" value="Clear" title="Clear text"/>&nbsp;<input id="toggleScrollErrorAreaBtn" type="button" value="Scroll ON" title="Toggle text scrolling on/off" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <textarea id="messageArea" rows="25" cols="100"></textarea>
+            </td>
+            <td>&nbsp;</td>
+            <td>
+              <textarea id="errorArea" rows="25" cols="60"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">&nbsp;</td>
+        </tr>
+        <tr>   
+            <td colspan="3">
+                <span id="devLogStatus" class="devLogStatus" style="display:none">
+                    <br/>
+                    Devlog status&nbsp;&nbsp;
+                    <label for="boomArmStatus">Boom arm:</label>&nbsp;<span id="boomArmStatus">?</span>&nbsp;,
+                    <label for="txStatus">Tx:</label>&nbsp;<span id="txStatus">?</span>&nbsp;,
+                    <label for="txPeakStatus">Tx peak:</label>&nbsp;<span id="txPeakStatus">?</span>&nbsp;,
+                    <label for="rxStatus">Rx:</label>&nbsp;<span id="rxStatus">?</span>&nbsp;,
+                    <label for="rxPeakStatus">Rx peak:</label>&nbsp;<span id="rxPeakStatus">?</span>&nbsp;,
+                    <label for="txSpeechStatus">Tx speech:</label>&nbsp;<span id="txSpeechStatus">?</span>&nbsp;,
+                    <label for="rxSpeechStatus">Rx speech:</label>&nbsp;<span id="rxSpeechStatus">?</span>                    
+                    <br/>
+                    <br/>
+                    <br/>
+                </span>
+            </td>
+        </tr>        
+    </table>         
+  </div>
+</section>
+<footer>
+  <div class="wrapper center">
+    <p>GN Audio A/S</p>
+  </div>
+</footer>
+<script type="text/javascript" src="./bundle.js"></script>
+</body>
+</html>
