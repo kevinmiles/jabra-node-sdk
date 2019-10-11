@@ -139,8 +139,13 @@ textarea {
 }
 
 .methodHelp {
-  font-size: small;
   font-style: italic;
+  color: darkgray;
+}
+
+.methodSignature {
+  font-style: italic;
+  color: darkgray;
 }
 
 .filter {

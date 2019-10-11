@@ -35,6 +35,7 @@ export const filterInternalsAndDeprecatedMethodsChk = document.getElementById('f
 export const invokeApiBtn = document.getElementById('invokeApiBtn') as HTMLButtonElement;
 export const stressInvokeApiBtn = document.getElementById('stressInvokeApiBtn') as HTMLButtonElement;
 export const methodHelp = document.getElementById('methodHelp') as HTMLDivElement;
+export const methodSignature = document.getElementById('methodSignature') as HTMLDivElement;
 
 export const txtParam1 = document.getElementById('txtParam1') as HTMLInputElement;
 export const txtParam2 = document.getElementById('txtParam2') as HTMLInputElement;
@@ -105,7 +106,7 @@ export function showError(err: string | String | Error) {
 }
 
 export function addDevice(device: DeviceType) {
-    var opt = document.createElement('option');
+    const opt = document.createElement('option');
     opt.value = device.deviceID.toString();
     opt.innerHTML = device.deviceName;
     deviceSelector.appendChild(opt);
@@ -135,7 +136,7 @@ export function setupDevices(devices: ReadonlyArray<DeviceType>) {
   }
 
   devices.forEach(device => {
-    var opt = document.createElement('option');
+    const opt = document.createElement('option');
     opt.value = device.deviceID.toString();
     opt.innerHTML = device.deviceName;
     deviceSelector.appendChild(opt);
@@ -157,8 +158,7 @@ export function setupApiClasses(apiClasses: any[]) {
   }
 
   apiClasses.forEach(clazz => {
-    let name = clazz.name;
-    var opt = document.createElement('option');
+    const opt = document.createElement('option');
     opt.value = clazz.name;
     opt.innerHTML = clazz.name;
     apiClassSelector.appendChild(opt);
@@ -171,7 +171,8 @@ export function setupApiMethods(meta: ClassEntry | undefined) {
   }
 
   if (meta) {
-    meta.methods.forEach(methodMeta => {
+    const sortedMethods = [...meta.methods].sort();
+    sortedMethods.forEach(methodMeta => {
       var opt = document.createElement('option');
       opt.value = methodMeta.name;
       opt.innerHTML = methodMeta.name;

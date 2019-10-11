@@ -1,15 +1,20 @@
 // This file is included by the index.html file and will be executed in the renderer process for that window.
 console.log('renderer.js loaded');
 
+// Browser friendly type-only imports as we can assume the electron app has these types loaded already.
+type IpcRenderer = import('electron').IpcRenderer;
+
 import { createApiClient } from '@gnaudio/jabra-electron-renderer-helper';
 import { enumDeviceBtnType, DeviceType, JabraType, ClassEntry, JabraEventsList, DeviceEventsList, enumHidState, MethodEntry } from '@gnaudio/jabra-node-sdk';
 
 import { player, initSDKBtn, unInitSDKBtn, initStaticVersionInfo, checkInstallBtn, notyf, showError, setupDevices, toggleScrollMessageAreaBtn, 
          toggleScrollErrorAreaBtn, devicesBtn, setupUserMediaPlaybackBtn, deviceSelector, clearMessageAreaBtn, clearErrorAreaBtn, messageArea, errorArea, 
          messagesCount, errorsCount, messageFilter, copyMessagesBtn, methodSelector, param1Hint, param2Hint, param3Hint, param4Hint, param5Hint, 
-         methodHelp, txtParam1, txtParam2, txtParam3, txtParam4, txtParam5, nativeSdkVersion, nativeSdkVersionContainer, apiClassSelector, setupApiClasses, addDevice, removeDevice, setupApiMethods, invokeApiBtn } from './guihelper';
+         methodHelp, txtParam1, txtParam2, txtParam3, txtParam4, txtParam5, nativeSdkVersion, nativeSdkVersionContainer, apiClassSelector, setupApiClasses, 
+         addDevice, removeDevice, setupApiMethods, invokeApiBtn, apiReferenceBtn, methodSignature } from './guihelper';
 import { BoundedQueue } from './queue';
 import { nameof } from '../common/util';
+import { openHelpWindow } from '../common/ipc';
 
 const stressWaitInterval = 1000;
 const maxQueueSize = 1000;
@@ -85,9 +90,9 @@ setupUserMediaPlaybackBtn.onclick = () => {
 
 };
 
-deviceSelector.onchange = ((e) => {
-
-});
+apiReferenceBtn.onclick = () => {
+  window.electron.ipcRenderer.send(openHelpWindow);
+};
 
 function getCurrentDevice() {
     let id = Number.parseInt(deviceSelector.value);
@@ -112,7 +117,7 @@ function getCurrentMethodMeta(): MethodEntry | undefined {
     if (currentApiObject) {
         let clazzMeta = currentApiObject.getMeta();
         let selectedMethodName = methodSelector.value;
-        return clazzMeta.methods.find(method => method.name = selectedMethodName);
+        return clazzMeta.methods.find(method => method.name === selectedMethodName);
     } else {
         return undefined;
     }
@@ -121,6 +126,7 @@ function getCurrentMethodMeta(): MethodEntry | undefined {
 function updateApiMethods() {
     let currentApiObject = getCurrentApiClassObject(); 
     setupApiMethods(currentApiObject ? currentApiObject.getMeta() : undefined);
+    setupApiHelp();
 }
 
 apiClassSelector.onchange = ((e) => {
@@ -129,7 +135,7 @@ apiClassSelector.onchange = ((e) => {
 
   // Update hints for API call:
 methodSelector.onchange = ((e) => {
-    let methodName = methodSelector.value;
+  setupApiHelp();
   //  TODO: Update hints for API call:
 });
 
@@ -175,58 +181,51 @@ function invokeSelectedApi(method: MethodEntry): Promise<any> {
 
 // Setup hints to help out with API use:
 function setupApiHelp() {
-    /*
-    param1Hint.innerText = "";
-    param2Hint.innerText = "";
-    param3Hint.innerText = "";
-    param4Hint.innerText = "";
-    param5Hint.innerText = "";
-    methodHelp.innerText = "";
-    (txtParam1 as any).style="";
-    (txtParam2 as any).style="";
-    (txtParam3 as any).style="";
-    (txtParam4 as any).style="";
-    (txtParam5 as any).style="";
+  const meta = getCurrentMethodMeta();
 
-    function getInputStyle(optional: any) {
-      return optional ? "border:1px solid #00ff00" : "border:1px solid #ff0000";
+  param1Hint.innerText = "";
+  param2Hint.innerText = "";
+  param3Hint.innerText = "";
+  param4Hint.innerText = "";
+  param5Hint.innerText = "";
+  methodHelp.innerText = "";
+  (txtParam1 as any).style="";
+  (txtParam2 as any).style="";
+  (txtParam3 as any).style="";
+  (txtParam4 as any).style="";
+  (txtParam5 as any).style="";
+
+  function getInputStyle(optional: boolean) {
+    return optional ? "border:1px solid #00ff00" : "border:1px solid #ff0000";
+  }
+
+  if (meta) {
+    methodSignature.innerText = meta.name + "( " + meta.parameters.map(p => p.name + ": " + p.tsType).join(", ") + "): " + meta.tsType;
+    methodHelp.innerText = meta.documentation;
+
+    if (meta.parameters.length>=1) {
+      param1Hint.innerText = meta.parameters[0].tsType;
+      (txtParam1 as any).style = getInputStyle(meta.parameters[0].optional);
     }
-
-    let apiFuncName = methodSelector.options[methodSelector.selectedIndex].value;
-    var help = commandTxtHelp[apiFuncName];
-    if (!help) {
-      help = commandTxtHelp["__default__"];
+    if (meta.parameters.length>=2) {
+      param2Hint.innerText =  meta.parameters[1].tsType;
+      (txtParam2 as any).style = getInputStyle(meta.parameters[1].optional);
     }
-
-    if (help) {
-      if (help.length>0) {
-        methodHelp.innerText = help[0];
-      }
-
-      if (help.length>1) {
-        param1Hint.innerText = help[1];
-        (txtParam1 as any).style = getInputStyle(help[1].includes("?:"));
-      }
-      if (help.length>2) {
-        param2Hint.innerText = help[2];
-        (txtParam2 as any).style = getInputStyle(help[2].includes("?:"));
-      }
-      if (help.length>3) {
-        param3Hint.innerText = help[3];
-        (txtParam4 as any).style = getInputStyle(help[3].includes("?:"));
-      }
-      if (help.length>4) {
-        param4Hint.innerText = help[4];
-        (txtParam4 as any).style = getInputStyle(help[4].includes("?:"));
-      }
-      if (help.length>5) {
-        param5Hint.innerText = help[5];
-        (txtParam5 as any).style = getInputStyle(help[5].includes("?:"));
-      }
+    if (meta.parameters.length>=3) {
+      param3Hint.innerText =  meta.parameters[2].tsType;
+      (txtParam4 as any).style =  getInputStyle(meta.parameters[2].optional);
+    }
+    if (meta.parameters.length>=4) {
+      param4Hint.innerText =  meta.parameters[3].tsType;
+      (txtParam4 as any).style =  getInputStyle(meta.parameters[3].optional);
+    }
+    if (meta.parameters.length>=5) {
+      param5Hint.innerText =  meta.parameters[4].tsType;
+      (txtParam5 as any).style =  getInputStyle(meta.parameters[4].optional);
     }
   }
-  */
 }
+
 
 function convertParam(value: any): any {
     let tValue = value.trim();

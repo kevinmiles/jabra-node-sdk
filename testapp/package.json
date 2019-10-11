@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npm run tsc && npm run browserify",
     "tsc": "tsc -p tsconfig.json",
-    "browserify": "browserify src/renderer/renderer.ts -p tsify --debug -o dist/renderer/bundle.js",
+    "browserify": "browserify src/renderer/renderer.ts -x electron -p tsify --debug -o dist/renderer/bundle.js",
     "postbuild": "copyfiles -u 1 -e *.ts src/**/*.* dist && copyfiles -u 2 -E ./node_modules/notyf/notyf.min.css dist/renderer",
     "start": "cross-env LIBJABRA_TRACE_LEVEL=trace electron ./dist/main/main.js",
     "package": "electron-packager . --platform=win32 --arch=x64 --overwrite",

@@ -6,6 +6,7 @@ import * as process from 'process';
 import { JabraApiServerFactory, JabraApiServer } from '@gnaudio/jabra-electron-renderer-helper';
 
 import * as path from "path";
+import { openHelpWindow } from "../common/ipc";
 
 // Get our own version information directly from packages:
 const testPackage = require ('../../package.json');
@@ -24,8 +25,8 @@ let jabraServer: JabraApiServer | null = null;
 function createAndLoadWindow(): Promise<BrowserWindow> {
   // Create the browser window.
   let window = new BrowserWindow({
-    height: 600,
-    width: 800,
+    height: 1024,
+    width: 1280,
     webPreferences: {
       // Disabled Node integration
       nodeIntegration: false,
@@ -50,10 +51,11 @@ function createAndLoadWindow(): Promise<BrowserWindow> {
                 &nodeVersion=${process.versions.node}
                 &osType=${osType}`.replace(/[\n\r\t\s]/g, '');
 
-  // and load the index.html of the app returning a promise that resolves when loaded.
+  const htmlUrl = `file://${__dirname}/../renderer/index.html?${args}`
+
+  // load the index.html of the app returning a promise that resolves when loaded.
   // Nb. the promise part is new for electron 5 - alternatively, we could wait for
   // 'did-finish-load' and convert that into a promise.
-  const htmlUrl = `file://${__dirname}/../renderer/index.html?${args}`
 
   const loadPromise = window.loadURL(htmlUrl);
 
@@ -107,6 +109,29 @@ function setup() {
     let config: ConfigParamsCloud = {
       // Set any needed configuration parameters here.
     };
+
+    ipcMain.on(openHelpWindow, (event) => {
+      const helpWindow = new BrowserWindow({
+        height: 600,
+        width: 800,
+        title: 'NodeJS SDK API Reference',
+        webPreferences: {
+          // Disabled Node integration
+          nodeIntegration: false,
+          // In a sandbox
+          sandbox: true,
+          // Allow Ipc to/from sandbox
+          contextIsolation: false,
+          // No need for remoting for this app.
+          enableRemoteModule: false,
+          // No insecure code.
+          webSecurity: true,
+        }
+      });
+
+      const apiDoc = require.resolve('@gnaudio/jabra-node-sdk/dist/doc/index.html');
+      helpWindow.loadFile(apiDoc);
+    });
 
     // As window is now fully loaded we can create our api server for the client.
     jabraServerFactory!.create('A7tSsfD42VenLagL2mM6i2f0VafP/842cbuPCnC+uE8=', config, fullyLoadedWindow).then( (result) => {
