@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npm run compile && npm run browserify && npm run copyresources",
     "compile": "tsc -p tsconfig.json",
-    "browserify": "browserify src/test/renderer/renderer.ts -p tsify --debug -o dist/test/renderer/bundle.js",
+    "browserify": "browserify src/test/renderer/renderer.ts -x electron -p tsify --debug -o dist/test/renderer/bundle.js",
     "copyresources": "copyfiles -u 1 src/**/*.html dist",
     "start": "cross-env LIBJABRA_TRACE_LEVEL=trace electron ./dist/test/main/main.js",
     "prepare": "npm run build",
@@ -43,7 +43,7 @@
     "electron": ">=2.0.0"
   },
   "devDependencies": {
-    "@gnaudio/jabra-node-sdk": "file:../nodesdk",
+    "@gnaudio/jabra-node-sdk": "2.0.0-beta.3",
     "electron": "6.0.10",
     "typescript": "3.6.3",
     "rimraf": "2.6.3",

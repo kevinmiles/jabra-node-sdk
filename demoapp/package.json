@@ -1,11 +1,11 @@
 {
   "name": "@gnaudio/jabra-electron-demo-app",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "description": "A electon demo application for Jabra Electron/Node SDK",
   "main": "dist/main/main.js",
   "browser": "dist/renderer/renderer.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json && browserify src/renderer/renderer.ts -p tsify --debug -o dist/renderer/bundle.js",
+    "build": "tsc -p tsconfig.json && browserify src/renderer/renderer.ts -x electron -p tsify --debug -o dist/renderer/bundle.js",
     "postbuild": "copyfiles -u 1 -e *.ts src/**/*.* dist && copyfiles -u 2 -E ./node_modules/notyf/notyf.min.css dist/renderer",
     "start": "npm run build && electron ./dist/main/main.js",
     "package": "electron-packager . --platform=win32 --arch=x64 --overwrite",
@@ -27,8 +27,8 @@
     "url": "https://developer.jabra.com/site/global/support/index.gsp"
   },
   "dependencies": {
-    "@gnaudio/jabra-node-sdk": "2.0.0-beta.2",
-    "@gnaudio/jabra-electron-renderer-helper": "1.0.0-beta.2",
+    "@gnaudio/jabra-node-sdk": "2.0.0-beta.3",
+    "@gnaudio/jabra-electron-renderer-helper": "1.0.0-beta.3",
     "jquery": "3.4.1",
     "notyf": "3.0.4"
   },
