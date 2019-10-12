@@ -146,7 +146,7 @@ export function setupDevices(devices: ReadonlyArray<DeviceType>) {
 }
 
 function devicesSideEffects() {
-  // disable stuff here.
+  // enable/disable stuff here.
 
   let notificationText = (deviceSelector.options.length === 0) ? "No Jabra device found - Please insert a Jabra Device!" : "";
   errorMsg.innerText = notificationText;
@@ -171,7 +171,7 @@ export function setupApiMethods(meta: ClassEntry | undefined) {
   }
 
   if (meta) {
-    const sortedMethods = [...meta.methods].sort();
+    const sortedMethods = [...meta.methods].sort( (a,b) => a.name.localeCompare(b.name));
     sortedMethods.forEach(methodMeta => {
       var opt = document.createElement('option');
       opt.value = methodMeta.name;
