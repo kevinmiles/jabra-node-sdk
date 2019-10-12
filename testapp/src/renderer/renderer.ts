@@ -5,7 +5,7 @@ console.log('renderer.js loaded');
 type IpcRenderer = import('electron').IpcRenderer;
 
 import { createApiClient } from '@gnaudio/jabra-electron-renderer-helper';
-import { enumDeviceBtnType, DeviceType, JabraType, ClassEntry, JabraEventsList, DeviceEventsList, enumHidState, MethodEntry } from '@gnaudio/jabra-node-sdk';
+import { enumDeviceBtnType, DeviceType, JabraType, ClassEntry, JabraEventsList, DeviceEventsList, enumHidState, MethodEntry, enumFirmwareEventType, enumFirmwareEventStatus, PairedListInfo, enumUploadEventStatus } from '@gnaudio/jabra-node-sdk';
 
 import { player, initSDKBtn, unInitSDKBtn, initStaticVersionInfo, checkInstallBtn, notyf, showError, setupDevices, toggleScrollMessageAreaBtn, 
          toggleScrollErrorAreaBtn, devicesBtn, setupUserMediaPlaybackBtn, deviceSelector, clearMessageAreaBtn, clearErrorAreaBtn, messageArea, errorArea, 
@@ -54,25 +54,34 @@ initSDKBtn.onclick = () => {
 
         _jabra.on('attach', (device) => {
             addDevice(device);
-            addEventMessage("Received attach event");
+            addEventMessage('attach', device);
+            setupDeviceEvents(device);
 
             updateApiMethods();
         });
 
         _jabra.on('detach', (device) => {
             removeDevice(device);
-            addEventMessage("Received detach event");
+            addEventMessage('detach', device);
 
             updateApiMethods();
         });
 
         _jabra.on('firstScanDone', () => {
-            addEventMessage("Received firstScanDone event");
+            addEventMessage('firstScanDone');
         });
         
         jabra = _jabra
     });
     commandEffect("createApiClient", response);
+}
+
+export function setupDeviceEvents(device: DeviceType) {
+  DeviceEventsList.forEach((e) => {
+    device.on(e as any, ((...args: any[]) => {      
+        addEventMessage(e, ...args);
+    }));
+  });
 }
         
   // Close API when asked.
@@ -86,9 +95,10 @@ checkInstallBtn.onclick = () => {
     commandEffect(nameof<JabraType>("getSDKVersionAsync"), response);
 };
 
+/*
 setupUserMediaPlaybackBtn.onclick = () => {
 
-};
+};*/
 
 apiReferenceBtn.onclick = () => {
   window.electron.ipcRenderer.send(openHelpWindow);
@@ -267,16 +277,16 @@ function commandEffect(apiFuncName: string, result: Promise<any> | any) {
           addStatusMessage("Jabra library initialized successfully")
           initSDKBtn.disabled = true;
           unInitSDKBtn.disabled = false;
-          devicesBtn.disabled = false;
-          setupUserMediaPlaybackBtn.disabled = false;
+          // devicesBtn.disabled = false;
+          // setupUserMediaPlaybackBtn.disabled = false;
           checkInstallBtn.disabled = false;
 
           notyf.success("Jabra library initialized successfully");
         } else if (apiFuncName === nameof<JabraType>("disposeAsync")) {
           initSDKBtn.disabled = false;
           unInitSDKBtn.disabled = true;
-          devicesBtn.disabled = true;
-          setupUserMediaPlaybackBtn.disabled = true;
+          // devicesBtn.disabled = true;
+          // setupUserMediaPlaybackBtn.disabled = true;
           checkInstallBtn.disabled = true;
   
           while (deviceSelector.options.length > 0) {                
@@ -429,8 +439,20 @@ function commandEffect(apiFuncName: string, result: Promise<any> | any) {
     updateMessageArea();
   }
 
-  function addEventMessage(msg: string | any) {
-    let txt = (typeof msg === 'string' || msg instanceof String) ? "event string: " + msg.toString() : "event object: " + JSON.stringify(msg, null, 2);
+  function addEventMessage(eventName: string, ...args: any[]) {
+    let txt = "Received event " + eventName + " with arguments ";
+
+    let firstArg = true;
+    for (let arg of args) {
+      if (firstArg) {
+        firstArg = false;
+      } else {
+        txt = txt + ", ";
+      }
+      let argV = (arg !== Object(arg)) ? arg.toString() : JSON.stringify(arg, null, 2);
+      txt = txt + argV;    
+    }
+   
     messages.push(txt);
     updateMessageArea();
   }
