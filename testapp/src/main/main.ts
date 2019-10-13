@@ -112,8 +112,8 @@ function setup() {
 
     ipcMain.on(openHelpWindow, (event) => {
       const helpWindow = new BrowserWindow({
-        height: 600,
-        width: 800,
+        height: 900,
+        width: 1024,
         title: 'NodeJS SDK API Reference',
         webPreferences: {
           // Disabled Node integration
