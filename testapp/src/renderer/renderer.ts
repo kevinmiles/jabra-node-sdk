@@ -5,7 +5,7 @@ console.log('renderer.js loaded');
 type IpcRenderer = import('electron').IpcRenderer;
 
 import { createApiClient } from '@gnaudio/jabra-electron-renderer-helper';
-import { enumDeviceBtnType, DeviceType, JabraType, ClassEntry, JabraEventsList, DeviceEventsList, enumHidState, MethodEntry, enumFirmwareEventType, enumFirmwareEventStatus, PairedListInfo, enumUploadEventStatus } from '@gnaudio/jabra-node-sdk';
+import { enumDeviceBtnType, DeviceType, JabraType, ClassEntry, JabraEventsList, DeviceEventsList, enumHidState, MethodEntry, enumFirmwareEventType, enumFirmwareEventStatus, PairedListInfo, enumUploadEventStatus, ParameterEntry } from '@gnaudio/jabra-node-sdk';
 
 import { player, initSDKBtn, unInitSDKBtn, initStaticVersionInfo, checkInstallBtn, notyf, showError, setupDevices, toggleScrollMessageAreaBtn, 
          toggleScrollErrorAreaBtn, devicesBtn, setupUserMediaPlaybackBtn, deviceSelector, clearMessageAreaBtn, clearErrorAreaBtn, messageArea, errorArea, 
@@ -209,35 +209,39 @@ function setupApiHelp() {
     return optional ? "border:1px solid #00ff00" : "border:1px solid #ff0000";
   }
 
+  function getTypeHint(pMeta: ParameterEntry) {
+    return pMeta.tsType + (pMeta.tsType !== pMeta.jsType ? " (" + pMeta.jsType + ")" : "");
+  }
+
   if (meta) {
     methodSignature.innerText = meta.name + "( " + meta.parameters.map(p => p.name + ": " + p.tsType).join(", ") + "): " + meta.tsType;
     methodHelp.innerText = meta.documentation;
 
     if (meta.parameters.length>=1) {
-      param1Hint.innerText = meta.parameters[0].tsType;
+      param1Hint.innerText = getTypeHint(meta.parameters[0]);
       (txtParam1 as any).style = getInputStyle(meta.parameters[0].optional);
     }
     if (meta.parameters.length>=2) {
-      param2Hint.innerText =  meta.parameters[1].tsType;
+      param2Hint.innerText =  getTypeHint(meta.parameters[1]);
       (txtParam2 as any).style = getInputStyle(meta.parameters[1].optional);
     }
     if (meta.parameters.length>=3) {
-      param3Hint.innerText =  meta.parameters[2].tsType;
+      param3Hint.innerText =  getTypeHint(meta.parameters[2]);
       (txtParam4 as any).style =  getInputStyle(meta.parameters[2].optional);
     }
     if (meta.parameters.length>=4) {
-      param4Hint.innerText =  meta.parameters[3].tsType;
+      param4Hint.innerText =  getTypeHint(meta.parameters[3]);
       (txtParam4 as any).style =  getInputStyle(meta.parameters[3].optional);
     }
     if (meta.parameters.length>=5) {
-      param5Hint.innerText =  meta.parameters[4].tsType;
+      param5Hint.innerText =  getTypeHint(meta.parameters[4]);
       (txtParam5 as any).style =  getInputStyle(meta.parameters[4].optional);
     }
   }
 }
 
 
-function convertParam(value: any): any {
+function convertParam(value: string): any {
     let tValue = value.trim();
     
     // Remove leading zero from numbers to avoid intreprenting them as octal.
@@ -258,7 +262,7 @@ function convertParam(value: any): any {
         || tValue.startsWith("{")
         || tValue.toLowerCase() === "true" 
         || tValue.toLowerCase() === "false"
-        || !isNaN(tValue)) {
+        || !isNaN(tValue as any)) {
       return eval(tValue); // Normally dangerous but since this is a test app it is acceptable.
     } else { // Assume string otherwise.
       return value;
