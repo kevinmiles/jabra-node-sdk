@@ -19,7 +19,7 @@ Jabra Node.js SDK - BETA RELEASE
 1. Node.js v8.x or later & `node-gyp`.
 2. **On MacOS:** `xcode` & `python 2.7`. By default, Python is installed on macOS but make sure correct version(2.7.x) is installed. Install Xcode from App store or download it from [here](https://developer.apple.com/xcode/download/).
 3. **On Windows:** `Visual C++ Build Tools` & `Python 2.7`. You can install all of these using command `npm install --global --production --add-python-to-path windows-build-tools`. To know more about this tool, see [this link.](https://github.com/felixrieseberg/windows-build-tools)
-4. **On Linux:** `build-essential` package for C++ compilation &  & `Python 2.7`.
+4. **On Linux:** `build-essential` package for C++ compilation & `Python 2.7`.
 
 5. **For Electron.JS:** If you are using `asar` packaging then you may need to `unpack` some of the resources used in this module. These resources are native library files i.e `libjabra.dll`, `libjabra.dylib` & `libjabra.so`, which is stored in a `build\Release` folder. By default latest electron builder will automatically unpack, but if it does not work then you can provide below option to your build process. To know more, see [this link](https://www.electron.build/configuration/configuration)
 
@@ -149,3 +149,17 @@ import { createJabraApplication } from '@gnaudio/jabra-node-sdk';
     await jabra.disposeAsync();
 })();
 ```
+
+## Sequence diagrams
+
+These sequence diagrams shows typical use of the Node.js sdk:
+
+![Sequence diagram](docs/outgoing-call-then-end-call.png)
+
+![Sequence diagram](docs/incoming-call-then-accept-on-device-then-end-call.png)
+
+![Sequence diagram](docs/incoming-call-then-user-rejects.png)
+
+![Sequence diagram](docs/mute-unmute-from-device.png)
+
+![Sequence diagram](docs/hold-resume-from-device.png)
