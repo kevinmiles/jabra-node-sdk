@@ -37,11 +37,11 @@ export const stressInvokeApiBtn = document.getElementById('stressInvokeApiBtn') 
 export const methodHelp = document.getElementById('methodHelp') as HTMLDivElement;
 export const methodSignature = document.getElementById('methodSignature') as HTMLDivElement;
 
-export const txtParam1 = document.getElementById('txtParam1') as HTMLInputElement;
-export const txtParam2 = document.getElementById('txtParam2') as HTMLInputElement;
-export const txtParam3 = document.getElementById('txtParam3') as HTMLInputElement;
-export const txtParam4 = document.getElementById('txtParam4') as HTMLInputElement;
-export const txtParam5 = document.getElementById('txtParam5') as HTMLInputElement;
+export const txtParam1 = document.getElementById('txtParam1') as HTMLTextAreaElement;
+export const txtParam2 = document.getElementById('txtParam2') as HTMLTextAreaElement;
+export const txtParam3 = document.getElementById('txtParam3') as HTMLTextAreaElement;
+export const txtParam4 = document.getElementById('txtParam4') as HTMLTextAreaElement;
+export const txtParam5 = document.getElementById('txtParam5') as HTMLTextAreaElement;
 
 export const param1Hint = document.getElementById('param1Hint') as HTMLSpanElement;
 export const param2Hint = document.getElementById('param2Hint') as HTMLSpanElement;

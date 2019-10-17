@@ -121,6 +121,15 @@ textarea {
   font-size: 14px;
   margin-bottom: 20px;
   padding: 7px 10px;
+  overflow: hidden;
+  resize: vertical;
+
+}
+
+.param::-webkit-scrollbar { width: 0 !important }
+
+.paramContainer {
+ 
 }
 
 .paramReq {
