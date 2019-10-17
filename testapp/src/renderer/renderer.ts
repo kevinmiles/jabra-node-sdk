@@ -73,7 +73,7 @@ initSDKBtn.onclick = () => {
         
         jabra = _jabra
     });
-    commandEffect("createApiClient", response);
+    commandEffect("createApiClient", ["<ipcRenderer>"], response);
 }
 
 export function setupDeviceEvents(device: DeviceType) {
@@ -87,12 +87,12 @@ export function setupDeviceEvents(device: DeviceType) {
   // Close API when asked.
 unInitSDKBtn.onclick = () => {
     let response = jabra!.disposeAsync();
-    commandEffect("disposeAsync", response);
+    commandEffect("disposeAsync", [], response);
 };
 
 checkInstallBtn.onclick = () => {
     let response = jabra!.getSDKVersionAsync();
-    commandEffect(nameof<JabraType>("getSDKVersionAsync"), response);
+    commandEffect(nameof<JabraType>("getSDKVersionAsync"), [], response);
 };
 
 /*
@@ -154,7 +154,7 @@ invokeApiBtn.onclick = () => {
     if (meta) {
         invokeSelectedApi(meta);
     } else {
-        addError("No api selected to invoke");
+        addError("User error", "No api selected to invoke");
     }
 }
 
@@ -175,18 +175,38 @@ function invokeSelectedApi(method: MethodEntry): Promise<any> {
             argsResolver = commandArgs["__default__"];
         }
 
-        const args = argsResolver();
+        let args;
+        try {
+         args = argsResolver();
+         args = args.slice(0, Math.min(args.length, method.parameters.length));
+        } catch (err) {
+          addError("Parameter input error",  err);
+          return Promise.reject(err);
+        }
 
         try {
-            let result = apiFunc.call(jabra, ...args);
-            return commandEffect(method.name, result).then(() => {});
+            const result = apiFunc.call(jabra, ...args);
+            return commandEffect(method.name, args.map(a => paramToString(a)), result).then(() => {});
         } catch (err) {
-            addError(err);
+            addError("Command execution error",  err);
             return Promise.reject(err);
         }
     } else {
         return Promise.reject(new Error("No api selected to execute"));
     }
+}
+
+// Producable printable version of parameter
+function paramToString(param: any): string {
+  if (param === null) {
+    return "<null>";
+  } else if (param === undefined) {
+    return "<undefined>"
+  } else if ((param !== Object(param)) || param.hasOwnProperty('toString')) {
+    return param.toString();
+  } else {
+    return JSON.stringify(param, null, 2);
+  }
 }
 
 // Setup hints to help out with API use:
@@ -262,19 +282,20 @@ function convertParam(value: string): any {
         || tValue.startsWith("{")
         || tValue.toLowerCase() === "true" 
         || tValue.toLowerCase() === "false"
-        || !isNaN(tValue as any)) {
-      return eval(tValue); // Normally dangerous but since this is a test app it is acceptable.
+        || (tValue.length>0 && !isNaN(tValue as any))) {
+      return eval("("+tValue+")"); // Normally dangerous but since this is a test app it is acceptable.
     } else { // Assume string otherwise.
       return value;
     }
 }
 
 // Update state with result from previously executed command and return promise with result.
-function commandEffect(apiFuncName: string, result: Promise<any> | any) {
+function commandEffect(apiFuncName: string, argDescriptions: any[], result: Promise<any> | any): Promise<any> {
+    let apiCallDescription = apiFuncName + "(" + argDescriptions.join(", ") + ")";
+    addStatusMessage("Api call " + apiCallDescription + " executed.");
+
     if (result instanceof Promise) {
       return result.then((value) => {
-        addStatusMessage("Api call " + apiFuncName + " succeeded.");
-
         // Handle special calls that must have side effects in this test application:
         if (apiFuncName === createApiClient.name) {
           // Use the Jabra library
@@ -338,7 +359,7 @@ function commandEffect(apiFuncName: string, result: Promise<any> | any) {
           });
     
           if (deviceSelector.options.length == 0) {
-            addError("No devices found");
+            addError("Device error", "No devices found");
           }
 
           addResponseMessage(value);
@@ -365,13 +386,11 @@ function commandEffect(apiFuncName: string, result: Promise<any> | any) {
           }
         }
 
-        addError(error);
+        addError("Api exectution error", error);
 
         return undefined;
       });
     } else { // Unpromised result:
-      addStatusMessage("Api call " + apiFuncName + " completed.");
-
       if (result != undefined && result != null) { // Default handling of general API call:
         addResponseMessage(result);
       }
@@ -408,17 +427,17 @@ function commandEffect(apiFuncName: string, result: Promise<any> | any) {
     return messageFilter.value === "" || str.toLocaleLowerCase().includes(messageFilter.value.toLocaleLowerCase());
   }
 
-  function addError(err: Error | string) {  
+  function addError(context: string, err: Error | string) {  
     let txt;
     if (typeof err === 'string' || err instanceof String) {
-      txt = "error string: " + err;
+      txt = err;
     } else if (err instanceof Error) {
       txt = err.name + " : " + err.message;
     } else {
-      txt = "error object: " + JSON.stringify(err, null, 2);
+      txt = JSON.stringify(err, null, 2);
     }
 
-    errors.push(txt);
+    errors.push(context + ": " + txt);
     updateErrorArea();
   }
 
@@ -475,7 +494,7 @@ function commandEffect(apiFuncName: string, result: Promise<any> | any) {
     navigator.clipboard.writeText(clipText)
     .then(() => {})
     .catch(err => {
-      addError("Could not copy to clipboard");
+      addError("Internal error", "Could not copy to clipboard");
     });
   };
 
