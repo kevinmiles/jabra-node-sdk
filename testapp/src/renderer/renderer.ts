@@ -11,7 +11,7 @@ import { player, initSDKBtn, unInitSDKBtn, initStaticVersionInfo, checkInstallBt
          toggleScrollErrorAreaBtn, devicesBtn, setupUserMediaPlaybackBtn, deviceSelector, clearMessageAreaBtn, clearErrorAreaBtn, messageArea, errorArea, 
          messagesCount, errorsCount, messageFilter, copyMessagesBtn, methodSelector, param1Hint, param2Hint, param3Hint, param4Hint, param5Hint, 
          methodHelp, txtParam1, txtParam2, txtParam3, txtParam4, txtParam5, nativeSdkVersion, nativeSdkVersionContainer, apiClassSelector, setupApiClasses, 
-         addDevice, removeDevice, setupApiMethods, invokeApiBtn, apiReferenceBtn, methodSignature } from './guihelper';
+         addDevice, removeDevice, setupApiMethods, invokeApiBtn, apiReferenceBtn, methodSignature, stressInvokeApiBtn } from './guihelper';
 import { BoundedQueue } from './queue';
 import { nameof } from '../common/util';
 import { openHelpWindow } from '../common/ipc';
@@ -41,8 +41,8 @@ let errors = new BoundedQueue<string>(maxQueueSize);
 let messages = new BoundedQueue<string>(maxQueueSize);
 // let logs = new BoundedQueue<string>(maxQueueSize);
 
-let stressInvokeCount = undefined;
-let stressInterval = undefined;
+let stressInvokeCount: number | undefined = undefined;
+let stressInterval: NodeJS.Timeout | undefined = undefined;
 
 initStaticVersionInfo();
 
@@ -150,13 +150,63 @@ methodSelector.onchange = ((e) => {
 });
 
 invokeApiBtn.onclick = () => {
-    let meta = getCurrentMethodMeta();
+    const meta = getCurrentMethodMeta();
+    const currentApiObject = getCurrentApiClassObject(); 
     if (meta) {
-        invokeSelectedApi(meta);
+        invokeSelectedApi(currentApiObject, meta);
     } else {
-        addError("User error", "No api selected to invoke");
+        addError("User error", "No device/api selected to invoke");
     }
 }
+
+  // Invoke API repeatedly:
+stressInvokeApiBtn.onclick = () => {
+    // Stop stress testing. Leave button with status if failure until repeated stop.
+    function stopStressInvokeApi(success: boolean) {
+      if (stressInterval) {
+          clearInterval(stressInterval);
+          stressInterval = undefined;
+      }
+      if (success) {
+          stressInvokeApiBtn.value = "Invoke repeatedly (stress test)";
+      }
+    }
+    
+    let sucess = true;
+    let stopped = false;
+    if (stressInvokeApiBtn.value.toLowerCase().includes("stop")) {
+      stopStressInvokeApi(sucess);
+      stopped = true;
+    } else {
+      const funcMeta = getCurrentMethodMeta();
+      const currentApiObject = getCurrentApiClassObject(); 
+      if (!currentApiObject || !funcMeta) {
+        addError("User error", "No device/api selected to invoke");
+        return;
+      }
+
+      stressInvokeCount = 1;
+      stressInvokeApiBtn.value = "Stop";
+      stressInterval = setInterval(() => {
+        if (sucess && stressInterval && funcMeta) {
+          try {
+            invokeSelectedApi(currentApiObject, funcMeta).then( () => {
+              stressInvokeApiBtn.value = "Stop stress test (" + funcMeta!.name + " success count # " + stressInvokeCount + ")";
+              ++stressInvokeCount!;
+            }).catch( () => {
+              stressInvokeApiBtn.value = "Stop stress test (" + funcMeta!.name + " failed at count # " + stressInvokeCount + ")";
+              sucess = false;
+              stopStressInvokeApi(sucess);
+            });
+          } catch (err) {
+            stressInvokeApiBtn.value = "Stop stress test (" + funcMeta!.name + " failed with exception at count # " + stressInvokeCount + ")";
+            sucess = false;
+            stopStressInvokeApi(sucess);
+          }
+        }
+      }, stressWaitInterval);
+    }
+};
 
 // Resolves arguments for different API methods. All methods that require
 // complex values or have default values should be explicitly handled here:
@@ -165,9 +215,8 @@ const commandArgs: { [name: string]: () => any[] } = {
 };
 
 // Call into user selected API method.
-function invokeSelectedApi(method: MethodEntry): Promise<any> {
-    let currentApiObject = getCurrentApiClassObject(); 
-    if (currentApiObject) {
+function invokeSelectedApi(currentApiObject: JabraType | DeviceType | undefined, method: MethodEntry): Promise<any> {
+    if (currentApiObject && method) {
         const apiFunc = (currentApiObject as any)[method.name];
 
         let argsResolver = commandArgs[method.name];
@@ -192,6 +241,7 @@ function invokeSelectedApi(method: MethodEntry): Promise<any> {
             return Promise.reject(err);
         }
     } else {
+        addError("No api selected to execute");
         return Promise.reject(new Error("No api selected to execute"));
     }
 }
@@ -302,7 +352,8 @@ function commandEffect(apiFuncName: string, argDescriptions: any[], result: Prom
           addStatusMessage("Jabra library initialized successfully")
           initSDKBtn.disabled = true;
           unInitSDKBtn.disabled = false;
-          // devicesBtn.disabled = false;
+          invokeApiBtn.disabled = false;
+          stressInvokeApiBtn.disabled = false;
           // setupUserMediaPlaybackBtn.disabled = false;
           checkInstallBtn.disabled = false;
 
@@ -310,9 +361,10 @@ function commandEffect(apiFuncName: string, argDescriptions: any[], result: Prom
         } else if (apiFuncName === nameof<JabraType>("disposeAsync")) {
           initSDKBtn.disabled = false;
           unInitSDKBtn.disabled = true;
-          // devicesBtn.disabled = true;
           // setupUserMediaPlaybackBtn.disabled = true;
           checkInstallBtn.disabled = true;
+          invokeApiBtn.disabled = true;
+          stressInvokeApiBtn.disabled = true;
   
           while (deviceSelector.options.length > 0) {                
             deviceSelector.remove(0);
@@ -427,17 +479,19 @@ function commandEffect(apiFuncName: string, argDescriptions: any[], result: Prom
     return messageFilter.value === "" || str.toLocaleLowerCase().includes(messageFilter.value.toLocaleLowerCase());
   }
 
-  function addError(context: string, err: Error | string) {  
+  function addError(context: string, err?: Error | string) {
     let txt;
     if (typeof err === 'string' || err instanceof String) {
       txt = err;
     } else if (err instanceof Error) {
       txt = err.name + " : " + err.message;
+    } else if (err === undefined) {
+      txt = undefined;
     } else {
       txt = JSON.stringify(err, null, 2);
     }
 
-    errors.push(context + ": " + txt);
+    errors.push(txt ? (context + ": " + txt) : context);
     updateErrorArea();
   }
 

@@ -66,6 +66,7 @@
             <td>Method</td>
             <td>Internals</td>
             <td>Invoke</td>
+            <td></td>
         </tr>
         <tr>
             <td>
@@ -84,7 +85,10 @@
                 <input type="checkbox" id="filterInternalsAndDeprecatedMethodsChk" value="true" title="Filter out internals/deprecated methods" checked />
             </td>
             <td>
-                <input id="invokeApiBtn" type="button" value="Invoke" title="Invoke selected API function (1 time)"/>
+                <input id="invokeApiBtn" type="button" value="Invoke" disabled="true" title="Invoke selected API function (1 time)"/>
+            </td>
+            <td>
+                &nbsp;&nbsp;<input id="stressInvokeApiBtn" type="button" value="Invoke repeatedly (stress test)" disabled="true" title="Stress test by invoking selected API function repeatedly"/>
             </td>
         </tr>
     </table>
