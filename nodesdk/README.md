@@ -16,12 +16,28 @@ Jabra Node.js SDK - BETA RELEASE
 **Warning: ALL software released here is in BETA. All software can be considered unstable, possibly untested and might be updated at any time. In addition, this documentation is not fully updated. Use at your own risk. If you want to use something stable, please await completion of our development and Q/A process OR consider using our previous ["jabra" npm](https://www.npmjs.com/package/jabra) package (until it will be deprecated at a later stage).**
 
 ## Pre-requisite
-1. Node.js v8.x or later & `node-gyp`.
+1. Node.js v8.x or later.
 2. **On MacOS:** `xcode` & `python 2.7`. By default, Python is installed on macOS but make sure correct version(2.7.x) is installed. Install Xcode from App store or download it from [here](https://developer.apple.com/xcode/download/).
-3. **On Windows:** `Visual C++ Build Tools` & `Python 2.7`. You can install all of these using command `npm install --global --production --add-python-to-path windows-build-tools`. To know more about this tool, see [this link.](https://github.com/felixrieseberg/windows-build-tools)
+3. **On Windows:** `Visual C++ Build Tools` & `Python 2.7`. You can install all of these using command `npm install --global --production --add-python-to-path windows-build-tools`. To know more about this tool, see [this link.](https://github.com/felixrieseberg/windows-build-tools).
 4. **On Linux:** `build-essential` package for C++ compilation & `Python 2.7`.
 
-5. **For Electron.JS:** If you are using `asar` packaging then you may need to `unpack` some of the resources used in this module. These resources are native library files i.e `libjabra.dll`, `libjabra.dylib` & `libjabra.so`, which is stored in a `build\Release` folder. By default latest electron builder will automatically unpack, but if it does not work then you can provide below option to your build process. To know more, see [this link](https://www.electron.build/configuration/configuration)
+    4.1. **Udev rules:** To be able to communicate with Jabra devices with non-root privileges it is required to create a udev rule for Jabra devices. Place the udev rule in `/etc/udev/rules.d`, and follow naming guidelines for udev files.              
+    
+    **Example:** The file name should be something like `80-jabra.rules` where the number before the dash indicates in what order the system reads the rules (e.g. if you had another rules file called `70-someotherrule.rules`, it would read that one first), the word after the dash is just an identifier of sorts (it could be something other than jabra) and the extension must be `.rules`.
+
+    The contents of the file are:
+
+    `ATTRS{idVendor}=="0b0e", MODE="0666", GROUP="users"`
+
+    After creating the udev file (as root), reload the udev rules using:
+
+    `sudo udevadm control --reload`
+
+    Reattach your Jabra device in order to get new permissions assigned.
+
+5. **All Platforms:** `node-gyp`. You can install this using command `npm install -g node-gyp`. To know more about this, see [this link](https://www.npmjs.com/package/node-gyp)
+
+6. **For Electron.JS:** If you are using `asar` packaging then you may need to `unpack` some of the resources used in this module. These resources are native library files i.e `libjabra.dll`, `libjabra.dylib` & `libjabra.so`, which is stored in a `build\Release` folder. By default latest electron builder will automatically unpack, but if it does not work then you can provide below option to your build process. To know more, see [this link](https://www.electron.build/configuration/configuration)
 
     ```
     "build": {
