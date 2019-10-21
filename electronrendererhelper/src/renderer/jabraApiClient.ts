@@ -170,13 +170,16 @@ interface PromiseCallbacks {
  * must be handled by provided delegating callbacks.
  */
 function doCreateProxy<T extends (MetaApi & JabraEventManagementApi)>(meta: ClassEntry, 
+                                          validCheck: () => boolean,
                                           methodExecutor: (methodName: string, methodMeta: MethodEntry, ...args : any[]) => any,
                                           on: (eventName: string, callback: EventCallback) => any,
                                           off: (eventName: string, callback: EventCallback) => any
                                          ) : ProxyHandler<T> {
     return {
         get: (target, propKey, receiver) => {
-            let propName = propKey.toString();
+            const isValid = validCheck();
+
+            const propName = propKey.toString();
             let methodEntry: MethodEntry | undefined;
             if (propKey === Symbol.toPrimitive) {
                 return undefined; // Not supported.
@@ -201,7 +204,16 @@ function doCreateProxy<T extends (MetaApi & JabraEventManagementApi)>(meta: Clas
                 return Reflect.get(target, propKey);
             } else if ((methodEntry = meta.methods.find(m => m.name === propName)) || propName.startsWith("_")) {
                 return (...args : any[]) => {
-                    return methodExecutor(propKey.toString(), methodEntry!, ...args);
+                    if (isValid) {
+                        return methodExecutor(propKey.toString(), methodEntry!, ...args);
+                    } else {
+                        const error = new Error(meta.name + "instance no longer active/valid. Can not call method");
+                        if (methodEntry!.jsType === Promise.name) {
+                            return Promise.reject(error);
+                        } else {
+                            throw error;
+                        } 
+                    }
                 };
             } else {
                 return undefined;
@@ -335,7 +347,14 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
     const eventEmitter = new SimpleEventEmitter<JabraTypeEvents>(JabraEventsList);
     let methodExecutionId : number = 0;
 
+    let shutDownStatus: boolean = false;
+
     let eventsHandlersSetupTime_ms: number = 0;
+
+    function isValid(): boolean
+    {
+        return !shutDownStatus;
+    }
 
     function emitEvent(eventName: JabraTypeEvents, ...args: any[]) {
         eventEmitter.emit(eventName, ...args);
@@ -441,6 +460,8 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
     });
 
     function shutdown() {
+        shutDownStatus = true;
+
         JabraEventsList.forEach((e) => {
             ipcRenderer.removeAllListeners(getJabraTypeApiCallabackEventName(e));
         });
@@ -452,7 +473,7 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
         eventEmitter.removeAllListeners();
     }
 
-    const proxyHandler = doCreateProxy<JabraType>(jabraTypeMeta, executeApiMethod, executeOn, executeOff);
+    const proxyHandler = doCreateProxy<JabraType>(jabraTypeMeta, isValid, executeApiMethod, executeOn, executeOff);
 
     const jabraTypeReadonlyProperties = { 
         appID: undefined // unsupported by proxy at this time (and properly for good for security).
@@ -470,6 +491,13 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo & DeviceTiming, deviceTyp
     const resultsByExecutionId = new Map<Number, PromiseCallbacks>();
     let methodExecutionId : number = 0;
 
+    let shutDownStatus: boolean = false;
+
+    function isValid(): boolean
+    {
+        return deviceInfo.detached_time_ms === undefined && !shutDownStatus;
+    }
+
     function emitEvent(eventName: DeviceTypeEvents, ...args: any[]) {
         eventEmitter.emit(eventName, ...args);
     }
@@ -483,6 +511,9 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo & DeviceTiming, deviceTyp
     }  
     
     function executeApiMethod(methodName: string, methodMeta: MethodEntry, ...args : any[]) : any {
+        if (deviceInfo.detached_time_ms) {
+
+        }
         if (methodName == nameof<DeviceTypeExtras>("_shutdown")) {
             // Special local handling for when we are finshed with the device.
             shutdown();
@@ -585,9 +616,11 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo & DeviceTiming, deviceTyp
         });
 
         eventEmitter.removeAllListeners();
+
+        shutDownStatus = true;
     }
 
-    const proxyHandler = doCreateProxy(deviceTypeMeta, executeApiMethod, executeOn, executeOff);
+    const proxyHandler = doCreateProxy(deviceTypeMeta, isValid, executeApiMethod, executeOn, executeOff);
     return new Proxy<DeviceType & DeviceTypeExtras>(deviceInfo as (DeviceType & DeviceTypeExtras), proxyHandler);
 }
 

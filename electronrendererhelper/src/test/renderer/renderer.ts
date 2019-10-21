@@ -28,14 +28,18 @@ createApiClient(window.electron.ipcRenderer).then((client) => {
             console.log("getButtonFocusAsync failed with error " + err);
         });
 
-        device.getSerialNumberAsync().then((sn) => {
-            console.log("Serial number is " + sn);
-        });
-
         device.on("btnPress", (btnType: enumDeviceBtnType, value: boolean) => {
             console.log("Getting btnPress btnType = '" + JSON.stringify(btnType, null, 2) + "'");
             console.log("Getting btnPress value = '" + JSON.stringify(value, null, 2) + "'");
-         });
+        });
+
+        setInterval(() => {
+            device.getSerialNumberAsync().then((sn) => {
+                    console.log("Serial number is " + sn);
+                }).catch((err) => {
+                    console.log("Got error: " + err);
+                });
+        }, 3000);
     });
 
     client.on('detach', (device) => {

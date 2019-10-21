@@ -303,6 +303,10 @@ export class JabraApiServer
     }
 
     private executeDeviceApiCall(device: DeviceType, methodName: string, ...args: any[]) : any {
+        if (device.detached_time_ms) {
+            throw new Error("Failed executing method " + methodName + " on detached device with id=" + device.deviceID);
+        }
+
         return (device as any)[methodName].apply(device, args);
     }
 
