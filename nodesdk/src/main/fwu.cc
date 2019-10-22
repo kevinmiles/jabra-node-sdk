@@ -248,8 +248,8 @@ Napi::Value napi_GetLastFirmwareUpdateErrorInfo(const Napi::CallbackInfo& info) 
         if (!fwUpdateErrorInfo) {
           util::JabraException::LogAndThrow(functionName, "GetLastFirmwareUpdateErrorInfo yielded no result");
         } else {
-            IF_LOG(plog::verbose) {
-              //LOG_VERBOSE << "napi_GetLastFirmwareUpdateErrorInfo got raw object : '" << toString(fwUpdateErrorInfo) << "'";
+            IF_LOG_(LOGINSTANCE, plog::verbose) {
+              //LOG_VERBOSE_(LOGINSTANCE) << "napi_GetLastFirmwareUpdateErrorInfo got raw object : '" << toString(fwUpdateErrorInfo) << "'";
             }
         }
 

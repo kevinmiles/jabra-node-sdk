@@ -87,19 +87,19 @@ void configureLogging() {
   }
 
   // Setup plog:
-	plog::init(severity, logPath.c_str(), 10000000, 10);
+	plog::init<LOGINSTANCE>(severity, logPath.c_str(), 10000000, 10);
 
   // Save log location for reference (if anything is logged).
   configuredLogPath = (severity!=plog::none) ? logPath : "";
 
   // Log configuration:
-  IF_LOG(plog::info) {
-    LOG(plog::info) << "Configured logging severity to: " << plog::severityToString(severity);   
+  IF_LOG_(LOGINSTANCE, plog::info) {
+    LOG_(LOGINSTANCE, plog::info) << "Configured logging severity to " << plog::severityToString(severity) << " and logging instance to " << LOGINSTANCE;
   }
 }
 
 void logSimpleString(const plog::Severity severity, const std::string str) {
-    LOG(severity) << str;
+    LOG_(LOGINSTANCE, severity) << str;
 }
 
 /**
@@ -114,7 +114,7 @@ Napi::Value napi_NativeAddonLog(const Napi::CallbackInfo& info) {
     std::string msg = info[2].As<Napi::Object>().ToString();
 
     // Use variant of LOG macro implementation to ensure caller instead of __func__ is registered in log:
-    (*plog::get<PLOG_DEFAULT_INSTANCE>()) += plog::Record(severity, caller.c_str(), 0, nullptr, PLOG_GET_THIS()) << msg;
+    (*plog::get<LOGINSTANCE>()) += plog::Record(severity, caller.c_str(), 0, nullptr, PLOG_GET_THIS()) << msg;
   }
 
   return env.Undefined();
@@ -127,7 +127,7 @@ Napi::Value napi_GetNativeAddonLogConfig(const Napi::CallbackInfo& info) {
   const Napi::Env env = info.Env();
 
   if (util::verifyArguments(__func__, info, { })) {
-    plog::Severity maxSeverity = plog::get()->getMaxSeverity();
+    plog::Severity maxSeverity = plog::get<LOGINSTANCE>()->getMaxSeverity();
     std::string maxSeverityStr = std::string(plog::severityToString(maxSeverity));
 
     Napi::Object config = Napi::Object::New(env);
@@ -141,15 +141,3 @@ Napi::Value napi_GetNativeAddonLogConfig(const Napi::CallbackInfo& info) {
 
   return env.Undefined();
 }
-
-/*
-void log_exception(plog::Severity severity, const std::exception& e, const std::string& contextString, int level) {
-    LOG(severity) << "Standard error " << contextString << " : " << e.what();
-    try {
-        std::rethrow_if_nested(e);
-    } catch(const std::exception& e) {
-        log_exception(severity, e, contextString, level+1);
-    } catch(...) {
-		    LOG(severity) << "Unknown error" << contextString;
-		}
-}*/

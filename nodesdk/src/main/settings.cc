@@ -217,7 +217,7 @@ static DeviceSettings *toCType(const unsigned short deviceId, Napi::Object src) 
         } else if (settingDst.settingDataType == DataType::settingByte) {
           settingDst.currValue = util::newCString(settingSrc.Get("currValue"));
         } else {         
-          LOG_ERROR << "Device " << deviceId << " has unexpected settingDataType " << settingDst.currValue << " for settings GUID " << settingDst.guid;
+          LOG_ERROR_(LOGINSTANCE) << "Device " << deviceId << " has unexpected settingDataType " << settingDst.currValue << " for settings GUID " << settingDst.guid;
           settingDst.currValue = nullptr;
         }
       } else {
@@ -237,7 +237,7 @@ static DeviceSettings *toCType(const unsigned short deviceId, Napi::Object src) 
         } else if (settingDst.settingDataType == DataType::settingByte) {
           settingDst.dependentDefaultValue = util::newCString(settingSrc.Get("dependentDefaultValue"));
         } else {         
-          LOG_ERROR << "Device " << deviceId << " has unexpected settingDataType " << settingDst.currValue << " for settings GUID " << settingDst.guid;
+          LOG_ERROR_(LOGINSTANCE) << "Device " << deviceId << " has unexpected settingDataType " << settingDst.currValue << " for settings GUID " << settingDst.guid;
           settingDst.dependentDefaultValue = nullptr;
         }
       } else {
@@ -329,7 +329,7 @@ static void toNodeType(const unsigned short deviceId, DeviceSettings *src, Napi:
       } else if (settingSrc.settingDataType == DataType::settingString) {
         settingDst.Set(Napi::String::New(env, "currValue"), Napi::String::New(env, (char *)settingSrc.currValue));
       } else {
-        LOG_ERROR << "Device " << deviceId << " has unexpected settingDataType " << settingSrc.currValue << " for settings GUID " << settingSrc.guid;
+        LOG_ERROR_(LOGINSTANCE) << "Device " << deviceId << " has unexpected settingDataType " << settingSrc.currValue << " for settings GUID " << settingSrc.guid;
       }
     }
 
@@ -346,7 +346,7 @@ static void toNodeType(const unsigned short deviceId, DeviceSettings *src, Napi:
       } else if (settingSrc.settingDataType == DataType::settingString) {
         settingDst.Set(Napi::String::New(env, "dependentDefaultValue"), Napi::String::New(env, (char *)settingSrc.dependentDefaultValue));
       } else {
-        LOG_ERROR << "Device " << deviceId << " has unexpected settingDataType " << settingSrc.settingDataType << " for settings GUID " << settingSrc.guid;
+        LOG_ERROR_(LOGINSTANCE) << "Device " << deviceId << " has unexpected settingDataType " << settingSrc.settingDataType << " for settings GUID " << settingSrc.guid;
       }
     }
 
@@ -406,8 +406,8 @@ Napi::Value napi_GetSettings(const Napi::CallbackInfo& info) {
         if (!rawSetttings) {
           util::JabraException::LogAndThrow(functionName, "null returned");
         } else {
-            IF_LOG(plog::verbose) {
-              LOG_VERBOSE << "napi_GetSetting got raw object : '" << toString(rawSetttings) << "'";
+            IF_LOG_(LOGINSTANCE, plog::verbose) {
+              LOG_VERBOSE_(LOGINSTANCE) << "napi_GetSetting got raw object : '" << toString(rawSetttings) << "'";
             }
         }
 
@@ -447,8 +447,8 @@ Napi::Value napi_GetSetting(const Napi::CallbackInfo& info) {
         if (!rawSetttings) {
           util::JabraException::LogAndThrow(functionName, "null returned");
         } else {
-            IF_LOG(plog::verbose) {
-              LOG_VERBOSE << "napi_GetSetting got raw object : '" << toString(rawSetttings) << "'";
+            IF_LOG_(LOGINSTANCE, plog::verbose) {
+              LOG_VERBOSE_(LOGINSTANCE) << "napi_GetSetting got raw object : '" << toString(rawSetttings) << "'";
             }
         }
       
@@ -481,8 +481,8 @@ Napi::Value napi_SetSettings(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     DeviceSettings * const rawDeviceSettings = toCType(deviceId, settings);
-    IF_LOG(plog::verbose) {
-      LOG_VERBOSE << "napi_SetSettings translated settings input argument into raw object : '" << toString(rawDeviceSettings) << "'";
+    IF_LOG_(LOGINSTANCE, plog::verbose) {
+      LOG_VERBOSE_(LOGINSTANCE) << "napi_SetSettings translated settings input argument into raw object : '" << toString(rawDeviceSettings) << "'";
     }
 
     (new util::JAsyncWorker<void, void>(
@@ -573,8 +573,8 @@ Napi::Value napi_GetFailedSettingNames(const Napi::CallbackInfo& info) {
         if (!rawSetttings) {
           util::JabraException::LogAndThrow(functionName, "null returned");
         } else {
-            IF_LOG(plog::verbose) {
-              //LOG_VERBOSE << "napi_GetFailedSettingNames got raw object : '" << toString(rawSetttings) << "'";
+            IF_LOG_(LOGINSTANCE, plog::verbose) {
+              //LOG_VERBOSE_(LOGINSTANCE) << "napi_GetFailedSettingNames got raw object : '" << toString(rawSetttings) << "'";
             }
         }
         return rawSetttings;

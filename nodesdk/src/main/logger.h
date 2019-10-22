@@ -4,6 +4,15 @@
 #include <napi.h>
 
 /**
+ * The unique plog logging instance that we are using in this module. This
+ * should be unique across npm modules that also use plog in it's single
+ * process.
+ * 
+ * All plog logging should be done using the instance!
+ */
+const unsigned int LOGINSTANCE = 9; // Any unused, non-zero value should do.
+
+/**
  * Helper method for configuring logging with plog (https://github.com/SergiusTheBest/plog)
  * based on same environment settings as Jabra SDK (LIBJABRA_RESOURCE_PATH, LIBJABRA_TRACE_LEVEL etc).
  */

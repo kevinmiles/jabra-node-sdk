@@ -220,7 +220,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   const Napi::Env env = info.Env();
   
-  LOG_DEBUG << functionName << " called";
+  LOG_DEBUG_(LOGINSTANCE) << functionName << " called";
 
   // Guard that we don't initialize twice. We use global memory for init so this could be a problem if allowed.
   if (state_Jabra_Initialize.isInitializationStarted()) {
@@ -288,13 +288,13 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
           config.cloudConfig_params = &configParams_cloud;
           config.reserved2 = nullptr;
 
-          LOG_DEBUG << "Calling Jabra_SetAppID";
+          LOG_DEBUG_(LOGINSTANCE) << "Calling Jabra_SetAppID";
           Jabra_SetAppID(state_Jabra_Initialize.getAppId().c_str());
 
-          LOG_DEBUG << "Calling Jabra_Initialize";
+          LOG_DEBUG_(LOGINSTANCE) << "Calling Jabra_Initialize";
           if (Jabra_Initialize([]() {  // First scan done.
               try {
-                LOG_DEBUG << "First scan done";
+                LOG_DEBUG_(LOGINSTANCE) << "First scan done";
 
                 auto eventTime = getTimeSinceEpoc();
 
@@ -306,14 +306,14 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 }
               } catch (const std::exception &e) {       
                 const std::string errorMsg = "Init firstScanDone callback failed: " + std::string(e.what());
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
                 const std::string errorMsg = "Init firstScanDone callback failed failed with unknown exception";
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
             }, [](Jabra_DeviceInfo _deviceInfo) { // attached            
               try {
-                LOG_DEBUG << "Device #" << _deviceInfo.deviceID << " attached";
+                LOG_DEBUG_(LOGINSTANCE) << "Device #" << _deviceInfo.deviceID << " attached";
 
                 auto eventTime = getTimeSinceEpoc();
 
@@ -350,14 +350,14 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 }
               } catch (const std::exception &e) {       
                 const std::string errorMsg = "Init attached callback failed: " + std::string(e.what());
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
                 const std::string errorMsg = "Init attached callback failed failed with unknown exception";
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
             }, [](unsigned short deviceID) { // deattached 
               try {
-                LOG_DEBUG << "Device #" << deviceID << " de-attached";
+                LOG_DEBUG_(LOGINSTANCE) << "Device #" << deviceID << " de-attached";
 
                 auto eventTime = getTimeSinceEpoc();
 
@@ -368,20 +368,20 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                   });
                 }
 
-                LOG_DEBUG << "Device de-attached";
+                LOG_DEBUG_(LOGINSTANCE) << "Device de-attached";
               } catch (const std::exception &e) {       
                 const std::string errorMsg = "Init deattached callback failed: " + std::string(e.what());
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
                 const std::string errorMsg = "Init deattached callback failed failed with unknown exception";
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
             }, [](unsigned short deviceID, unsigned short usagePage, unsigned short usage, bool buttonInData) { // Buttons raw.
                 // Ignore - not used.
             },
             [](unsigned short deviceID, Jabra_HidInput translatedInData, bool buttonInData) { // Buttons translated
               try {
-                LOG_VERBOSE << "Device #" << deviceID << " button press " << translatedInData << ", " << buttonInData;
+                LOG_VERBOSE_(LOGINSTANCE) << "Device #" << deviceID << " button press " << translatedInData << ", " << buttonInData;
 
                 auto buttonInDataTranslatedCallback = state_Jabra_Initialize.getButtonInDataTranslatedCallback();
                 if (buttonInDataTranslatedCallback) {
@@ -390,24 +390,24 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                   });
                 }
 
-                LOG_VERBOSE << "Device button press finished";
+                LOG_VERBOSE_(LOGINSTANCE) << "Device button press finished";
               } catch (const std::exception &e) {       
                 const std::string errorMsg = "Init translatedInData callback failed: " + std::string(e.what());
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
                 const std::string errorMsg = "Init translatedInData callback failed failed with unknown exception";
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
             },
             0, &config
           )) { // Init success
-            LOG_DEBUG << "Jabra_Initialize successful - now registering callbacks";
+            LOG_DEBUG_(LOGINSTANCE) << "Jabra_Initialize successful - now registering callbacks";
 
             // Now that sdk is initialized, we should register all callbacks before we are done:
 
             Jabra_RegisterDevLogCallback([](unsigned short deviceID, char* _eventStr) {
               try {
-                LOG_VERBOSE << "Jabra_RegisterDevLogCallback got eventStr " << _eventStr;
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterDevLogCallback got eventStr " << _eventStr;
 
                 auto devLogCallback = state_Jabra_Initialize.getDevLogCallback();
 
@@ -422,16 +422,16 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 Jabra_FreeString(_eventStr);
               } catch (const std::exception &e) {
                 const std::string errorMsg = "DevLogCallback callback failed: " + std::string(e.what());
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
                 const std::string errorMsg = "DevLogCallback callback failed failed with unknown exception";
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }              
             });
 
             Jabra_RegisterFirmwareProgressCallBack([](unsigned short deviceID, Jabra_FirmwareEventType type, Jabra_FirmwareEventStatus status, unsigned short percentage) {
               try {
-                LOG_VERBOSE << "Jabra_RegisterFirmwareProgressCallBack got " << type << " " << status << " " << percentage;
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterFirmwareProgressCallBack got " << type << " " << status << " " << percentage;
 
                 auto downloadFirmwareProgressCallback = state_Jabra_Initialize.getDownloadFirmwareProgressCallback();
                 if (downloadFirmwareProgressCallback) {
@@ -441,17 +441,17 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 }
               } catch (const std::exception &e) {
                 const std::string errorMsg = "FirmwareProgress callback failed: " + std::string(e.what());
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
                 const std::string errorMsg = "FirmwareProgress callback failed failed with unknown exception";
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
 
             });
 
             Jabra_RegisterPairingListCallback([](unsigned short deviceID, Jabra_PairingList *lst) {
               try {
-                LOG_VERBOSE << "Jabra_RegisterPairingListCallback called with " << (lst!=nullptr ? std::to_string(lst->count) : "null") << " pairings";
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterPairingListCallback called with " << (lst!=nullptr ? std::to_string(lst->count) : "null") << " pairings";
 
                 ManagedPairingList mlst(*lst);
 
@@ -488,16 +488,16 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 Jabra_FreePairingList(lst);
               } catch (const std::exception &e) {
                 const std::string errorMsg = "Jabra_RegisterPairingListCallback callback failed: " + std::string(e.what());
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
                 const std::string errorMsg = "Jabra_RegisterPairingListCallback callback failed failed with unknown exception";
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
             });
 
             Jabra_RegisterForGNPButtonEvent([] (unsigned short deviceID, ButtonEvent *buttonEvent) {
               try {
-                LOG_VERBOSE << "Jabra_RegisterForGNPButtonEvent called with " << (buttonEvent!=nullptr ? std::to_string(buttonEvent->buttonEventCount) : "null") << " button events";
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterForGNPButtonEvent called with " << (buttonEvent!=nullptr ? std::to_string(buttonEvent->buttonEventCount) : "null") << " button events";
 
                 std::vector<ManagedButtonEventInfo> buttonInfos;
                       
@@ -550,16 +550,16 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 Jabra_FreeButtonEvents(buttonEvent);
               } catch (const std::exception &e) {
                 const std::string errorMsg = "Jabra_RegisterForGNPButtonEvent callback failed: " + std::string(e.what());
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
                 const std::string errorMsg = "Jabra_RegisterForGNPButtonEvent callback failed failed with unknown exception";
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
             });
 
             Jabra_RegisterBatteryStatusUpdateCallback([] (unsigned short deviceID, int levelInPercent, bool charging, bool batteryLow) {
               try {
-                LOG_VERBOSE << "Jabra_RegisterBatteryStatusUpdateCallback got " << levelInPercent << " " << charging << " " << batteryLow;
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterBatteryStatusUpdateCallback got " << levelInPercent << " " << charging << " " << batteryLow;
 
                 auto batteryStatusCallback = state_Jabra_Initialize.getBatteryStatusCallback();
 
@@ -570,17 +570,17 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 }
               } catch (const std::exception &e) {
                 const std::string errorMsg = "BatteryStatusUpdate callback failed: " + std::string(e.what());
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
                 const std::string errorMsg = "BatteryStatusUpdate callback failed failed with unknown exception";
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
 
             });
 
             Jabra_RegisterUploadProgress([] (unsigned short deviceID, Jabra_UploadEventStatus status, unsigned short percentage) {
               try {
-                LOG_VERBOSE << "Jabra_RegisterUploadProgress got " << status << " " << percentage;
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterUploadProgress got " << status << " " << percentage;
 
                 auto uploadProgressCallback = state_Jabra_Initialize.getUploadProgressCallback();
 
@@ -591,10 +591,10 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 }
               } catch (const std::exception &e) {
                 const std::string errorMsg = "RegisterUploadProgress callback failed: " + std::string(e.what());
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
                 const std::string errorMsg = "RegisterUploadProgress callback failed failed with unknown exception";
-                LOG_FATAL << errorMsg;
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
             });
 
@@ -606,7 +606,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
               });
             }
           } else { // Init failed.
-            LOG_FATAL << "Jabra_Initialize failed";
+            LOG_FATAL_(LOGINSTANCE) << "Jabra_Initialize failed";
 
             auto initCallback = state_Jabra_Initialize.getInitializedCallback();
             if (initCallback) {
@@ -615,17 +615,17 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
           }
       } catch (const std::exception &e) {       
         const std::string errorMsg = std::string(functionName) + " worker thread failed: " + std::string(e.what());
-        LOG_FATAL << errorMsg;
+        LOG_FATAL_(LOGINSTANCE) << errorMsg;
       } catch (...) {
         const std::string errorMsg =  std::string(functionName) + " worker thread failed with unknown exception";
-        LOG_FATAL << errorMsg;
+        LOG_FATAL_(LOGINSTANCE) << errorMsg;
       }
     });
 
     // Let thread safely live on after thead object goes out of scope (is destroyed).
     initThread.detach();
 
-    LOG_DEBUG << functionName << " worker thread started";
+    LOG_DEBUG_(LOGINSTANCE) << functionName << " worker thread started";
   }
 
   return env.Null(); 

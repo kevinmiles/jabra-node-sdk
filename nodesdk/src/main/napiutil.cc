@@ -51,7 +51,7 @@ namespace util {
 
         if (info.Length() != expectedArgumentTypes.size()) {
             const std::string errMsg = "Wrong number of arguments to " + std::string(functionName) + " (got #" + std::to_string(info.Length()) + ",  expected #" + std::to_string( expectedArgumentTypes.size()) + ")";
-            LOG_ERROR << errMsg;
+            LOG_ERROR_(LOGINSTANCE) << errMsg;
             Napi::TypeError::New(env, errMsg).ThrowAsJavaScriptException();
             return false;
         }
@@ -61,7 +61,7 @@ namespace util {
         for (std::initializer_list<FormalParameterType>::iterator it=expectedArgumentTypes.begin(); it!=expectedArgumentTypes.end(); ++it) {
             if (!verifyValueType(info[j], *it)) {
                 const std::string errMsg = "Wrong type of argument to " + std::string(functionName) + " #" +  std::to_string(j) + ". Got value not of excpected " + toString(*it) + " type)";
-                LOG_ERROR << errMsg;
+                LOG_ERROR_(LOGINSTANCE) << errMsg;
                 Napi::TypeError::New(env, errMsg).ThrowAsJavaScriptException();
                 return false;
             }

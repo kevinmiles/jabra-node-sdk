@@ -100,7 +100,7 @@ class JabraReturnCodeException : public std::runtime_error
     }
     
     static void LogAndThrow(const char * callerFunctionName, const Jabra_ReturnCode jabraApiReturnCode) {
-        LOG_ERROR << generateString(callerFunctionName, jabraApiReturnCode);
+        LOG_ERROR_(LOGINSTANCE) << generateString(callerFunctionName, jabraApiReturnCode);
         throw JabraReturnCodeException(callerFunctionName, jabraApiReturnCode);
     }
 };
@@ -138,7 +138,7 @@ class JabraException : public std::runtime_error
     }
     
     static void LogAndThrow(const char * callerFunctionName, const std::string& reason = "") {
-        LOG_ERROR << generateString(callerFunctionName, reason);
+        LOG_ERROR_(LOGINSTANCE) << generateString(callerFunctionName, reason);
         throw JabraException(callerFunctionName, reason);
     }
 };
@@ -217,20 +217,20 @@ class JAsyncWorker : public Napi::AsyncWorker
     ~JAsyncWorker() {}
 
     void okError(const Napi::Env& env, const std::string& errorMsg, bool duringJsCallback) {
-        LOG_ERROR << errorMsg;
+        LOG_ERROR_(LOGINSTANCE) << errorMsg;
         try {
             if (!duringJsCallback) {
                 Callback().Call({ Napi::String::New(env, errorMsg), env.Undefined() });
             }
         } catch (const std::exception &e) {
-            LOG_ERROR << "Failed calling error callback with details " + std::string(e.what());
+            LOG_ERROR_(LOGINSTANCE) << "Failed calling error callback with details " + std::string(e.what());
         } catch (...) {
-            LOG_ERROR << "Failed calling error callback";
+            LOG_ERROR_(LOGINSTANCE) << "Failed calling error callback";
         }
     }
 
     void executeError(const std::string& errorMsg, const Jabra_ReturnCode _errorCode = Jabra_ReturnCode::Return_Ok) {
-        LOG_ERROR << errorMsg;
+        LOG_ERROR_(LOGINSTANCE) << errorMsg;
         SetError(errorMsg);
         errorCode = _errorCode;
     }
@@ -243,9 +243,9 @@ class JAsyncWorker : public Napi::AsyncWorker
     {
         try
         {
-            LOG_DEBUG << "JAsyncWorker: " << callerFunctionName << " started async function call";
+            LOG_DEBUG_(LOGINSTANCE) << "JAsyncWorker: " << callerFunctionName << " started async function call";
             jabraResult = jabraWorkFunc();
-            LOG_VERBOSE << "JAsyncWorker: " << callerFunctionName << " finished async function call";      
+            LOG_VERBOSE_(LOGINSTANCE) << "JAsyncWorker: " << callerFunctionName << " finished async function call";      
         }
         catch (const JabraReturnCodeException &e)
         {
@@ -271,13 +271,13 @@ class JAsyncWorker : public Napi::AsyncWorker
 
     void cleanup() {
         try {
-            LOG_VERBOSE << "JAsyncWorker: " << callerFunctionName << " started cleanup.";
+            LOG_VERBOSE_(LOGINSTANCE) << "JAsyncWorker: " << callerFunctionName << " started cleanup.";
             jabraCleanupFunc(jabraResult);
-            LOG_VERBOSE << "JAsyncWorker: " << callerFunctionName << " completed (and finished cleanup).";
+            LOG_VERBOSE_(LOGINSTANCE) << "JAsyncWorker: " << callerFunctionName << " completed (and finished cleanup).";
         } catch (const std::exception &e) {
-            LOG_ERROR << "JAsyncWorker cleanup failure with details " + std::string(e.what());
+            LOG_ERROR_(LOGINSTANCE) << "JAsyncWorker cleanup failure with details " + std::string(e.what());
         } catch (...) {
-            LOG_ERROR << "JAsyncWorker cleanup failure";
+            LOG_ERROR_(LOGINSTANCE) << "JAsyncWorker cleanup failure";
         }
     }
 
@@ -292,9 +292,9 @@ class JAsyncWorker : public Napi::AsyncWorker
         bool callBackError = false;
 
         try {
-            LOG_VERBOSE << "JAsyncWorker: " << callerFunctionName << " started mapping.";
+            LOG_VERBOSE_(LOGINSTANCE) << "JAsyncWorker: " << callerFunctionName << " started mapping.";
             napiResult = jabraToNapiMapperFunc(env, jabraResult);
-            LOG_VERBOSE << "JAsyncWorker: " << callerFunctionName << " finished mapping.";            
+            LOG_VERBOSE_(LOGINSTANCE) << "JAsyncWorker: " << callerFunctionName << " finished mapping.";            
             
             callBackError = true;
             // TODO: Should Receiver().Value() be passed as first arg ?
@@ -341,9 +341,9 @@ class JAsyncWorker : public Napi::AsyncWorker
 
             Callback().Call(Receiver().Value(), std::initializer_list<napi_value>{ mutableError.Value() });
         } catch (const std::exception &e) {
-            LOG_ERROR << "Failed calling error callback with details " + std::string(e.what());
+            LOG_ERROR_(LOGINSTANCE) << "Failed calling error callback with details " + std::string(e.what());
         } catch (...) {
-            LOG_ERROR << "Failed calling error callback";
+            LOG_ERROR_(LOGINSTANCE) << "Failed calling error callback";
         }
 
         cleanup();
@@ -386,7 +386,7 @@ class JAsyncWorker<void,void> : public Napi::AsyncWorker
     ~JAsyncWorker() {}
 
     void executeError(const std::string& errorMsg, const Jabra_ReturnCode _errorCode = Jabra_ReturnCode::Return_Ok) {
-        LOG_ERROR << errorMsg;
+        LOG_ERROR_(LOGINSTANCE) << errorMsg;
         SetError(errorMsg);
         errorCode = _errorCode;
     }
@@ -399,9 +399,9 @@ class JAsyncWorker<void,void> : public Napi::AsyncWorker
     {
         try
         {
-            LOG_DEBUG << callerFunctionName << " started async prodcedure call";
+            LOG_DEBUG_(LOGINSTANCE) << callerFunctionName << " started async prodcedure call";
             jabraWorkFunc();
-            LOG_VERBOSE << callerFunctionName << " finished async procedure call";
+            LOG_VERBOSE_(LOGINSTANCE) << callerFunctionName << " finished async procedure call";
         }
         catch (const JabraReturnCodeException &e)
         {
@@ -427,13 +427,13 @@ class JAsyncWorker<void,void> : public Napi::AsyncWorker
 
     void cleanup() {
         try {
-            LOG_VERBOSE << "JAsyncWorker: " << callerFunctionName << " started cleanup.";
+            LOG_VERBOSE_(LOGINSTANCE) << "JAsyncWorker: " << callerFunctionName << " started cleanup.";
             jabraCleanupFunc();
-            LOG_VERBOSE << "JAsyncWorker: " << callerFunctionName << " completed (and finished cleanup).";
+            LOG_VERBOSE_(LOGINSTANCE) << "JAsyncWorker: " << callerFunctionName << " completed (and finished cleanup).";
         } catch (const std::exception &e) {
-            LOG_ERROR << "JAsyncWorker cleanup failure with details " + std::string(e.what());
+            LOG_ERROR_(LOGINSTANCE) << "JAsyncWorker cleanup failure with details " + std::string(e.what());
         } catch (...) {
-            LOG_ERROR << "JAsyncWorker cleanup failure";
+            LOG_ERROR_(LOGINSTANCE) << "JAsyncWorker cleanup failure";
         }
     }
 
@@ -448,9 +448,9 @@ class JAsyncWorker<void,void> : public Napi::AsyncWorker
         try {
             Callback().Call({ env.Undefined(), env.Undefined() });
         } catch (const std::exception &e) {
-            LOG_ERROR << "JAsyncWorker ok callback failure with details " + std::string(e.what());
+            LOG_ERROR_(LOGINSTANCE) << "JAsyncWorker ok callback failure with details " + std::string(e.what());
         } catch (...) {
-            LOG_ERROR << "JAsyncWorker ok callback failure";
+            LOG_ERROR_(LOGINSTANCE) << "JAsyncWorker ok callback failure";
         }
 
         cleanup();
@@ -472,9 +472,9 @@ class JAsyncWorker<void,void> : public Napi::AsyncWorker
 
             Callback().Call(Receiver().Value(), std::initializer_list<napi_value>{ mutableError.Value() });
         } catch (const std::exception &e) {
-            LOG_ERROR << "JAsyncWorker error callback failure with details " + std::string(e.what());
+            LOG_ERROR_(LOGINSTANCE) << "JAsyncWorker error callback failure with details " + std::string(e.what());
         } catch (...) {
-            LOG_ERROR << "JAsyncWorker error callback failure";
+            LOG_ERROR_(LOGINSTANCE) << "JAsyncWorker error callback failure";
         }
 
         cleanup();
@@ -613,21 +613,21 @@ template <typename T>
 T JSyncWrapper(const char * const callerFunctionName, const Napi::CallbackInfo& info, const std::function<T (const char * const callerFunctionName, const Napi::CallbackInfo&)> func) {
     try
     {
-        LOG_DEBUG << "JSyncWrapper: " << callerFunctionName << " started sync function call.";
+        LOG_DEBUG_(LOGINSTANCE) << "JSyncWrapper: " << callerFunctionName << " started sync function call.";
         auto result = func(callerFunctionName, info);
-        LOG_VERBOSE << "JSyncWrapper: " << callerFunctionName << " completed sync function call.";
+        LOG_VERBOSE_(LOGINSTANCE) << "JSyncWrapper: " << callerFunctionName << " completed sync function call.";
 
         return result;
     }
     catch (const Napi::Error& e) {
         const std::string errorMsg = "JSyncWrapper execute failure: " + std::string(e.what());
-        LOG_ERROR << errorMsg;
+        LOG_ERROR_(LOGINSTANCE) << errorMsg;
         throw; // Rethrow napi exceptions as they are handled.
     }
     catch (const JabraReturnCodeException &e)
     {
         const std::string errorMsg = "JSyncWrapper execute failure: " + std::string(e.what());
-        LOG_ERROR << errorMsg;
+        LOG_ERROR_(LOGINSTANCE) << errorMsg;
 
         Napi::Env env = info.Env();
         Napi::Error error = Napi::Error::New(env, errorMsg);
@@ -642,19 +642,19 @@ T JSyncWrapper(const char * const callerFunctionName, const Napi::CallbackInfo& 
     catch (const JabraException &e)
     {
         const std::string errorMsg = "JSyncWrapper execute failure: " + std::string(e.what());
-        LOG_ERROR << errorMsg;
+        LOG_ERROR_(LOGINSTANCE) << errorMsg;
         Napi::Error::New(info.Env(), errorMsg).ThrowAsJavaScriptException();
     }
     catch (const std::exception &e)
     {
         const std::string errorMsg = "JSyncWrapper execute failure : " + std::string(callerFunctionName) + " -> " + e.what();
-        LOG_ERROR << errorMsg;
+        LOG_ERROR_(LOGINSTANCE) << errorMsg;
         Napi::Error::New(info.Env(), errorMsg).ThrowAsJavaScriptException();
     }
     catch (...)
     {
         const std::string errorMsg = "JSyncWrapper execute failure : " + std::string(callerFunctionName) + " -> unknown error";
-        LOG_ERROR << errorMsg;
+        LOG_ERROR_(LOGINSTANCE) << errorMsg;
         Napi::Error::New(info.Env(), errorMsg).ThrowAsJavaScriptException();
     }
 
