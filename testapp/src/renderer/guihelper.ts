@@ -1,6 +1,6 @@
 import { Notyf } from 'notyf';
-
-import { DeviceType, MetaApi, ClassEntry } from '@gnaudio/jabra-node-sdk';
+import { JabraType, DeviceType, MetaApi, ClassEntry, MethodEntry } from '@gnaudio/jabra-node-sdk';
+import { nameof } from '../common/util';
 
 // Setup client-side notifications:
 export const notyf = new Notyf({duration:1500});
@@ -31,7 +31,7 @@ export const nativeSdkVersionContainer = document.getElementById('nativeSdkVersi
 export const player = document.getElementById('player') as HTMLAudioElement;
 
 export const methodSelector = document.getElementById('methodSelector') as HTMLSelectElement;
-export const filterInternalsAndDeprecatedMethodsChk = document.getElementById('filterInternalsAndDeprecatedMethodsChk') as HTMLInputElement;
+export const showInternalsAndDeprecatedMethodsChk = document.getElementById('showInternalsAndDeprecatedMethodsChk') as HTMLInputElement;
 export const invokeApiBtn = document.getElementById('invokeApiBtn') as HTMLButtonElement;
 export const stressInvokeApiBtn = document.getElementById('stressInvokeApiBtn') as HTMLButtonElement;
 export const methodHelp = document.getElementById('methodHelp') as HTMLDivElement;
@@ -170,8 +170,16 @@ export function setupApiMethods(meta: ClassEntry | undefined) {
     methodSelector.remove(0);
   }
 
+  function filterMethod(funcMeta: MethodEntry): boolean {
+     if (!showInternalsAndDeprecatedMethodsChk.checked)   {
+       return !(funcMeta.name === "on" || funcMeta.name === "off" || funcMeta.name === nameof<JabraType>("disposeAsync") || funcMeta.name === nameof<MetaApi>("getMeta"));
+    } else {
+      return true;
+    }
+  }
+
   if (meta) {
-    const sortedMethods = [...meta.methods].sort( (a,b) => a.name.localeCompare(b.name));
+    const sortedMethods = meta.methods.filter(m => filterMethod(m)).sort((a,b) => a.name.localeCompare(b.name));
     sortedMethods.forEach(methodMeta => {
       var opt = document.createElement('option');
       opt.value = methodMeta.name;

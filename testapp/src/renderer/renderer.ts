@@ -11,7 +11,7 @@ import { player, initSDKBtn, unInitSDKBtn, initStaticVersionInfo, checkInstallBt
          toggleScrollErrorAreaBtn, devicesBtn, setupUserMediaPlaybackBtn, deviceSelector, clearMessageAreaBtn, clearErrorAreaBtn, messageArea, errorArea, 
          messagesCount, errorsCount, messageFilter, copyMessagesBtn, methodSelector, param1Hint, param2Hint, param3Hint, param4Hint, param5Hint, 
          methodHelp, txtParam1, txtParam2, txtParam3, txtParam4, txtParam5, nativeSdkVersion, nativeSdkVersionContainer, apiClassSelector, setupApiClasses, 
-         addDevice, removeDevice, setupApiMethods, invokeApiBtn, apiReferenceBtn, methodSignature, stressInvokeApiBtn } from './guihelper';
+         addDevice, removeDevice, setupApiMethods, invokeApiBtn, apiReferenceBtn, methodSignature, stressInvokeApiBtn, showInternalsAndDeprecatedMethodsChk } from './guihelper';
 import { BoundedQueue } from './queue';
 import { nameof } from '../common/util';
 import { openHelpWindow } from '../common/ipc';
@@ -141,6 +141,10 @@ function updateApiMethods() {
 
 apiClassSelector.onchange = ((e) => {
     updateApiMethods();
+});
+
+showInternalsAndDeprecatedMethodsChk.onchange = ((e) => {
+  updateApiMethods();
 });
 
   // Update hints for API call:
@@ -310,7 +314,6 @@ function setupApiHelp() {
   }
 }
 
-
 function convertParam(value: string): any {
     let tValue = value.trim();
     
@@ -449,174 +452,111 @@ function commandEffect(apiFuncName: string, argDescriptions: any[], result: Prom
 
       return Promise.resolve(result);
     }
+}
+
+toggleScrollMessageAreaBtn.onclick = () => {
+  scrollMessageArea = !scrollMessageArea;
+  toggleScrollMessageAreaBtn.value = scrollMessageArea ? "Scroll ON" : "Scroll OFF";
+};
+
+toggleScrollErrorAreaBtn.onclick = () => {
+  scrollErrorArea = !scrollErrorArea;
+  toggleScrollErrorAreaBtn.value = scrollErrorArea ? "Scroll ON" : "Scroll OFF";
+};
+
+clearMessageAreaBtn.onclick = () => {
+  messages.clear();
+  messageArea.value="";
+  messagesCount.innerText = "0";
+};
+
+clearErrorAreaBtn.onclick = () => {
+  errors.clear();
+  errorArea.value="";
+  errorsCount.innerText = "0";
+};
+
+function messageFilterAllows(str: string) {
+  return messageFilter.value === "" || str.toLocaleLowerCase().includes(messageFilter.value.toLocaleLowerCase());
+}
+
+function addError(context: string, err?: Error | string) {
+  let txt;
+  if (typeof err === 'string' || err instanceof String) {
+    txt = err;
+  } else if (err instanceof Error) {
+    txt = err.name + " : " + err.message;
+  } else if (err === undefined) {
+    txt = undefined;
+  } else {
+    txt = JSON.stringify(err, null, 2);
   }
 
-  
-  toggleScrollMessageAreaBtn.onclick = () => {
-    scrollMessageArea = !scrollMessageArea;
-    toggleScrollMessageAreaBtn.value = scrollMessageArea ? "Scroll ON" : "Scroll OFF";
-  };
+  errors.push(txt ? (context + ": " + txt) : context);
+  updateErrorArea();
+}
 
-  toggleScrollErrorAreaBtn.onclick = () => {
-    scrollErrorArea = !scrollErrorArea;
-    toggleScrollErrorAreaBtn.value = scrollErrorArea ? "Scroll ON" : "Scroll OFF";
-  };
-
-
-  clearMessageAreaBtn.onclick = () => {
-    messages.clear();
-    messageArea.value="";
-    messagesCount.innerText = "0";
-  };
-
-  clearErrorAreaBtn.onclick = () => {
-    errors.clear();
-    errorArea.value="";
-    errorsCount.innerText = "0";
-  };
-
-  function messageFilterAllows(str: string) {
-    return messageFilter.value === "" || str.toLocaleLowerCase().includes(messageFilter.value.toLocaleLowerCase());
+function updateErrorArea() {
+  let filteredErrorsArray = errors.getAll();
+  errorsCount.innerText = filteredErrorsArray.length.toString();
+  errorArea.value = filteredErrorsArray.join("\n");
+  if (scrollErrorArea) {
+    errorArea.scrollTop = errorArea.scrollHeight;
   }
+}
 
-  function addError(context: string, err?: Error | string) {
-    let txt;
-    if (typeof err === 'string' || err instanceof String) {
-      txt = err;
-    } else if (err instanceof Error) {
-      txt = err.name + " : " + err.message;
-    } else if (err === undefined) {
-      txt = undefined;
+function addStatusMessage(msg: string | any) {
+  let txt = (typeof msg === 'string' || msg instanceof String) ? msg.toString() : "Status: " + JSON.stringify(msg, null, 2);
+  messages.push(txt);
+  updateMessageArea();
+}
+
+function addResponseMessage(msg: string | any) {
+  let txt = (typeof msg === 'string' || msg instanceof String) ? "response string: " + msg.toString() : "response object: " + JSON.stringify(msg, null, 2);
+  messages.push(txt);
+  updateMessageArea();
+}
+
+function addEventMessage(eventName: string, ...args: any[]) {
+  let txt = "Received event " + eventName + " with arguments ";
+
+  let firstArg = true;
+  for (let arg of args) {
+    if (firstArg) {
+      firstArg = false;
     } else {
-      txt = JSON.stringify(err, null, 2);
+      txt = txt + ", ";
     }
-
-    errors.push(txt ? (context + ": " + txt) : context);
-    updateErrorArea();
+    let argV = (arg !== Object(arg)) ? arg.toString() : JSON.stringify(arg, null, 2);
+    txt = txt + argV;    
   }
+  
+  messages.push(txt);
+  updateMessageArea();
+}
 
-  function updateErrorArea() {
-    let filteredErrorsArray = errors.getAll();
-    errorsCount.innerText = filteredErrorsArray.length.toString();
-    errorArea.value = filteredErrorsArray.join("\n");
-    if (scrollErrorArea) {
-      errorArea.scrollTop = errorArea.scrollHeight;
-    }
+function updateMessageArea() {
+  let filteredMessagesArray = messages.getAll().filter(txt => messageFilterAllows(txt));
+  messageArea.value = filteredMessagesArray.join("\n");
+  messagesCount.innerText = filteredMessagesArray.length.toString();
+  if (scrollMessageArea) {
+      messageArea.scrollTop = messageArea.scrollHeight;
   }
+}
 
-  function addStatusMessage(msg: string | any) {
-    let txt = (typeof msg === 'string' || msg instanceof String) ? msg.toString() : "Status: " + JSON.stringify(msg, null, 2);
-    messages.push(txt);
-    updateMessageArea();
-  }
+copyMessagesBtn.onclick = () => {
+  let clipText = messages.getAll().filter(txt => messageFilterAllows(txt)).join("\n");
+  navigator.clipboard.writeText(clipText)
+  .then(() => {})
+  .catch(err => {
+    addError("Internal error", "Could not copy to clipboard");
+  });
+};
 
-  function addResponseMessage(msg: string | any) {
-    let txt = (typeof msg === 'string' || msg instanceof String) ? "response string: " + msg.toString() : "response object: " + JSON.stringify(msg, null, 2);
-    messages.push(txt);
-    updateMessageArea();
-  }
+messageFilter.oninput = () => {
+  updateMessageArea();
+};
 
-  function addEventMessage(eventName: string, ...args: any[]) {
-    let txt = "Received event " + eventName + " with arguments ";
-
-    let firstArg = true;
-    for (let arg of args) {
-      if (firstArg) {
-        firstArg = false;
-      } else {
-        txt = txt + ", ";
-      }
-      let argV = (arg !== Object(arg)) ? arg.toString() : JSON.stringify(arg, null, 2);
-      txt = txt + argV;    
-    }
-   
-    messages.push(txt);
-    updateMessageArea();
-  }
-
-  function updateMessageArea() {
-    let filteredMessagesArray = messages.getAll().filter(txt => messageFilterAllows(txt));
-    messageArea.value = filteredMessagesArray.join("\n");
-    messagesCount.innerText = filteredMessagesArray.length.toString();
-    if (scrollMessageArea) {
-        messageArea.scrollTop = messageArea.scrollHeight;
-    }
-  }
-
-  copyMessagesBtn.onclick = () => {
-    let clipText = messages.getAll().filter(txt => messageFilterAllows(txt)).join("\n");
-    navigator.clipboard.writeText(clipText)
-    .then(() => {})
-    .catch(err => {
-      addError("Internal error", "Could not copy to clipboard");
-    });
-  };
-
-  messageFilter.oninput = () => {
-    updateMessageArea();
-  };
-
-
-
-// Create a API client proxy for the JabraType api class, that allows the jabra client code
-// to transparently access the Jabra api. Behind the scenes, this is accompished by internal 
-// IPC messages between the client and a Jabra API server running in the main process.
-/*
-createApiClient(window.electron.ipcRenderer).then((jabra) => {
-    console.log("jabraApiClient initialized");
-
-    let devices = jabra.getAttachedDevices();
-    setupDevices(devices);
-
-    function executeOnActiveDemoDevice( callback: (device: DeviceType) => Promise<any>) {
-        let activeDevice = devices.find(d => d.deviceID == activeDemoDeviceId);
-        if (activeDevice) {
-            callback(activeDevice).then((v) => {
-                // Callback operation succeeded
-            }).catch((err) => {
-                notyf.error(err);
-            });
-        } else {
-            notyf.error("please insert a device and try again");
-        }
-    }
-
-    jabra.on('attach', (device) => {
-        notyf.success(device.deviceName + " attached");
-
-        device.isGnHidStdHidSupportedAsync().then((supported) => {
-            if (supported) {
-                return device.setHidWorkingStateAsync(enumHidState.GN_HID);
-            } else {
-                return Promise.reject(new Error("GN protocol not supported"));
-            }
-        }).catch( (e) => {
-            showError("Could not switch to GN protocol for device " + device.deviceName +". Please try another device as some functions in this demo may not work.");
-        });
-
-        device.on("btnPress", (btnType: enumDeviceBtnType, value: boolean) => {
-           if (activeDemoDeviceId === device.deviceID) {
-            let msg = getBtnMessageEventDescription(device.deviceID, btnType, value);
-            notyf.success(msg);
-           }
-        });
-
-        devices = jabra.getAttachedDevices();
-        setupDevices(devices);
-    });
-
-    jabra.on('detach', (device) => {
-        notyf.success(device.deviceName + " detached");
-        devices = Array.from(jabra.getAttachedDevices().values());
-        setupDevices(devices);
-    });
-
-}).catch( (err) => {
-    console.error("Could not initialize Jabra Api client : " + err);
-    showError(err);
-});
-
-*/
 
 
 

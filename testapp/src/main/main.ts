@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import * as os from "os";
 
-import { ConfigParamsCloud } from '@gnaudio/jabra-node-sdk';
+import { ConfigParamsCloud, JabraError } from '@gnaudio/jabra-node-sdk';
 import * as process from 'process';
 import { JabraApiServerFactory, JabraApiServer } from '@gnaudio/jabra-electron-renderer-helper';
 
@@ -88,7 +88,7 @@ function createAndLoadWindow(): Promise<BrowserWindow> {
 
 function shutdown() {
   if (jabraServer) {
-     jabraServer.shutdown().catch((err) => {
+     jabraServer.shutdown().catch((err: Error) => {
       console.log("Error during server shutdown " + err);
      });
 
@@ -110,7 +110,7 @@ function setup() {
       // Set any needed configuration parameters here.
     };
 
-    ipcMain.on(openHelpWindow, (event) => {
+    ipcMain.on(openHelpWindow, (event: any) => {
       const helpWindow = new BrowserWindow({
         height: 900,
         width: 1024,
@@ -143,7 +143,7 @@ function setup() {
       const jabraApi = result.getJabraApi();
 
       return jabraServer;
-    }).catch( (err) => {
+    }).catch( (err: JabraError) => {
       console.log("Error during jabra application/server setup " + err);
     });
   });
