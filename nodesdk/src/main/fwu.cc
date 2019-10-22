@@ -9,21 +9,14 @@ Napi::Value napi_DownloadFirmware(const Napi::CallbackInfo& info) {
     const std::string authorization = info[2].As<Napi::String>();
     Napi::Function javascriptResultCallback = info[3].As<Napi::Function>();
 
-    (new util::JAsyncWorker<int, Napi::Object>(
+    (new util::JAsyncWorker<void, void>(
       functionName, 
       javascriptResultCallback,
       [functionName, deviceId, version, authorization](){ 
         Jabra_ReturnCode ret = Jabra_DownloadFirmware(deviceId, version.c_str(), authorization.c_str());
-        if (ret != Return_Async) {
+        if (ret != Return_Async && ret != Return_Ok) {
           throw util::JabraReturnCodeException(functionName, ret);
         }
-        return 0;
-      },
-      [](const Napi::Env& env, int) { 
-        Napi::Object napiResult = Napi::Object::New(env);
-        return napiResult;
-      }, [](int) {
-        // No cleanup
       }
     ))->Queue();
   }
@@ -43,7 +36,7 @@ Napi::Value napi_UpdateFirmware(const Napi::CallbackInfo& info) {
       javascriptResultCallback,
       [functionName, deviceId, firmFile](){ 
         Jabra_ReturnCode ret = Jabra_UpdateFirmware(deviceId, firmFile.c_str());
-        if (ret != Return_Async) {
+        if (ret != Return_Async && ret != Return_Ok) {
           throw util::JabraReturnCodeException(functionName, ret);
         }
       }
@@ -60,21 +53,14 @@ Napi::Value napi_DownloadFirmwareUpdater(const Napi::CallbackInfo& info) {
     const std::string authorization = info[1].As<Napi::String>();
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
-    (new util::JAsyncWorker<int, Napi::Object>(
+    (new util::JAsyncWorker<void, void>(
       functionName, 
       javascriptResultCallback,
       [functionName, deviceId, authorization](){ 
         Jabra_ReturnCode ret = Jabra_DownloadFirmwareUpdater(deviceId, authorization.c_str());
-        if (ret != Return_Async) {
+        if (ret != Return_Async && ret != Return_Ok) {
           throw util::JabraReturnCodeException(functionName, ret);
         }
-        return 0;
-      },
-      [](const Napi::Env& env, int) { 
-        Napi::Object napiResult = Napi::Object::New(env);
-        return napiResult;
-      }, [](int) {
-        // No cleanup
       }
     ))->Queue();
   }
