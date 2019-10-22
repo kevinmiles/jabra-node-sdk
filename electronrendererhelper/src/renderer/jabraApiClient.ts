@@ -204,11 +204,12 @@ function doCreateProxy<T extends (MetaApi & JabraEventManagementApi)>(meta: Clas
                 return Reflect.get(target, propKey);
             } else if ((methodEntry = meta.methods.find(m => m.name === propName)) || propName.startsWith("_")) {
                 return (...args : any[]) => {
-                    if (isValid) {
+                    // Normal (non-internal) calls are only allowed if we are fully valid, otherwise provide error.
+                    if (isValid || propName.startsWith("_")) {
                         return methodExecutor(propKey.toString(), methodEntry!, ...args);
                     } else {
                         const error = new Error(meta.name + "instance no longer active/valid. Can not call method");
-                        if (methodEntry!.jsType === Promise.name) {
+                        if (methodEntry && methodEntry.jsType === Promise.name) {
                             return Promise.reject(error);
                         } else {
                             throw error;
@@ -611,16 +612,32 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo & DeviceTiming, deviceTyp
     });
 
     function shutdown() {
+        JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createRemoteDeviceType.shutdown", "device #" + deviceInfo.deviceID + " shutdown.");
+ 
+        // Signal that device is no longer valid:
+        shutDownStatus = true;
+
+        // Remove all event subscriptions:
         DeviceEventsList.forEach((e) => {
             ipcRenderer.removeAllListeners(getDeviceTypeApiCallabackEventName(e, deviceInfo.deviceID));
         });
 
-        eventEmitter.removeAllListeners();
+        // Fail all API calls in progress:
+        const shutdownError = new Error("Operation cancelled - Device no longer attached / api shutdown");
+        const inProgressResultsCopy = Array.from(resultsByExecutionId.values());
+        resultsByExecutionId.clear();
+        inProgressResultsCopy.forEach((e) => {
+            e.reject(shutdownError);
+        });
 
-        shutDownStatus = true;
+        // Remove all subscribers.
+        eventEmitter.removeAllListeners();
     }
 
     const proxyHandler = doCreateProxy(deviceTypeMeta, isValid, executeApiMethod, executeOn, executeOff);
+
+    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createRemoteDeviceType", "device #" + deviceInfo.deviceID + " created.");
+
     return new Proxy<DeviceType & DeviceTypeExtras>(deviceInfo as (DeviceType & DeviceTypeExtras), proxyHandler);
 }
 
