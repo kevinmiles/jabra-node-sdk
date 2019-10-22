@@ -29,7 +29,7 @@ export function _JabraNativeAddonLog(severity: AddonLogSeverity, caller: string,
     try {
       const config = _JabraGetNativeAddonLogConfig();
       const maxSeverity = config ? config.maxSeverity : AddonLogSeverity.verbose;
-      if (severity < maxSeverity) {
+      if (severity <= maxSeverity) {
         return sdkIntegration.NativeAddonLog(severity, caller, msg);
       }
     } catch (e) { // Make sure any exceptions does not propagate.

@@ -55,14 +55,14 @@ export function createApiClient(ipcRenderer: IpcRenderer) : Promise<JabraType> {
                 addToStringToDeserializedObject(setupConfigResponse);
 
                 // If we have some log configuration, save it locally for optimaization purposes.
-                if (setupConfigResponse && setupConfigResponse.hasOwnProperty("logConfig")) {
+                if (setupConfigResponse && setupConfigResponse.hasOwnProperty(nameof<ApiClientInitEventData>("logConfig"))) {
                     logConfig = (setupConfigResponse as any).logConfig;
                     
                     JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createApiClient", "Set jabra log configuration:" + JSON.stringify(logConfig, null, 3));
                 }
 
                 // Get meta information from setup response.
-                if (setupConfigResponse && setupConfigResponse.hasOwnProperty("apiMeta")) {
+                if (setupConfigResponse && setupConfigResponse.hasOwnProperty(nameof<ApiClientInitEventData>("apiMeta"))) {
                     const apiMeta : ReadonlyArray<ClassEntry> = (setupConfigResponse as any).apiMeta;
                     JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createApiClient", "Got jabra apiMeta:" + JSON.stringify(apiMeta, null, 3));
 
@@ -676,7 +676,7 @@ function JabraNativeAddonLog(ipcRenderer: IpcRenderer, severity: AddonLogSeverit
 {
     try {
       const maxSeverity = logConfig ? logConfig.maxSeverity : AddonLogSeverity.verbose;
-      if (severity < maxSeverity) {
+      if (severity <= maxSeverity) {
         // Always send strings - serialize if needed:
         const serializedMsg = (typeof msg === 'string' || msg instanceof String) ? msg : JSON.stringify(serializeError(msg as Error), null, 3);
         ipcRenderer.send(jabraLogEventName, severity, caller, serializedMsg);
