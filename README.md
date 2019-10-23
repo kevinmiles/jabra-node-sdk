@@ -30,7 +30,7 @@ If you find any bug or have any suggestion then fill in the form at [Jabra devel
 
 # Credits
 
-See (github site)[https://github.com/gnaudio/jabra-node-sdk/graphs/contributors] for current contributors.
+See [github site](https://github.com/gnaudio/jabra-node-sdk/graphs/contributors) for current contributors.
 
 Original GN authors (from before source was released on github):
 - Morten Frederiksen
