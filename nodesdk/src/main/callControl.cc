@@ -3,7 +3,7 @@
 Napi::Value napi_SetHold(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   return util::SimpleDeviceAsyncBoolSetter(functionName, info, [functionName](unsigned short deviceId, bool enable) {
-        const Jabra_ReturnCode result = Jabra_SetHold(deviceId, true);
+        const Jabra_ReturnCode result = Jabra_SetHold(deviceId, enable);
         if (result != Return_Ok) {
           throw util::JabraReturnCodeException(functionName, result);
         }
