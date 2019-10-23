@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file
 
 ### 2.0 SDK Beta notes (temporary beta process changes):
+- Beta4 changes:
+  - Various bugfixes.
+  - Documentation improvements.
+  - Improved test app.
+
 - Beta3 changes:
   - Improved logging and extended it to jabra-electron-renderer-helper
   - Bugfixes and documentation fixes.
