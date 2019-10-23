@@ -45,7 +45,7 @@
     "url": "https://github.com/gnaudio/jabra-node-sdk.git"
   },
   "bugs": {
-    "url": "https://developer.jabra.com/site/global/support/index.gsp"
+    "url": "https://developer.jabra.com"
   },
   "devEngines": {
     "node": ">=11.0.0",

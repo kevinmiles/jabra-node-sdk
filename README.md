@@ -22,13 +22,15 @@ For more information, refer to the [individual README files](#Project-Contents) 
 
 
 # Bug reports
-If you find any bug or have any suggestion then fill in the form at [Jabra developer support site](https://developer.jabra.com/ticket/support/) with below details:
+If you find any bug or have any suggestion then fill in the form at [Jabra developer support site](https://developer.jabra.com) with below details:
 
 1. Bug description with steps to reproduce the issue.
 2. Console log after enabling debug mode for this module, see [Debugging and Logging](nodesdk/README.md#debugging-and-logging) section for more.
 3. File logs, see [Debugging and Logging](nodesdk/README.md#debugging-and-logging) section for more.
 
 # Credits
+
+See (github site)[https://github.com/gnaudio/jabra-node-sdk/graphs/contributors] for current contributors.
 
 Original GN authors (from before source was released on github):
 - Morten Frederiksen
