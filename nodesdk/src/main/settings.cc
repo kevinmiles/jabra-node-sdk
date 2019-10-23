@@ -214,7 +214,7 @@ static DeviceSettings *toCType(const unsigned short deviceId, Napi::Object src) 
       if (settingSrc.Has("currValue")) {
         if (settingDst.settingDataType == DataType::settingByte) {
           settingDst.currValue = new char[1] { (char)(uint8_t)util::getObjInt32OrDefault(settingSrc, "currValue", 0) };
-        } else if (settingDst.settingDataType == DataType::settingByte) {
+        } else if (settingDst.settingDataType == DataType::settingString) {
           settingDst.currValue = util::newCString(settingSrc.Get("currValue"));
         } else {         
           LOG_ERROR_(LOGINSTANCE) << "Device " << deviceId << " has unexpected settingDataType " << settingDst.currValue << " for settings GUID " << settingDst.guid;
@@ -234,7 +234,7 @@ static DeviceSettings *toCType(const unsigned short deviceId, Napi::Object src) 
       if (settingSrc.Has("dependentDefaultValue")) {
         if (settingDst.settingDataType == DataType::settingByte) {
           settingDst.dependentDefaultValue = new char[1] { (char)(uint8_t)util::getObjInt32OrDefault(settingSrc, "dependentDefaultValue", 0) };
-        } else if (settingDst.settingDataType == DataType::settingByte) {
+        } else if (settingDst.settingDataType == DataType::settingString) {
           settingDst.dependentDefaultValue = util::newCString(settingSrc.Get("dependentDefaultValue"));
         } else {         
           LOG_ERROR_(LOGINSTANCE) << "Device " << deviceId << " has unexpected settingDataType " << settingDst.currValue << " for settings GUID " << settingDst.guid;
