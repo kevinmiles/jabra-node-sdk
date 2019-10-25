@@ -4,7 +4,7 @@ console.log('renderer.js loaded');
 import { createApiClient } from '@gnaudio/jabra-electron-renderer-helper';
 import { enumDeviceBtnType, DeviceType, JabraType, ClassEntry, JabraEventsList, DeviceEventsList, enumHidState } from '@gnaudio/jabra-node-sdk';
 
-import { activeDemoDeviceId, notyf, showError, setupDevices, 
+import { initVersionInfo, activeDemoDeviceId, notyf, showError, setupDevices, 
          ringBtn, offhookBtn, onhookBtn, muteBtn, unmuteBtn, holdBtn, resumeBtn, unringBtn } from './guihelper';
 
 // Create a API client proxy for the JabraType api class, that allows the jabra client code
@@ -12,6 +12,17 @@ import { activeDemoDeviceId, notyf, showError, setupDevices,
 // IPC messages between the client and a Jabra API server running in the main process.
 createApiClient(window.electron.ipcRenderer).then((jabra) => {
     console.log("jabraApiClient initialized");
+
+    // Use timer as tempoary workaround for bug where server may not be up and running at this time.
+    // Not needed for final release of @gnaudio/jabra-electron-renderer-helper.
+    setTimeout(() => {
+        // Update GUI with version info.
+        jabra.getSDKVersionAsync().then((v) => {
+            console.log("Found native sdk v" + v);
+            initVersionInfo(v);
+        });
+    }, 1000);
+
 
     let devices = jabra.getAttachedDevices();
     setupDevices(devices);

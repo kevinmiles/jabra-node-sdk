@@ -8,7 +8,12 @@ import { JabraType, ClassEntry, JabraEventsList, DeviceEventsList, enumDeviceBtn
 createApiClient(window.electron.ipcRenderer).then((client) => {
     console.log("jabraApiClient initialized");
 
-    console.log("app id is " + client.appID); // should be undefined!
+    console.log("app id is " + client.appID); // should be undefined
+    
+    // Update GUI with version info.
+    client.getSDKVersionAsync().then((v) => {
+        console.log("Found native sdk v" + v);
+    });
 
     client.on('attach', (device) => {
         console.log("DEVICE ATTACHED " + JSON.stringify(device, null, 2));

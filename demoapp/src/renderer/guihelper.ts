@@ -6,6 +6,15 @@ import { DeviceType } from '@gnaudio/jabra-node-sdk';
 export const notyf = new Notyf({duration:1500});
 
 // References to our HTML elements.
+export const versionInfoContainer = document.getElementById('versionInfoContainer') as HTMLParagraphElement;
+export const testAppVersion = document.getElementById('testAppVersion') as HTMLSpanElement;
+export const nodeSdkVersion = document.getElementById('nodeSdkVersion') as HTMLSpanElement;
+export const electronHelperVersion = document.getElementById('electronHelperVersion') as HTMLSpanElement;
+export const electronVersion = document.getElementById('electronVersion') as HTMLSpanElement;
+export const nodeVersion = document.getElementById('nodeVersion') as HTMLSpanElement;
+export const osType = document.getElementById('osType') as HTMLSpanElement;
+export const nativeSdkVersion = document.getElementById('nativeSdkVersion') as HTMLSpanElement;
+
 export const deviceSelector = document.getElementById('deviceSelector') as HTMLSelectElement;
 export const ringBtn = document.getElementById('ring') as HTMLButtonElement;
 export const unringBtn = document.getElementById('unring') as HTMLButtonElement;
@@ -16,6 +25,27 @@ export const unmuteBtn = document.getElementById('unmute') as HTMLButtonElement;
 export const holdBtn = document.getElementById('hold') as HTMLButtonElement;
 export const resumeBtn = document.getElementById('resume') as HTMLButtonElement;
 export const errorMsg = document.getElementById('errorMsg') as HTMLSelectElement;
+
+// Show version information for components in gui:
+export function initVersionInfo(sdk_version_txt: string) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const testApp_version_txt = urlParams.get('testAppVersion') || "?";
+  const nodesdk_version_txt = urlParams.get('nodeSdkVersion') || "?";
+  const electronHelper_version_txt = urlParams.get('electronHelperVersion') || "?";
+  const electron_version_txt = urlParams.get('electronVersion') || "?";
+  const node_version_txt = urlParams.get('nodeVersion') || "?";
+  const os_type_txt = urlParams.get('osType') || "?";
+
+  testAppVersion.innerText = testApp_version_txt;
+  nodeSdkVersion.innerText = nodesdk_version_txt;
+  electronHelperVersion.innerText = electronHelper_version_txt;
+  electronVersion.innerText = electron_version_txt;
+  nodeVersion.innerText = node_version_txt;
+  osType.innerText = os_type_txt;
+  nativeSdkVersion.innerText = sdk_version_txt;
+
+  (versionInfoContainer as any).style = "display: block";          
+}
 
 // An reference to the device we want to be talking to for the demo.
 // Useful in case we have multiple jabra devices attached at the same time.

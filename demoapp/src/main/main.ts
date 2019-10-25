@@ -3,8 +3,17 @@ import { ConfigParamsCloud } from '@gnaudio/jabra-node-sdk';
 import * as process from 'process';
 import { JabraApiServerFactory, JabraApiServer } from '@gnaudio/jabra-electron-renderer-helper';
 
+import * as os from "os";
 import * as path from "path";
 
+// Get our version information directly from packages (special need for our demo/test - properly not 
+// something most applications would need):
+const testPackage = require ('../../package.json');
+const nodeSdkPackage = require ( '@gnaudio/jabra-node-sdk/package.json');
+const electronHelperPackage = require ('@gnaudio/jabra-electron-renderer-helper/package.json');
+const osType = `${os.platform()} (${os.arch()})`;
+
+// Globals used by our demo:
 let mainWindow: BrowserWindow | null = null;
 let jabraServerFactory : JabraApiServerFactory | null = null;
 let jabraServer: JabraApiServer | null = null;
@@ -34,10 +43,22 @@ function createAndLoadWindow(): Promise<BrowserWindow> {
     }
   });
 
-  // and load the index.html of the app returning a promise that resolves when loaded.
+  // Our demo app need to show version info for componets. Most are
+  // are passed as query args to our renderer window:
+  const args = `testAppVersion=${testPackage.version}
+                &nodeSdkVersion=${nodeSdkPackage.version}
+                &electronHelperVersion=${electronHelperPackage.version}
+                &electronVersion=${process.versions.electron}
+                &nodeVersion=${process.versions.node}
+                &osType=${osType}`.replace(/[\n\r\t\s]/g, '');
+
+  const htmlUrl = `file://${__dirname}/../renderer/index.html?${args}`
+
+  // load the index.html of the app returning a promise that resolves when loaded.
   // Nb. the promise part is new for electron 5 - alternatively, we could wait for
   // 'did-finish-load' and convert that into a promise.
-  const loadPromise = window.loadFile(path.join(__dirname, '../renderer/index.html'));
+
+  const loadPromise = window.loadURL(htmlUrl);
 
   // Open the DevTools.
   // window.webContents.openDevTools();
