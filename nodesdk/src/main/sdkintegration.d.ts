@@ -172,7 +172,6 @@ export declare interface SdkIntegration {
     
     IsMuteSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
     SetMute(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
-    setUnmute(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
 
     IsHoldSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
 

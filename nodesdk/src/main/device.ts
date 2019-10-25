@@ -228,12 +228,12 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * It opens radio link between base/dongle and device.
-     * @param {boolean} audiolink - Boolean value to set Online On/Off
+     * @param {boolean} online - Boolean value to set Online On/Off
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
     
      */
-    setOnlineAsync(audiolink: boolean): Promise<void> {
-        return util.promisify(sdkIntegration.SetOnline)(this.deviceID, true);
+    setOnlineAsync(online: boolean): Promise<void> {
+        return util.promisify(sdkIntegration.SetOnline)(this.deviceID, online);
     }
 
     /**

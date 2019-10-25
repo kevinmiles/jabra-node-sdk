@@ -50,7 +50,6 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
  
   EXPORTS_SET(IsMuteSupported)
   EXPORTS_SET(SetMute)
-  EXPORTS_SET(SetUnmute)
 
   EXPORTS_SET(IsHoldSupported) 
   EXPORTS_SET(IsBusyLightSupported)  

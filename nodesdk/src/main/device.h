@@ -24,7 +24,6 @@ Napi::Value napi_IsOnlineSupported(const Napi::CallbackInfo& info);
 
 Napi::Value napi_IsMuteSupported(const Napi::CallbackInfo& info);
 Napi::Value napi_SetMute(const Napi::CallbackInfo& info);
-Napi::Value napi_SetUnmute(const Napi::CallbackInfo& info);
 
 Napi::Value napi_IsHoldSupported(const Napi::CallbackInfo& info);
 Napi::Value napi_IsBusyLightSupported(const Napi::CallbackInfo& info);

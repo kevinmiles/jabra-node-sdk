@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file
 
 ### 2.0 SDK Beta notes (temporary beta process changes):
+- Beta5 changes:
+  - Bugfixes for unmuteAsync and setOnlineAsync.
+
 - Beta4 changes:
   - Various bugfixes.
   - Documentation improvements.

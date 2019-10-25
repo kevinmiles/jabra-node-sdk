@@ -340,17 +340,7 @@ Napi::Value napi_GetSupportedButtonEvents(const Napi::CallbackInfo& info) {
 Napi::Value napi_SetMute(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   return util::SimpleDeviceAsyncBoolSetter(functionName, info, [functionName](unsigned short deviceId, bool enable) {
-        const Jabra_ReturnCode result = Jabra_SetMute(deviceId, true);
-        if (result != Return_Ok) {
-          throw util::JabraReturnCodeException(functionName, result);
-        }
-  });
-}
-
-Napi::Value napi_SetUnmute(const Napi::CallbackInfo& info) {
-  const char * const functionName = __func__;
-  return util::SimpleDeviceAsyncBoolSetter(functionName, info, [functionName](unsigned short deviceId, bool enable) {
-        const Jabra_ReturnCode result = Jabra_SetMute(deviceId, false);
+        const Jabra_ReturnCode result = Jabra_SetMute(deviceId, enable);
         if (result != Return_Ok) {
           throw util::JabraReturnCodeException(functionName, result);
         }
