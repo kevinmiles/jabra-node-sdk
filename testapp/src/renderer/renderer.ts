@@ -423,7 +423,7 @@ function commandEffect(apiFuncName: string, argDescriptions: any[], result: Prom
       
             addResponseMessage(value);
 
-            (nativeSdkVersionContainer as any).style = "display: block";           
+            (nativeSdkVersionContainer as any).style = "display: inline";           
         } else { // Default handling of general API call:
           // Just print output if there is any:
           if (value != undefined && value != null) {
