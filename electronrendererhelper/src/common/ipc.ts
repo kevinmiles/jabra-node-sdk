@@ -1,15 +1,35 @@
 import { JabraTypeEvents, DeviceTypeEvents, NativeAddonLogConfig, ClassEntry } from '@gnaudio/jabra-node-sdk';
 
-
+/**
+ * The configuration/meta data returned to clients once server is ready.
+ */
 export interface ApiClientInitEventData {
     logConfig: NativeAddonLogConfig;
     apiMeta: ReadonlyArray<ClassEntry>;
 };
 
 /**
- * Send when the client is initializing asking the Api server for meta data.
+ * A serialized error is just an object that is json friendly.
+ */
+export type SerializedError = object;
+
+/**
+ * Type for saved responses in init response queue.
+ */
+export type ApiClientIntResponse = {
+    frameId: number;
+    response: SerializedError | ApiClientInitEventData;
+}
+
+/**
+ * Send when the client is initializing asking the Api server for meta data when ready.
  */
 export const createApiClientInitEventName = "jabraApiClientIntializing";
+
+/**
+ * Send when the server is ready along with meta data for the client
+ */
+export const createApiClientInitResponseEventName = "jabraApiClientIntializingResponse";
 
 /**
  * Send when the client wants to log something to the native Jabra Log.

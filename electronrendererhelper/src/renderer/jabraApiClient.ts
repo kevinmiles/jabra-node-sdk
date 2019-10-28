@@ -9,7 +9,7 @@ import { ClassEntry, JabraType, DeviceInfo,
 import { getExecuteDeviceTypeApiMethodEventName, getDeviceTypeApiCallabackEventName, getJabraTypeApiCallabackEventName, 
          getExecuteJabraTypeApiMethodEventName, getExecuteJabraTypeApiMethodResponseEventName, 
          getExecuteDeviceTypeApiMethodResponseEventName, createApiClientInitEventName,
-         jabraApiClientReadyEventName, jabraLogEventName, ApiClientInitEventData } from '../common/ipc';
+         jabraApiClientReadyEventName, jabraLogEventName, ApiClientInitEventData, createApiClientInitResponseEventName } from '../common/ipc';
 import { nameof, isBrowser, serializeError } from '../common/util';
 
 /**
@@ -46,74 +46,76 @@ export function createApiClient(ipcRenderer: IpcRenderer) : Promise<JabraType> {
             try {
                 JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.info, "createApiClient", "Looking up Jabra API meta data");
 
-                // Sync setup call to get configuration (the only sync call we use).
-                // TODO: Replace with two unsync events to avoid blocking processes!
+                // Notify server that client is up and running and that we would like to get meta data as a response event.
+                ipcRenderer.send(createApiClientInitEventName);
 
-                const setupConfigResponse: SerializedError | ApiClientInitEventData = ipcRenderer.sendSync(createApiClientInitEventName);
+                // Wait for answer from server.
+                ipcRenderer.once(createApiClientInitResponseEventName, (event, setupConfigResponse: SerializedError | ApiClientInitEventData) => {
+                    // Make return value easier to use and print:
+                    addToStringToDeserializedObject(setupConfigResponse);
 
-                // Make return value easier to use and print:
-                addToStringToDeserializedObject(setupConfigResponse);
-
-                // If we have some log configuration, save it locally for optimaization purposes.
-                if (setupConfigResponse && setupConfigResponse.hasOwnProperty(nameof<ApiClientInitEventData>("logConfig"))) {
-                    logConfig = (setupConfigResponse as any).logConfig;
-                    
-                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createApiClient", "Set jabra log configuration:" + JSON.stringify(logConfig, null, 3));
-                }
-
-                // Get meta information from setup response.
-                if (setupConfigResponse && setupConfigResponse.hasOwnProperty(nameof<ApiClientInitEventData>("apiMeta"))) {
-                    const apiMeta : ReadonlyArray<ClassEntry> = (setupConfigResponse as any).apiMeta;
-                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createApiClient", "Got jabra apiMeta:" + JSON.stringify(apiMeta, null, 3));
-
-                    const jabraClassName = JabraType.name;
-                    let jabraTypeMeta = apiMeta.find((c) => c.name === jabraClassName);
-                    if (!jabraTypeMeta) {
-                        let error = new Error("Could not find meta data for " + jabraClassName);
-                        JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", error);
-                        return Promise.reject(error);
-                    }
-            
-                    const deviceClassName = DeviceType.name;
-                    let deviceTypeMeta = apiMeta.find((c) => c.name === deviceClassName);
-                    if (!deviceTypeMeta) {
-                        let error = new Error("Could not find meta data for " + deviceClassName);
-                        JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", error);
-                        return Promise.reject(error);
+                    // If we have some log configuration, save it locally for optimaization purposes.
+                    if (setupConfigResponse && setupConfigResponse.hasOwnProperty(nameof<ApiClientInitEventData>("logConfig"))) {
+                        logConfig = (setupConfigResponse as any).logConfig;
+                        
+                        JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createApiClient", "Got jabra log configuration:" + JSON.stringify(logConfig, null, 3));
                     }
 
-                    let result = doCreateRemoteJabraType(jabraTypeMeta, deviceTypeMeta, ipcRenderer);
+                    // Get meta information from setup response.
+                    if (setupConfigResponse && setupConfigResponse.hasOwnProperty(nameof<ApiClientInitEventData>("apiMeta"))) {
+                        const apiMeta : ReadonlyArray<ClassEntry> = (setupConfigResponse as any).apiMeta;
+                        JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createApiClient", "Got jabra apiMeta:" + JSON.stringify(apiMeta, null, 3));
 
-                    // Calulate the ready time used to replay old events. There is a potential unsolved
-                    // theoretical problem if events hanppened while doCreateRemoteJabraType is being executed.
-                    // We could improve this marginally by setting the ready time inside this function at 
-                    // the exact right place after event handlers are setup, but even that might fail
-                    // in theory. However, as USB scanning takes time (so events will come after this
-                    // code) these kind of problems are unlikely to happen in real life.
-                    // 
-                    // Another potential problem with this timing call, is that the browser values are
-                    // by design fuzzied because of secruity issues with Meltdown/Spectre. The time 
-                    // returned here might thus be off by a couple of milliseconds which creates
-                    // another potential race condition, that might cause a attach event to be missed
-                    // or repeated if we are extremely unlucky.
-                    const clientReadyTime = Date.now();
-                    
-                    JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.info, "createApiClient", "Client side JabraType proxy succesfully created at t=" + clientReadyTime);
+                        const jabraClassName = JabraType.name;
+                        let jabraTypeMeta = apiMeta.find((c) => c.name === jabraClassName);
+                        if (!jabraTypeMeta) {
+                            let error = new Error("Could not find meta data for " + jabraClassName);
+                            JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", error);
+                            return Promise.reject(error);
+                        }
+                
+                        const deviceClassName = DeviceType.name;
+                        let deviceTypeMeta = apiMeta.find((c) => c.name === deviceClassName);
+                        if (!deviceTypeMeta) {
+                            let error = new Error("Could not find meta data for " + deviceClassName);
+                            JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", error);
+                            return Promise.reject(error);
+                        }
 
-                    // Ask server to re-send attach events before now
-                    ipcRenderer.send(jabraApiClientReadyEventName, clientReadyTime);
+                        let result = doCreateRemoteJabraType(jabraTypeMeta, deviceTypeMeta, ipcRenderer);
 
-                    return resolve(result);
-                } else {
-                    let failure;
-                    if ((setupConfigResponse as any).name) {
-                        failure = deserializeError(setupConfigResponse as SerializedError);
-                        JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", failure);
+                        // Calulate the ready time used to replay old events. There is a potential unsolved
+                        // theoretical problem if events hanppened while doCreateRemoteJabraType is being executed.
+                        // We could improve this marginally by setting the ready time inside this function at 
+                        // the exact right place after event handlers are setup, but even that might fail
+                        // in theory. However, as USB scanning takes time (so events will come after this
+                        // code) these kind of problems are unlikely to happen in real life.
+                        // 
+                        // Another potential problem with this timing call, is that the browser values are
+                        // by design fuzzied because of secruity issues with Meltdown/Spectre. The time 
+                        // returned here might thus be off by a couple of milliseconds which creates
+                        // another potential race condition, that might cause a attach event to be missed
+                        // or repeated if we are extremely unlucky.
+                        const clientReadyTime = Date.now();
+                        
+                        JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.info, "createApiClient", "Client side JabraType proxy succesfully created at t=" + clientReadyTime);
+
+                        // Ask server to re-send attach events before now
+                        ipcRenderer.send(jabraApiClientReadyEventName, clientReadyTime);
+
+                        return resolve(result);
                     } else {
-                        failure = setupConfigResponse;
+                        let failure;
+                        if ((setupConfigResponse as any).name) {
+                            failure = deserializeError(setupConfigResponse as SerializedError);
+                            JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", failure);
+                        } else {
+                            failure = setupConfigResponse;
+                        }
+                        return reject(failure);
                     }
-                    return reject(failure);
-                }
+
+                });
             } catch (err) {
                 let combinedError = new Error("Internal error during meta retrivial / construction of remote proxy. Got error " + err);
                 JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.error, "createApiClient", combinedError);

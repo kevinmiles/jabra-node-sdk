@@ -14,7 +14,7 @@ import { getExecuteDeviceTypeApiMethodEventName, getDeviceTypeApiCallabackEventN
          getJabraTypeApiCallabackEventName, getExecuteJabraTypeApiMethodEventName, 
          getExecuteJabraTypeApiMethodResponseEventName, 
          getExecuteDeviceTypeApiMethodResponseEventName,
-         createApiClientInitEventName, jabraLogEventName, ApiClientInitEventData, jabraApiClientReadyEventName } from '../common/ipc';
+         createApiClientInitEventName, jabraLogEventName, ApiClientInitEventData, jabraApiClientReadyEventName, ApiClientIntResponse, createApiClientInitResponseEventName } from '../common/ipc';
 
 /**
  * This factory singleton is responsible for creating the server side Jabra API server that serves 
@@ -32,6 +32,9 @@ export class JabraApiServerFactory
     private jabraApiMeta: ClassEntry[];
     private jabraNativeAddonLogConfig: NativeAddonLogConfig | undefined;
     private startupError: Error | undefined;
+
+    private clientInitResponsesRequested: ApiClientIntResponse[];
+
     private cachedApiServer: {
         server: Promise<JabraApiServer>,
         appID: string, 
@@ -54,6 +57,7 @@ export class JabraApiServerFactory
             throw error;
         }
 
+        this.clientInitResponsesRequested = [];
         this.startupError = undefined;
         this.ipcMain = ipcMain;
         this.jabraApiMeta = [];
@@ -74,17 +78,27 @@ export class JabraApiServerFactory
         
         if (ipcMain) {                    
             try {
-                // Serve configuration data to client api (or error if failed to init):
-                this.ipcMain.on(createApiClientInitEventName, (syncEvent) => {
-                    _JabraNativeAddonLog(AddonLogSeverity.info, "JabraApiServerFactory.constructor", "Jabra meta data requested by createApiClient");
-                    syncEvent.returnValue = serializeError(this.startupError) || <ApiClientInitEventData>{
-                        logConfig: this.jabraNativeAddonLogConfig,
-                        apiMeta: this.jabraApiMeta
-                    };
+                // Register client initializations so we can later serve configuration/meta data to them when 
+                // server is fully up an running. We can't serve this data now, as the client api factory would 
+                // then complete too soon, resulting in subsequent API calls that we are not ready to handle.
+                this.ipcMain.on(createApiClientInitEventName, (mainEvent) => {
+                    const frameId = mainEvent.frameId;
+                    _JabraNativeAddonLog(AddonLogSeverity.info, "JabraApiServerFactory.constructor", "Jabra client initiailized - meta data requested by createApiClient at frame " + frameId);
+
+                    // Add to queue of responses required once server is ready:
+                    // Nb. Importantly "push" array operation must be used for this as we instrument this call later!
+                    this.clientInitResponsesRequested.push({
+                        frameId:  mainEvent.frameId,
+                        response: serializeError(this.startupError) || {
+                            logConfig: this.jabraNativeAddonLogConfig!,
+                            apiMeta: this.jabraApiMeta
+                        }    
+                    });
                 });
 
                 // Log any string (!) messages received:
-                this.ipcMain.on(jabraLogEventName, (event, severity: AddonLogSeverity, caller: string, msg: string) => {
+                // We do this here in the factory so we can catch also early logging requests from client:
+                this.ipcMain.on(jabraLogEventName, (mainEvent, severity: AddonLogSeverity, caller: string, msg: string) => {
                     _JabraNativeAddonLog(severity, caller, msg);
                 });
             } catch (e) {
@@ -119,7 +133,7 @@ export class JabraApiServerFactory
 
             return this.cachedApiServer.server;
         } else if (!this.startupError) {
-            let server = JabraApiServer.create(appID, configCloudParams, this.ipcMain, this.jabraApiMeta, fullyLoadedWindow);
+            let server = JabraApiServer.create(appID, configCloudParams, this.ipcMain, this.jabraApiMeta, this.clientInitResponsesRequested, fullyLoadedWindow);
             this.cachedApiServer = {
                 server,
                 appID,
@@ -159,9 +173,9 @@ export class JabraApiServer
      * 
      * @internal This function is intended for internal use only - clients should NOT use this - only our own factory!
      */
-    public static create(appID: string, configCloudParams: ConfigParamsCloud, ipcMain: IpcMain, jabraApiMeta: ClassEntry[], window: BrowserWindow) : Promise<JabraApiServer> {
+    public static create(appID: string, configCloudParams: ConfigParamsCloud, ipcMain: IpcMain, jabraApiMeta: ClassEntry[], clientInitResponsesRequested: ApiClientIntResponse[], window: BrowserWindow) : Promise<JabraApiServer> {
         return createJabraApplication(appID, configCloudParams).then( (jabraApi) => {
-            const server = new JabraApiServer(jabraApi, ipcMain, jabraApiMeta, window);
+            const server = new JabraApiServer(jabraApi, ipcMain, jabraApiMeta, clientInitResponsesRequested, window);
             _JabraNativeAddonLog(AddonLogSeverity.info, "JabraApiServer.create", "JabraApiServer server ready");
             return server;
         });
@@ -175,13 +189,30 @@ export class JabraApiServer
         return this.jabraApi;
     }
 
-    private constructor(jabraApi: JabraType, ipcMain: IpcMain, jabraApiMeta: ClassEntry[], window: BrowserWindow) {
+    private constructor(jabraApi: JabraType, ipcMain: IpcMain, jabraApiMeta: ClassEntry[], clientInitResponsesRequested: ApiClientIntResponse[], window: BrowserWindow) {
         this.jabraApi = jabraApi;
         this.ipcMain = ipcMain;
         this.window = window;
 
         this.setupJabraEvents(jabraApi);
         this.setupElectonEvents(jabraApi);
+
+        // Send requests for current and future clients waiting for delayed responses in clientInitResponsesRequested:
+        // Nb. requires "push" to be used to add items in factory!!
+        this.onClientInitResponsesRequestedChanged(clientInitResponsesRequested);
+        clientInitResponsesRequested.push = (...args: any[]) => { 
+            const retv = Array.prototype.push.apply(clientInitResponsesRequested, [...args]);
+            this.onClientInitResponsesRequestedChanged(clientInitResponsesRequested);
+            return retv;
+        };
+    }
+    
+    private onClientInitResponsesRequestedChanged(clientInitResponsesRequested: ApiClientIntResponse[]) {
+        // Send delayed responses to client from our server that is now ready to process api calls:
+        let responseRequested: ApiClientIntResponse | undefined;
+        while ((responseRequested = clientInitResponsesRequested.shift())) {
+            this.window.webContents.sendToFrame(responseRequested.frameId, createApiClientInitResponseEventName, responseRequested.response);
+        }
     }
 
     private setupJabraEvents(jabraApi: JabraType) {
