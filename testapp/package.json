@@ -1,6 +1,6 @@
 {
   "name": "@gnaudio/jabra-electron-test-app",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.6",
   "description": "A electon test application for Jabra Electron/Node SDK",
   "main": "dist/main/main.js",
   "browser": "dist/renderer/renderer.js",
@@ -29,8 +29,8 @@
     "url": "https://developer.jabra.com/site/global/support/index.gsp"
   },
   "dependencies": {
-    "@gnaudio/jabra-node-sdk": "2.0.0-beta.5",
-    "@gnaudio/jabra-electron-renderer-helper": "1.0.0-beta.4",
+    "@gnaudio/jabra-node-sdk": "2.0.0-beta.6",
+    "@gnaudio/jabra-electron-renderer-helper": "1.0.0-beta.6",
     "jquery": "3.4.1",
     "notyf": "3.0.4"
   },

@@ -13,15 +13,11 @@ import { initVersionInfo, activeDemoDeviceId, notyf, showError, setupDevices,
 createApiClient(window.electron.ipcRenderer).then((jabra) => {
     console.log("jabraApiClient initialized");
 
-    // Use timer as tempoary workaround for bug where server may not be up and running at this time.
-    // Not needed for final release of @gnaudio/jabra-electron-renderer-helper.
-    setTimeout(() => {
-        // Update GUI with version info.
-        jabra.getSDKVersionAsync().then((v) => {
-            console.log("Found native sdk v" + v);
-            initVersionInfo(v);
-        });
-    }, 1000);
+    // Update GUI with version info.
+    jabra.getSDKVersionAsync().then((v) => {
+        console.log("Found native sdk v" + v);
+        initVersionInfo(v);
+    });
 
 
     let devices = jabra.getAttachedDevices();

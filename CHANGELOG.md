@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file
 
 ### 2.0 SDK Beta notes (temporary beta process changes):
+- Beta6 changes:
+  - Bugfixes for GetErrorString
+  - Fix JDO native libs issue (Mac, Win)
+  - Electron helper fix createApiClient resolving too early.
 - Beta5 changes:
   - Bugfixes for unmuteAsync, setOnlineAsync and resumeAsync.
 
