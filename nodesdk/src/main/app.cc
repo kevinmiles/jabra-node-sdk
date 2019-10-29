@@ -721,7 +721,7 @@ Napi::Value napi_GetErrorString(const Napi::CallbackInfo& info)
   const char * const functionName = __func__;
   Napi::Env env = info.Env();
 
-  if (util::verifyArguments(functionName, info, {util::STRING, util::STRING, util::FUNCTION})) {
+  if (util::verifyArguments(functionName, info, {util::NUMBER, util::FUNCTION})) {
     const Jabra_ErrorStatus errorCode = (Jabra_ErrorStatus)info[0].As<Napi::Number>().Uint32Value();  
     Napi::Function javascriptResultCallback = info[1].As<Napi::Function>();
 
