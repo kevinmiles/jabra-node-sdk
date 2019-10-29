@@ -28,7 +28,7 @@ All notable changes to this project will be documented in this file
 
 - Complete rewrite in typescript based on N-API (Next generation APIs for Node.js)
   Provided API is ~95% identical but there are few breaking changes and bugfixes such as:
-    - The default initializeer function export (antipattern) is removed!
+    - The default initializer function export (antipattern) is removed!
       The initializer function is now a plain function export called "createJabraApplication" that unlike the previous function 
       returns a promise which resolves when the sdk is initialized
       (See examples for new usage syntax).
