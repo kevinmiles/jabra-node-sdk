@@ -26,6 +26,14 @@ let reserved1 = {
             console.error("'get sdk version failed : " + err);
             console.log('get sdk version failed with error code : ' + err.code || "undefined"); 
         });
+        /*
+        jabra.getErrorStringAsync(3).then(errStr => {
+            console.log("Error 3 is same as '" + errStr + "'");
+        }).catch(err => {
+            console.error("'getErrorString failed : " + err);
+            console.log('getErrorString failed with error code : ' + err.code || "undefined"); 
+        });
+        */
 
         jabra.on('attach', async (device: DeviceType) => {
             device.setHidWorkingStateAsync(enumHidState.GN_HID);
@@ -33,6 +41,7 @@ let reserved1 = {
             console.log("Device attached with device " + JSON.stringify(device, null, 2));
 
             // await device.connectNewDeviceAsync("myname", "010AFF000F07", true);
+            
 
             device.getSupportedFeaturesAsync().then((v) => {
                 console.log("getSupportedFeaturesAsync returned " + JSON.stringify(v, null, 2));
