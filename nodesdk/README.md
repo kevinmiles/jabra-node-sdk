@@ -18,7 +18,11 @@ Jabra Node.js SDK - BETA RELEASE
 ## Pre-requisite
 1. Node.js v8.x or later.
 2. **On MacOS:** `xcode` & `python 2.7`. By default, Python is installed on macOS but make sure correct version(2.7.x) is installed. Install Xcode from App store or download it from [here](https://developer.apple.com/xcode/download/).
-3. **On Windows:** `Visual C++ Build Tools` & `Python 2.7`. You can install all of these using command `npm install --global --production --add-python-to-path windows-build-tools`. To know more about this tool, see [this link.](https://github.com/felixrieseberg/windows-build-tools).
+3. **On Windows:** `Visual C++ Build Tools` & `Python 2.7`. You can install all of these by following any of the below mentioned steps.
+
+    3.1. **During Node.js installation** By ticking the checkbox when prompted during Node.js installation for `Tools for Native modules`, this installs both `Visual C++ Build Tools` & `Python 2.7`. **Note** This is prompted only for Windows platform. For other platforms like Linux or MAC, C++ compilation tools has to be installed separately as mentioned in other steps.
+
+    3.2. Both `Visual C++ Build Tools` & `Python 2.7` can also be installed using command `npm install --global --production --add-python-to-path windows-build-tools`. To know more about this tool, see [this link.](https://github.com/felixrieseberg/windows-build-tools). **Note** For executing this command through `Windows Command Prompt` or `Windows PowerShell`, they should be ran in Administrator mode.
 4. **On Linux:** `build-essential` package for C++ compilation & `Python 2.7`.
 
     4.1. **Udev rules:** To be able to communicate with Jabra devices with non-root privileges it is required to create a udev rule for Jabra devices. Place the udev rule in `/etc/udev/rules.d`, and follow naming guidelines for udev files.              
