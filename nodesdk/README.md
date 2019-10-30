@@ -174,12 +174,13 @@ import { createJabraApplication } from '@gnaudio/jabra-node-sdk';
 
 These sequence diagrams shows typical use of the Node.js sdk:
 
-![Sequence diagram](docs/outgoing-call-then-end-call.png)
+![Sequence diagram](https://github.com/gnaudio/gnaudio.github.io/raw/master/jabra-node-sdk/docs/outgoing-call-then-end-call.png)
 
-![Sequence diagram](docs/incoming-call-then-accept-on-device-then-end-call.png)
+![Sequence diagram](https://github.com/gnaudio/gnaudio.github.io/raw/master/jabra-node-sdk/docs/incoming-call-then-accept-on-device-then-end-call.png)
 
-![Sequence diagram](docs/incoming-call-then-user-rejects.png)
+![Sequence diagram](https://github.com/gnaudio/gnaudio.github.io/raw/master/jabra-node-sdk/docs/incoming-call-then-user-rejects.png)
 
-![Sequence diagram](docs/mute-unmute-from-device.png)
+![Sequence diagram](https://github.com/gnaudio/gnaudio.github.io/raw/master/jabra-node-sdk/docs/mute-unmute-from-device.png)
 
-![Sequence diagram](docs/hold-resume-from-device.png)
+![Sequence diagram](https://github.com/gnaudio/gnaudio.github.io/raw/master/jabra-node-sdk/docs/hold-resume-from-device.png)
+

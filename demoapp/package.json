@@ -21,7 +21,8 @@
   "homepage": "https://github.com/gnaudio/jabra-node-sdk/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gnaudio/jabra-node-sdk.git"
+    "url": "https://github.com/gnaudio/jabra-node-sdk.git",
+    "directory": "demoapp"
   },
   "bugs": {
     "url": "https://developer.jabra.com"

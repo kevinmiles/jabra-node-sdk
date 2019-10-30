@@ -9,8 +9,6 @@
     "sdk"
   ],
   "files": [
-    "assets",
-    "docs",
     "dist/doc",
     "dist/main",
     "dist/api-meta.json",
@@ -43,7 +41,8 @@
   "homepage": "https://github.com/gnaudio/jabra-node-sdk/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gnaudio/jabra-node-sdk.git"
+    "url": "https://github.com/gnaudio/jabra-node-sdk.git",
+    "directory": "nodesdk"
   },
   "bugs": {
     "url": "https://developer.jabra.com"
