@@ -53,6 +53,8 @@ export declare interface SdkIntegration {
     /***
      * Add a message to native log file (internal utility, not directly Jabra SDK related).
      * 
+     * Do not call this directly - use the optimized and more flexible js helper _JabraNativeAddonLog.
+     * 
      * This function is blocking(!) and is also not optimized for speed. Depending on OS, the logging code alone takes 
      * from 8-70 ms to run excluding the n-api wrapping itself. 
      * 

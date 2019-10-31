@@ -13,7 +13,8 @@ if (isNodeJs()) {
 } 
 
 /**
- * Add a message to native Jabra SDK log file.
+ * Add a message to native Jabra SDK log file. This function should be used instead og calling
+ * sdkIntegration.NativeAddonLog as it is faster and more flexible.
  * 
  * This function is for internal only use by helpers and tests (Refer to sdkIntegration
  * comments for details).
@@ -25,15 +26,20 @@ if (isNodeJs()) {
  * 
  * @hidden
  */
-export function _JabraNativeAddonLog(severity: AddonLogSeverity, caller: string, msg: string | Error): void {
+export function _JabraNativeAddonLog(severity: AddonLogSeverity, caller: string, msg: string | Error | (() => string)): void {
     try {
       const config = _JabraGetNativeAddonLogConfig();
       const maxSeverity = config ? config.maxSeverity : AddonLogSeverity.verbose;
       if (severity <= maxSeverity) {
+        // Support lazy evaluation of messages if the msg is a function.
+        if (typeof msg === "function") {
+            msg = msg();
+        }
+
         return sdkIntegration.NativeAddonLog(severity, caller, msg);
       }
     } catch (e) { // Make sure any exceptions does not propagate.
-        // If the console is up, let 
+        // If the console is up, shown internal error:
         console.error("Could not add error to Jabra native log. Got error " + e);
     }
 }
@@ -62,7 +68,7 @@ export function _JabraGetNativeAddonLogConfig() : NativeAddonLogConfig | undefin
             cachedLogConfig = config;
             return config;
         } catch (e) { // Make sure any exceptions does not propagate.
-            // If the console is up, let 
+            // If the console is up, show internal error: 
             console.error("Could not read log configuration. Got error " + e);
             return undefined;
         }

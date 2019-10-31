@@ -348,6 +348,8 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                       args = { result, Napi::Number::New(env, eventTime) };
                   });
                 }
+
+                LOG_VERBOSE_(LOGINSTANCE) << "Device attach callback handling finished";
               } catch (const std::exception &e) {       
                 const std::string errorMsg = "Init attached callback failed: " + std::string(e.what());
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
@@ -368,7 +370,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                   });
                 }
 
-                LOG_DEBUG_(LOGINSTANCE) << "Device de-attached";
+                LOG_VERBOSE_(LOGINSTANCE) << "Device de-attach callback handling finished";
               } catch (const std::exception &e) {       
                 const std::string errorMsg = "Init deattached callback failed: " + std::string(e.what());
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
@@ -390,7 +392,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                   });
                 }
 
-                LOG_VERBOSE_(LOGINSTANCE) << "Device button press finished";
+                LOG_VERBOSE_(LOGINSTANCE) << "Device button press callback handling finished";
               } catch (const std::exception &e) {       
                 const std::string errorMsg = "Init translatedInData callback failed: " + std::string(e.what());
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
@@ -407,19 +409,21 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
 
             Jabra_RegisterDevLogCallback([](unsigned short deviceID, char* _eventStr) {
               try {
-                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterDevLogCallback got eventStr " << _eventStr;
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterDevLogCallback callback got eventStr " << _eventStr;
+                if (_eventStr) {
+                  auto devLogCallback = state_Jabra_Initialize.getDevLogCallback();
 
-                auto devLogCallback = state_Jabra_Initialize.getDevLogCallback();
+                  // Make safe copy to avoid refering to memeory freed by Jabra_FreeString below.
+                  std::string eventStr(_eventStr);
 
-                // Make safe copy to avoid refering to memeory freed by Jabra_FreeString below.
-                std::string eventStr(_eventStr);
-
-                if (devLogCallback) {
-                  devLogCallback->call([deviceID, eventStr](Napi::Env env, std::vector<napi_value>& args) {
-                      args = { Napi::Number::New(env, deviceID), Napi::String::New(env, eventStr) };
-                  });
+                  if (devLogCallback) {
+                    devLogCallback->call([deviceID, eventStr](Napi::Env env, std::vector<napi_value>& args) {
+                        args = { Napi::Number::New(env, deviceID), Napi::String::New(env, eventStr) };
+                    });
+                  }
+                  Jabra_FreeString(_eventStr);
                 }
-                Jabra_FreeString(_eventStr);
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterDevLogCallback callback handling finished";
               } catch (const std::exception &e) {
                 const std::string errorMsg = "DevLogCallback callback failed: " + std::string(e.what());
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
@@ -431,7 +435,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
 
             Jabra_RegisterFirmwareProgressCallBack([](unsigned short deviceID, Jabra_FirmwareEventType type, Jabra_FirmwareEventStatus status, unsigned short percentage) {
               try {
-                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterFirmwareProgressCallBack got " << type << " " << status << " " << percentage;
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterFirmwareProgressCallBack callback got " << type << " " << status << " " << percentage;
 
                 auto downloadFirmwareProgressCallback = state_Jabra_Initialize.getDownloadFirmwareProgressCallback();
                 if (downloadFirmwareProgressCallback) {
@@ -439,6 +443,8 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                       args = { Napi::Number::New(env, deviceID), Napi::Number::New(env, (int)type), Napi::Number::New(env, (int)status), Napi::Number::New(env, percentage) };
                   });
                 }
+
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterFirmwareProgressCallBack callback handling finished";
               } catch (const std::exception &e) {
                 const std::string errorMsg = "FirmwareProgress callback failed: " + std::string(e.what());
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
@@ -451,41 +457,43 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
 
             Jabra_RegisterPairingListCallback([](unsigned short deviceID, Jabra_PairingList *lst) {
               try {
-                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterPairingListCallback called with " << (lst!=nullptr ? std::to_string(lst->count) : "null") << " pairings";
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterPairingListCallback callback called with " << (lst!=nullptr ? std::to_string(lst->count) : "null") << " pairings";
+                if (lst != nullptr) {
+                  ManagedPairingList mlst(*lst);
 
-                ManagedPairingList mlst(*lst);
+                  auto registerPairingListCallback = state_Jabra_Initialize.getRegisterPairingListCallback();
+                  if (registerPairingListCallback) {
+                    registerPairingListCallback->call([deviceID, mlst](Napi::Env env, std::vector<napi_value>& args) {
+                        Napi::Object jlst = Napi::Object::New(env);
+                        jlst.Set(Napi::String::New(env, "listType"), Napi::Number::New(env, mlst.listType));
 
-                auto registerPairingListCallback = state_Jabra_Initialize.getRegisterPairingListCallback();
-                if (registerPairingListCallback) {
-                  registerPairingListCallback->call([deviceID, mlst](Napi::Env env, std::vector<napi_value>& args) {
-                      Napi::Object jlst = Napi::Object::New(env);
-                      jlst.Set(Napi::String::New(env, "listType"), Napi::Number::New(env, mlst.listType));
+                        Napi::Array jPairedDevices = Napi::Array::New(env);
 
-                      Napi::Array jPairedDevices = Napi::Array::New(env);
+                        int i = 0;
+                        for (auto it = mlst.pairedDevice.begin(); it != mlst.pairedDevice.end(); it++) {
+                          const ManagedPairedDevice& src =  *it;
 
-                      int i = 0;
-                      for (auto it = mlst.pairedDevice.begin(); it != mlst.pairedDevice.end(); it++) {
-                        const ManagedPairedDevice& src =  *it;
+                          Napi::Object jDev = Napi::Object::New(env);
 
-                        Napi::Object jDev = Napi::Object::New(env);
+                          jDev.Set(Napi::String::New(env, "deviceName"), Napi::String::New(env, src.deviceName));
 
-                        jDev.Set(Napi::String::New(env, "deviceName"), Napi::String::New(env, src.deviceName));
+                          std::string btAddrStr = toBTAddrString(src.deviceBTAddr.data(), src.deviceBTAddr.size());
 
-                        std::string btAddrStr = toBTAddrString(src.deviceBTAddr.data(), src.deviceBTAddr.size());
+                          jDev.Set(Napi::String::New(env, "deviceBTAddr"), Napi::String::New(env, btAddrStr));
 
-                        jDev.Set(Napi::String::New(env, "deviceBTAddr"), Napi::String::New(env, btAddrStr));
+                          jDev.Set(Napi::String::New(env, "isConnected"), Napi::Boolean::New(env, src.isConnected));
 
-                        jDev.Set(Napi::String::New(env, "isConnected"), Napi::Boolean::New(env, src.isConnected));
+                          jPairedDevices.Set(i++, jDev);
+                        }                    
 
-                        jPairedDevices.Set(i++, jDev);
-                      }                    
-
-                      jlst.Set(Napi::String::New(env, "pairedDevice"), jPairedDevices);
-                      args = { Napi::Number::New(env, deviceID), jlst };
-                  });
+                        jlst.Set(Napi::String::New(env, "pairedDevice"), jPairedDevices);
+                        args = { Napi::Number::New(env, deviceID), jlst };
+                    });
+                  }
+                  
+                  Jabra_FreePairingList(lst);
                 }
-                
-                Jabra_FreePairingList(lst);
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterPairingListCallback callback handling finished";
               } catch (const std::exception &e) {
                 const std::string errorMsg = "Jabra_RegisterPairingListCallback callback failed: " + std::string(e.what());
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
@@ -497,7 +505,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
 
             Jabra_RegisterForGNPButtonEvent([] (unsigned short deviceID, ButtonEvent *buttonEvent) {
               try {
-                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterForGNPButtonEvent called with " << (buttonEvent!=nullptr ? std::to_string(buttonEvent->buttonEventCount) : "null") << " button events";
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterForGNPButtonEvent callback called with " << (buttonEvent!=nullptr ? std::to_string(buttonEvent->buttonEventCount) : "null") << " button events";
 
                 std::vector<ManagedButtonEventInfo> buttonInfos;
                       
@@ -548,6 +556,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 }
                 
                 Jabra_FreeButtonEvents(buttonEvent);
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterForGNPButtonEvent callback handling finished";
               } catch (const std::exception &e) {
                 const std::string errorMsg = "Jabra_RegisterForGNPButtonEvent callback failed: " + std::string(e.what());
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
@@ -559,7 +568,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
 
             Jabra_RegisterBatteryStatusUpdateCallback([] (unsigned short deviceID, int levelInPercent, bool charging, bool batteryLow) {
               try {
-                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterBatteryStatusUpdateCallback got " << levelInPercent << " " << charging << " " << batteryLow;
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterBatteryStatusUpdateCallback callback got " << levelInPercent << " " << charging << " " << batteryLow;
 
                 auto batteryStatusCallback = state_Jabra_Initialize.getBatteryStatusCallback();
 
@@ -568,6 +577,8 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                       args = { Napi::Number::New(env, deviceID), Napi::Number::New(env, levelInPercent), Napi::Boolean::New(env, charging), Napi::Boolean::New(env, batteryLow) };
                   });
                 }
+
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterBatteryStatusUpdateCallback callback handling finished";
               } catch (const std::exception &e) {
                 const std::string errorMsg = "BatteryStatusUpdate callback failed: " + std::string(e.what());
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
@@ -575,7 +586,6 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 const std::string errorMsg = "BatteryStatusUpdate callback failed failed with unknown exception";
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
-
             });
 
             Jabra_RegisterUploadProgress([] (unsigned short deviceID, Jabra_UploadEventStatus status, unsigned short percentage) {
@@ -589,6 +599,8 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                       args = { Napi::Number::New(env, deviceID), Napi::Number::New(env, status), Napi::Number::New(env, percentage) };
                   });
                 }
+
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterUploadProgress callback handling finished";
               } catch (const std::exception &e) {
                 const std::string errorMsg = "RegisterUploadProgress callback failed: " + std::string(e.what());
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;

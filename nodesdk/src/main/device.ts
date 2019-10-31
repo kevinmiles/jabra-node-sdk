@@ -1,6 +1,7 @@
 import { SdkIntegration } from "./sdkintegration";
 import { AddonLogSeverity, DeviceTiming } from "./core-types";
 import { isNodeJs } from './util';
+import { _JabraNativeAddonLog } from './logger';
 
 // Browser friendly type-only import:
 type _EventEmitter = import('events').EventEmitter;

@@ -1,6 +1,7 @@
 import { SdkIntegration } from "./sdkintegration";
 import { AddonLogSeverity } from "./core-types";
 import { isNodeJs } from './util';
+import { _JabraNativeAddonLog } from './logger';
 
 // Browser friendly type-only import:
 type _EventEmitter = import('events').EventEmitter;
@@ -52,12 +53,12 @@ export function createJabraApplication(appID: string, configCloudParams: ConfigP
     }
 
     if (!jabraApp) {
-        sdkIntegration.NativeAddonLog(AddonLogSeverity.info, "createJabraApplication", "Init - Creating new jabraApp");
+        _JabraNativeAddonLog(AddonLogSeverity.info, "createJabraApplication", "Init - Creating new jabraApp");
         jabraApp = new Promise<JabraType>((resolve, reject) => {
             return new JabraType(appID, configCloudParams, resolve, reject);
         });
     } else {
-        sdkIntegration.NativeAddonLog(AddonLogSeverity.info, "createJabraApplication", "Init - Reuseing existing jabraApp");
+        _JabraNativeAddonLog(AddonLogSeverity.info, "createJabraApplication", "Init - Reuseing existing jabraApp");
     }
 
     return jabraApp;
@@ -113,34 +114,39 @@ export class JabraType implements MetaApi {
                 try {
                     if (err) {
                         let errObj = new Error("Initialization error " + err);
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::success callback", err);
                         reject(errObj);
                         firstScanForDevicesDoneReject(errObj);
                     } else {
+                        _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::success", "native sdk initialized successfully");
                         resolve(this);
                     }
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
-                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::success callback", err);
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::success callback", err);
                 }
             }, (event_time_ms) => {
                 try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::firstScanDone", (() =>`firstScanDone event received from native sdk with event_time_ms=${event_time_ms}`));
                     this.eventEmitter.emit('firstScanDone', undefined);
                     firstScanForDevicesDoneResolve();
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
-                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::firstScanDone callback", err);
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::firstScanDone callback", err);
                 }
             }, (deviceData, event_time_ms) => {
                 try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::attach", (() =>`attach event received from native sdk with deviceData=${JSON.stringify(deviceData, null, 3)}, event_time_ms=${event_time_ms}`));
                     let deviceType = new DeviceType(deviceData, event_time_ms);
                     this.deviceTypes.set(deviceData.deviceID, deviceType);
                     this.eventEmitter.emit('attach', deviceType);
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
-                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::attach callback", err);
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::attach callback", err);
                 }
             }, (deviceId, event_time_ms) => {
                 try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::detach", (() =>`detach event received from native sdk with deviceId=${deviceId}, event_time_ms=${event_time_ms}`));
                     let deviceType = this.deviceTypes.get(deviceId);
                     if (deviceType) {
                         // Assign to detached_time_ms even though it is formally a readonly because we don't want clients to change it.
@@ -148,95 +154,102 @@ export class JabraType implements MetaApi {
                         this.deviceTypes.delete(deviceId);
                         this.eventEmitter.emit('detach', deviceType);                        
                     } else {
-                        sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::detach callback", "Could not lookup device with id " + deviceId);
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::detach callback", "Could not lookup device with id " + deviceId);
                     }
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
-                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::detach callback", err);
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::detach callback", err);
                 }
             }, (deviceId, translatedInData, buttonInData) => {
                 try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::buttonInDataTranslated", (() => `buttonInDataTranslated event received from native sdk with translatedInData=${translatedInData}, buttonInData=${buttonInData}`));
                     let device = this.deviceTypes.get(deviceId);
                     if (device) {
                         device._eventEmitter.emit('btnPress', translatedInData, buttonInData);
                     } else {
-                        sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "buttonInDataTranslated callback", "Could not lookup device with id " + deviceId);
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "buttonInDataTranslated callback", "Could not lookup device with id " + deviceId);
                     }
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
-                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::buttonInDataTranslated callback", err)
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::buttonInDataTranslated callback", err)
                 }
             }, (deviceId, jsonData) => {
                 try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onDevLogEvent", (() => `onDevLogEvent event received from native sdk with jsonData=${jsonData}`));
                     let device = this.deviceTypes.get(deviceId);
                     if (device) {
                         device._eventEmitter.emit('onDevLogEvent', jsonData);
                     } else {
-                        sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "onDevLogEvent callback", "Could not lookup device with id " + deviceId);
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "onDevLogEvent callback", "Could not lookup device with id " + deviceId);
                     }
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
-                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onDevLogEvent callback", err)
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onDevLogEvent callback", err)
                 }
             }, (deviceId, levelInPercent, isCharging, isBatteryLow) => {
                 try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onBatteryStatusUpdate", (() => `onBatteryStatusUpdate event received from native sdk with levelInPercent=${levelInPercent}, isCharging=${isCharging}, isBatteryLow=${isBatteryLow}`));
                     let device = this.deviceTypes.get(deviceId);
                     if (device) {
                         device._eventEmitter.emit('onBatteryStatusUpdate', levelInPercent, isCharging, isBatteryLow);
                     } else {
-                        sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "onBatteryStatusUpdate callback", "Could not lookup device with id " + deviceId);
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "onBatteryStatusUpdate callback", "Could not lookup device with id " + deviceId);
                     }
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
-                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onBatteryStatusUpdate callback", err)
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onBatteryStatusUpdate callback", err)
                 }
             }, (deviceId, type, status, dwnFirmPercentage) => {
                 try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::downloadFirmwareProgress", (() => `downloadFirmwareProgress event received from native sdk with type=${type}, status=${status}, dwnFirmPercentage=${dwnFirmPercentage}`));
                     let device = this.deviceTypes.get(deviceId);
                     if (device) {
                         device._eventEmitter.emit('downloadFirmwareProgress', type, status, dwnFirmPercentage);
                     } else {
-                        sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "downloadFirmwareProgress callback", "Could not lookup device with id " + deviceId);
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "downloadFirmwareProgress callback", "Could not lookup device with id " + deviceId);
                     }
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
-                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::downloadFirmwareProgress callback", err)
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::downloadFirmwareProgress callback", err)
                 }
             }, (deviceId, status, percentage) => {
                 try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onUploadProgress", (() => `onUploadProgress event received from native sdk with status ${status}, percentage ${percentage}`));
                     let device = this.deviceTypes.get(deviceId);
                     if (device) {
                         device._eventEmitter.emit('onUploadProgress', status, percentage);
                     } else {
-                        sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "onUploadProgress callback", "Could not lookup device with id " + deviceId);
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "onUploadProgress callback", "Could not lookup device with id " + deviceId);
                     }
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
-                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onUploadProgress callback", err)
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onUploadProgress callback", err)
                 }
             }, (deviceId, pairedListInfo) => {
                 try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onBTParingListChange", (() => `onBTParingListChange event received from native sdk with pairedListInfo ${JSON.stringify(pairedListInfo, null, 3)}`));
                     let device = this.deviceTypes.get(deviceId);
                     if (device) {
                         device._eventEmitter.emit('onBTParingListChange', pairedListInfo);
                     } else {
-                        sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "onBTParingListChange callback", "Could not lookup device with id " + deviceId);
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "onBTParingListChange callback", "Could not lookup device with id " + deviceId);
                     }
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
-                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onBTParingListChange callback", err)
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onBTParingListChange callback", err)
                 }
             }, (deviceId, buttonEvents) => {
                 try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onGNPBtnEvent", (() => `onGNPBtnEvent event received from native sdk with buttonEvents=${buttonEvents}`));
                     let device = this.deviceTypes.get(deviceId);
                     if (device) {
                         device._eventEmitter.emit('onGNPBtnEvent', buttonEvents);
                     } else {
-                        sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "onGNPBtnEventChange callback", "Could not lookup device with id " + deviceId);
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "onGNPBtnEventChange callback", "Could not lookup device with id " + deviceId);
                     }
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
-                    sdkIntegration.NativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onGNPBtnEventChange callback", err)
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onGNPBtnEventChange callback", err)
                 }
             },
             configCloudParams);  
@@ -249,19 +262,19 @@ export class JabraType implements MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`. 
      */
     disposeAsync(): Promise<void> {
-        sdkIntegration.NativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API started");
+        _JabraNativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API started");
 
         this.eventEmitter.removeAllListeners();
 
         let retPromise: Promise<void>;
         if (!sdkIntegration.UnInitialize()) {
-            sdkIntegration.NativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API failed.")
+            _JabraNativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API failed.")
 
             retPromise = Promise.reject(new Error("Failed uninitializing"));
         } else {
             this.deviceTypes.clear();
             jabraApp = null;
-            sdkIntegration.NativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API succeded")
+            _JabraNativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API succeded")
             retPromise = Promise.resolve();
         }
 
