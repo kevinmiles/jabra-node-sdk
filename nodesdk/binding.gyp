@@ -57,11 +57,7 @@
               "copies":
               [
                   {
-                    'destination': '<(module_root_dir)/build/Release',
-                    'files': ['<(module_root_dir)/libjabra/windows/x86/libjabra.dll']
-                  },
-                  {
-                    'destination': '<(module_root_dir)/build/Debug',
+                    'destination': '<(PRODUCT_DIR)',
                     'files': ['<(module_root_dir)/libjabra/windows/x86/libjabra.dll']
                   }
               ]
@@ -71,11 +67,7 @@
               "copies":
               [
                   {
-                    'destination': '<(module_root_dir)/build/Release',
-                    'files': ['<(module_root_dir)/libjabra/windows/x64/libjabra.dll']
-                  },
-                  {
-                    'destination': '<(module_root_dir)/build/Debug',
+                    'destination': '<(PRODUCT_DIR)',
                     'files': ['<(module_root_dir)/libjabra/windows/x64/libjabra.dll']
                   }
               ]
@@ -98,11 +90,7 @@
           "copies":
           [
             {
-              'destination': '<(module_root_dir)/build/Release',
-              'files': ['<(module_root_dir)/<(jabralibfolder)/<(jabralibfile)']
-            },
-            {
-              'destination': '<(module_root_dir)/build/Debug',
+              'destination': '<(PRODUCT_DIR)',
               'files': ['<(module_root_dir)/<(jabralibfolder)/<(jabralibfile)']
             }
           ],
@@ -127,11 +115,7 @@
          "copies":
          [
             {
-              'destination': '<(module_root_dir)/build/Release',
-              'files': ['<(module_root_dir)/libjabra/mac/libjabra.dylib']
-            },
-            {
-              'destination': '<(module_root_dir)/build/Debug',
+              'destination': '<(PRODUCT_DIR)',
               'files': ['<(module_root_dir)/libjabra/mac/libjabra.dylib']
             }
          ],
