@@ -214,8 +214,12 @@ stressInvokeApiBtn.onclick = () => {
 
 // Resolves arguments for different API methods. All methods that require
 // complex values or have default values should be explicitly handled here:
-const commandArgs: { [name: string]: () => any[] } = {
-  __default__: () => [ convertParam(txtParam1.value), convertParam(txtParam2.value), convertParam(txtParam3.value), convertParam(txtParam4.value), convertParam(txtParam5.value) ],
+const commandArgs: { [name: string]: (method: MethodEntry) => any[] } = {
+  __default__: (method: MethodEntry) => [ convertParam(txtParam1.value, method.parameters.length>0 ? method.parameters[0] : undefined),
+                                          convertParam(txtParam2.value, method.parameters.length>1 ? method.parameters[1] : undefined),
+                                          convertParam(txtParam3.value, method.parameters.length>2 ? method.parameters[2] : undefined),
+                                          convertParam(txtParam4.value, method.parameters.length>3 ? method.parameters[3] : undefined),
+                                          convertParam(txtParam5.value, method.parameters.length>4 ? method.parameters[4] : undefined) ],
 };
 
 // Call into user selected API method.
@@ -228,10 +232,12 @@ function invokeSelectedApi(currentApiObject: JabraType | DeviceType | undefined,
             argsResolver = commandArgs["__default__"];
         }
 
-        let args;
+        let args: any[];
         try {
-         args = argsResolver();
-         args = args.slice(0, Math.min(args.length, method.parameters.length));
+          args = argsResolver(method);
+          while(args.length>0 && args[args.length-1] === undefined){
+            args.pop();
+          } 
         } catch (err) {
           addError("Parameter input error",  err);
           return Promise.reject(err);
@@ -314,8 +320,16 @@ function setupApiHelp() {
   }
 }
 
-function convertParam(value: string): any {
+// Convert value to argument.
+// Nb. meta data is only available if the API expects a parameter (For testing purpoeses,
+// this tool supports passing parameters even if the API does not expect so).
+function convertParam(value: string, meta?: ParameterEntry): any {
     let tValue = value.trim();
+
+    // If no parameter is expected, we interpret empty string as "undefined"
+    if (tValue.length == 0 && !meta) {
+      return undefined;
+    }
     
     // Remove leading zero from numbers to avoid intreprenting them as octal.
     if (/0[0-9a-fA-F]+/.test(tValue)) {
@@ -328,12 +342,12 @@ function convertParam(value: string): any {
     }
 
     // Peek and if we can find signs of non-string than evaluate it otherwise return as string.
-    if (tValue.startsWith("[") 
-        || tValue.startsWith("/") 
-        || tValue.startsWith('"') 
-        || tValue.startsWith("'") 
+    if (tValue.startsWith("[")
+        || tValue.startsWith("/")
+        || tValue.startsWith('"')
+        || tValue.startsWith("'")
         || tValue.startsWith("{")
-        || tValue.toLowerCase() === "true" 
+        || tValue.toLowerCase() === "true"
         || tValue.toLowerCase() === "false"
         || (tValue.length>0 && !isNaN(tValue as any))) {
       return eval("("+tValue+")"); // Normally dangerous but since this is a test app it is acceptable.
