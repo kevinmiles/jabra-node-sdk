@@ -26,6 +26,7 @@ let reserved1 = {
             console.error("'get sdk version failed : " + err);
             console.log('get sdk version failed with error code : ' + err.code || "undefined"); 
         });
+
         /*
         jabra.getErrorStringAsync(3).then(errStr => {
             console.log("Error 3 is same as '" + errStr + "'");
@@ -37,6 +38,12 @@ let reserved1 = {
 
         jabra.on('attach', async (device: DeviceType) => {
             device.setHidWorkingStateAsync(enumHidState.GN_HID);
+
+            device.getTimestampAsync().then((n) => {
+                console.log("getTimestampAsync returned " + n);
+            }).catch((err: JabraError) => {
+                console.log("getTimestampAsync failed with error " + err);
+            });
 
             console.log("Device attached with device " + JSON.stringify(device, null, 2));
 

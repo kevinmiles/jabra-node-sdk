@@ -103,6 +103,8 @@ export class JabraType implements MetaApi {
             throw new Error("This JabraType constructor() function needs to run under NodeJs and not in a browser");
         }
 
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor", "called");
+
         this.appID = appID;
 
         this.eventEmitter = new events.EventEmitter();
@@ -262,19 +264,18 @@ export class JabraType implements MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`. 
      */
     disposeAsync(): Promise<void> {
-        _JabraNativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API started");
+        _JabraNativeAddonLog(AddonLogSeverity.info, this.disposeAsync.name, "called");
 
         this.eventEmitter.removeAllListeners();
 
         let retPromise: Promise<void>;
         if (!sdkIntegration.UnInitialize()) {
-            _JabraNativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API failed.")
-
+            _JabraNativeAddonLog(AddonLogSeverity.error, this.disposeAsync.name, "Dispose of API failed.")
             retPromise = Promise.reject(new Error("Failed uninitializing"));
         } else {
             this.deviceTypes.clear();
             jabraApp = null;
-            _JabraNativeAddonLog(AddonLogSeverity.info, "JabraType::disposeAsync", "Dispose of API succeded")
+            _JabraNativeAddonLog(AddonLogSeverity.info, this.disposeAsync.name, "Dispose of API succeded")
             retPromise = Promise.resolve();
         }
 
@@ -285,7 +286,10 @@ export class JabraType implements MetaApi {
      * Get list of currently attached Jabra devices.
      */
     getAttachedDevices(): DeviceType[] {
-        return Array.from(this.deviceTypes.values());
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getAttachedDevices.name, "called");
+        const result = Array.from(this.deviceTypes.values());
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getAttachedDevices.name, "returned", result);
+        return result;
     }
 
     /**
@@ -296,7 +300,11 @@ export class JabraType implements MetaApi {
      * - Returns `true` if softphone app integrates to Jabra application, `false` otherwise.
      */   
     connectToJabraApplicationAsync(guid: string, softphoneName: string): Promise<boolean> {
-        return util.promisify(sdkIntegration.ConnectToJabraApplication)(guid, softphoneName);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.connectToJabraApplicationAsync.name, "called with ", guid, softphoneName);
+        return util.promisify(sdkIntegration.ConnectToJabraApplication)(guid, softphoneName).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.connectToJabraApplicationAsync.name, "returned", result);
+            return result;
+        });
     }
 
     /**
@@ -304,7 +312,10 @@ export class JabraType implements MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`. 
      */
     disconnectFromJabraApplicationAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.DisconnectFromJabraApplication)();
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.disconnectFromJabraApplicationAsync.name, "called");        
+        return util.promisify(sdkIntegration.DisconnectFromJabraApplication)().then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.disconnectFromJabraApplicationAsync.name, "returned");
+        });
     }
 
     /**
@@ -313,7 +324,10 @@ export class JabraType implements MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setSoftphoneReadyAsync(isReady: boolean): Promise<void> {
-        return util.promisify(sdkIntegration.SetSoftphoneReady)(isReady);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setSoftphoneReadyAsync.name, "called with", isReady);
+        return util.promisify(sdkIntegration.SetSoftphoneReady)(isReady).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setSoftphoneReadyAsync.name, "returned");
+        });
     }
 
     /**
@@ -322,14 +336,21 @@ export class JabraType implements MetaApi {
      * - Returns `true` if softphone is in focus, `false` otherwise.
      */
     isSoftphoneInFocusAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsSoftphoneInFocus)();
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isSoftphoneInFocusAsync.name, "called"); 
+        return util.promisify(sdkIntegration.IsSoftphoneInFocus)().then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isSoftphoneInFocusAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /** 
      * Wait for initial device scan to be done.
      */
     scanForDevicesDoneAsync(): Promise<void>  {
-        return this.firstScanForDevicesDonePromise;
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.scanForDevicesDoneAsync.name, "called"); 
+        return this.firstScanForDevicesDonePromise.then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.scanForDevicesDoneAsync.name, "returned");
+        });
     }    
 
     /**
@@ -337,7 +358,11 @@ export class JabraType implements MetaApi {
      * @returns {Promise<string, Error>} - Resolve SDK version `string` if successful otherwise Reject with `error`.
      */
     getSDKVersionAsync(): Promise<string> {
-        return util.promisify(sdkIntegration.GetVersion)();
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSDKVersionAsync.name, "called");
+        return util.promisify(sdkIntegration.GetVersion)().then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSDKVersionAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -346,7 +371,11 @@ export class JabraType implements MetaApi {
      * @returns {Promise<string, Error>} - Resolve Error String `string` if successful otherwise Reject with `error`.
     */
     getErrorStringAsync(errStatusCode: number): Promise<string> {
-        return util.promisify(sdkIntegration.GetErrorString)(errStatusCode);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getErrorStringAsync.name, "called"); 
+        return util.promisify(sdkIntegration.GetErrorString)(errStatusCode).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getErrorStringAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /** 
@@ -357,7 +386,11 @@ export class JabraType implements MetaApi {
      * @hidden
      **/
     _SyncExperiment(p?: any): any {
-        return sdkIntegration.SyncExperiment(p);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this._SyncExperiment.name, "called with", p);
+        return sdkIntegration.SyncExperiment(p).then((result: any) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this._SyncExperiment.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -365,11 +398,13 @@ export class JabraType implements MetaApi {
      * for reflective usage of this class.
      */
     getMeta() : ClassEntry {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getMeta.name, "called"); 
         const jabraClassName = this.constructor.name;
         const apiMeta = _getJabraApiMetaSync();
         let jabraTypeMeta = apiMeta.find((c) => c.name === jabraClassName);
         if (!jabraTypeMeta)
             throw new Error("Could not find meta data for " + jabraClassName);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getMeta.name, "returned with", apiMeta);            
         return jabraTypeMeta;
     }
 
@@ -406,7 +441,11 @@ export class JabraType implements MetaApi {
     on(event: JabraTypeEvents,
         listener: JabraTypeCallbacks.attach | JabraTypeCallbacks.detach | JabraTypeCallbacks.firstScanDone): this {
 
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.on.name, "called with", event, "<listener>"); 
+
         this.eventEmitter.on(event, listener);
+
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.on.name, "returned"); 
 
         return this;
     }
@@ -440,7 +479,11 @@ export class JabraType implements MetaApi {
     off(event: JabraTypeEvents,
         listener: JabraTypeCallbacks.attach | JabraTypeCallbacks.detach | JabraTypeCallbacks.firstScanDone): this {
 
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.off.name, "called with", event, "<listener>"); 
+
         this.eventEmitter.off(event, listener);
+
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.off.name, "returned"); 
 
         return this;
     }

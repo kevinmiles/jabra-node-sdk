@@ -26,21 +26,40 @@ if (isNodeJs()) {
  * 
  * @hidden
  */
-export function _JabraNativeAddonLog(severity: AddonLogSeverity, caller: string, msg: string | Error | (() => string)): void {
+export function _JabraNativeAddonLog(severity: AddonLogSeverity, caller: string, msg: string | Error | (() => string), ...args: (string | object | boolean | number | Array<any> | (() => string))[]): void {
     try {
       const config = _JabraGetNativeAddonLogConfig();
       const maxSeverity = config ? config.maxSeverity : AddonLogSeverity.verbose;
       if (severity <= maxSeverity) {
-        // Support lazy evaluation of messages if the msg is a function.
-        if (typeof msg === "function") {
-            msg = msg();
+        let totalMessage = mapLogValue(msg);
+        if (args.length > 0 ) {
+            const argsStr = args.map(arg => mapLogValue(arg)).join(", ");
+            totalMessage = totalMessage + " : " + argsStr;
         }
-
-        return sdkIntegration.NativeAddonLog(severity, caller, msg);
+        
+        return sdkIntegration.NativeAddonLog(severity, caller, totalMessage);
       }
     } catch (e) { // Make sure any exceptions does not propagate.
         // If the console is up, shown internal error:
-        console.error("Could not add error to Jabra native log. Got error " + e);
+        console.error("Could not add message " + (caller || "?") + " : " + (msg || "?") + " to Jabra native log. Got error " + e);
+    }
+}
+
+// Internal helper for logging function to ensure native logger only get what it supports
+function mapLogValue(value: any): string | Error {
+    if (typeof value === 'string' || value instanceof Error) {
+        return value;
+    } else if (typeof value === "function") {
+      // Support lazy evaluation of messages if the msg is a function.
+      return mapLogValue(value());
+    } else if (value === null) {
+        return "<null>";
+    } else if (value === undefined) {
+        return "<undefined>"
+    } else if (value instanceof String || (value !== Object(value)) || value.hasOwnProperty('toString')) {
+        return value.toString();
+    } else {
+        return JSON.stringify(value);
     }
 }
 
