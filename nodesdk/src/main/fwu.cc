@@ -202,17 +202,25 @@ Napi::Value napi_CheckForFirmwareUpdate(const Napi::CallbackInfo& info) {
 
   if (util::verifyArguments(functionName, info, {util::NUMBER, util::STRING, util::FUNCTION})) {
     const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
-   const std::string authorizationId = info[1].As<Napi::String>();
+    const std::string authorizationId = info[1].As<Napi::String>();
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
-    (new util::JAsyncWorker<void, void>(
+    (new util::JAsyncWorker<bool, Napi::Boolean>(
       functionName, 
       javascriptResultCallback,
-      [functionName,deviceId,authorizationId](){ 
-        Jabra_ReturnCode retv;   
-        if ((retv = Jabra_CheckForFirmwareUpdate(deviceId, authorizationId.c_str())) != Return_Ok) {                    
+      [functionName,deviceId,authorizationId](){
+        Jabra_ReturnCode retv = Jabra_CheckForFirmwareUpdate(deviceId, authorizationId.c_str());
+
+        if (retv == Firmware_Available || retv == Return_Ok) {
+          return true;
+        } else if (retv == Firmware_UpToDate) {
+          return false;
+        } else {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
-        }
+        }   
+      },
+      [](const Napi::Env& env, const bool result) {
+        return Napi::Boolean::New(env, result);
       }
     ))->Queue();
   }
