@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file
 
 ### 2.0 SDK Beta notes (temporary beta process changes):
+- Beta7 changes:
+  - Bugfix for CheckForFirmwareUpdate, GetTimestamp, EnableEqualizer
+  - Change parameter handling in testapp.
+  - Added much more internal event logging.
+  - Use PRODUCT_DIR for destination for native binaries.
+  - Documentation fix (remote images for npm package).
+
 - Beta6 changes:
   - Bugfixes for GetErrorString
   - Fix JDO native libs issue (Mac, Win)
