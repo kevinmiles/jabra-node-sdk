@@ -115,7 +115,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if supported, otherwise `false`.
      */
     isOffHookSupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsOffHookSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isOffHookSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsOffHookSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isOffHookSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
     /**
      * Checks for Mute command support by the device (Async).
@@ -123,8 +127,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if supported, otherwise `false`.
      */
     isMuteSupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsMuteSupported)(this.deviceID);
-
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isMuteSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsMuteSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isMuteSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -133,7 +140,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if supported, otherwise `false`.
      */
     isRingerSupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsRingerSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isRingerSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsRingerSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isRingerSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -142,7 +153,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if supported, otherwise `false`.
      */
     isHoldSupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsHoldSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isHoldSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsHoldSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isHoldSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -151,7 +166,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if supported, otherwise `false`.
      */
     isOnlineSupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsOnlineSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isOnlineSupportedAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.IsOnlineSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isOnlineSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -160,7 +179,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if supported, otherwise `false`.
      */
     isBusyLightSupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsBusyLightSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isBusyLightSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsBusyLightSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isBusyLightSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -168,7 +191,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     offhookAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.SetOffHook)(this.deviceID, true);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.offhookAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.SetOffHook)(this.deviceID, true).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.offhookAsync.name, "returned");
+        });
     }
 
      /**
@@ -176,7 +202,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     onhookAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.SetOffHook)(this.deviceID, false);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.onhookAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.SetOffHook)(this.deviceID, false).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.onhookAsync.name, "returned");
+        });
     }
 
     /**
@@ -184,7 +213,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     muteAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.SetMute)(this.deviceID, true);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.muteAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.SetMute)(this.deviceID, true).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.muteAsync.name, "returned");
+        });
     }
 
      /**
@@ -192,7 +224,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     unmuteAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.SetMute)(this.deviceID, false);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.unmuteAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.SetMute)(this.deviceID, false).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.unmuteAsync.name, "returned");
+        });
     }
 
     /**
@@ -200,7 +235,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     ringAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.SetRinger)(this.deviceID, true);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.ringAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.SetRinger)(this.deviceID, true).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.ringAsync.name, "returned");
+        });
     }
 
     /**
@@ -208,7 +246,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     unringAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.SetRinger)(this.deviceID, false);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.unringAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.SetRinger)(this.deviceID, false).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.unringAsync.name, "returned");
+        });
     }
 
     /**
@@ -216,7 +257,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     holdAsync(): Promise<void> {
-       return util.promisify(sdkIntegration.SetHold)(this.deviceID, true);
+       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.holdAsync.name, "called with", this.deviceID); 
+       return util.promisify(sdkIntegration.SetHold)(this.deviceID, true).then(() => {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.holdAsync.name, "returned");
+       });
     }
 
     /**
@@ -224,7 +268,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     resumeAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.SetHold)(this.deviceID, false);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.resumeAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.SetHold)(this.deviceID, false).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.resumeAsync.name, "returned");
+        });
     }
 
     /**
@@ -234,7 +281,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     
      */
     setOnlineAsync(online: boolean): Promise<void> {
-        return util.promisify(sdkIntegration.SetOnline)(this.deviceID, online);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setOnlineAsync.name, "called with", this.deviceID, online); 
+        return util.promisify(sdkIntegration.SetOnline)(this.deviceID, online).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setOnlineAsync.name, "returned");
+        });
     }
 
     /**
@@ -243,7 +293,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setBusyLightStatusAsync(status: boolean): Promise<void> {
-        return util.promisify(sdkIntegration.SetBusyLightStatus)(this.deviceID, status);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setBusyLightStatusAsync.name, "called with", this.deviceID, status); 
+        return util.promisify(sdkIntegration.SetBusyLightStatus)(this.deviceID, status).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setBusyLightStatusAsync.name, "returned");
+        });
     }
 
     /**
@@ -252,7 +305,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - `true` if busylight is on, `false` if busylight is off or if it is not supported.
      */
     getBusyLightStatusAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.GetBusyLightStatus)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getBusyLightStatusAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetBusyLightStatus)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getBusyLightStatusAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -260,7 +317,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<string, Error>} - Resolve `string` if successful otherwise Reject with `error`.
      */
     getSerialNumberAsync(): Promise<string> {
-        return this.ESN ? Promise.resolve(this.ESN) : Promise.reject(new Error("No serial number"));
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSerialNumberAsync.name, "called with", this.deviceID); 
+        return this.ESN ? Promise.resolve(this.ESN) : Promise.reject(new Error("No serial number")).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSerialNumberAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -268,7 +329,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<string, Error>} - Resolve `string` if successful otherwise Reject with `error`.
      */
     getESNAsync(): Promise<string> {
-        return util.promisify(sdkIntegration.GetESN)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getESNAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetESN)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getESNAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -276,7 +341,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<NamedAsset, Error>} - Resolve NamedAsset `object` if successful otherwise Reject with `error`.
      */
     getNamedAssetAsyngetNamec(assetName: string): Promise<NamedAsset> {
-        return util.promisify(sdkIntegration.GetNamedAsset)(this.deviceID, assetName);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getNamedAssetAsyngetNamec.name, "called with", this.deviceID, assetName); 
+        return util.promisify(sdkIntegration.GetNamedAsset)(this.deviceID, assetName).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getNamedAssetAsyngetNamec.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -285,7 +354,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     
      */
     getBatteryStatusAsync(): Promise<{ levelInPercent?: number, isCharging?: boolean, isBatteryLow?: boolean }> {
-        return util.promisify(sdkIntegration.GetBatteryStatus)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getBatteryStatusAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetBatteryStatus)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getBatteryStatusAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -294,7 +367,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    
      */
     getImagePathAsync(): Promise<string> {
-        return util.promisify(sdkIntegration.GetDeviceImagePath)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getImagePathAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetDeviceImagePath)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getImagePathAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -302,7 +379,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<string, Error>} - Resolve image Thumbnail Path `string` if successful otherwise Reject with `error`.
      */
     getImageThumbnailPathAsync(): Promise<string> {
-        return util.promisify(sdkIntegration.GetDeviceImageThumbnailPath)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getImageThumbnailPathAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetDeviceImageThumbnailPath)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getImageThumbnailPathAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -310,7 +391,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<boolean, Error>} - Resolve `boolean` if successful otherwise Reject with `error`.
      */
     isBatterySupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsBatteryStatusSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isBatterySupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsBatteryStatusSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isBatterySupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -318,7 +403,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<boolean, Error>} - Resolve `boolean` if successful otherwise Reject with `error`.
      */
     isDevLogEnabledAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsDevLogEnabled)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isDevLogEnabledAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsDevLogEnabled)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isDevLogEnabledAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -327,7 +416,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     enableDevLogAsync(enable: boolean): Promise<void> {
-        return util.promisify(sdkIntegration.EnableDevLog)(this.deviceID, enable);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.enableDevLogAsync.name, "called with", this.deviceID, enable); 
+        return util.promisify(sdkIntegration.EnableDevLog)(this.deviceID, enable).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.enableDevLogAsync.name, "returned");
+        });
     }
 
     // settings APIs
@@ -336,7 +428,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<Array<Setting>, Error>}  - Resolve setting `array` if successful otherwise Reject with `error`.
      */
     getSettingsAsync(): Promise<DeviceSettings> {
-        return util.promisify(sdkIntegration.GetSettings)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSettingsAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetSettings)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSettingsAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -345,7 +441,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<Array<DeviceSettings>, Error>}  - Resolve setting `array` if successful otherwise Reject with `error`.
      */
     getSettingAsync(guid: string): Promise<DeviceSettings> {
-        return util.promisify(sdkIntegration.GetSetting)(this.deviceID, guid);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSettingAsync.name, "called with", this.deviceID, guid); 
+        return util.promisify(sdkIntegration.GetSetting)(this.deviceID, guid).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSettingAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -354,14 +454,20 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setSettingsAsync(settings: DeviceSettings): Promise<void> {
-        return util.promisify(sdkIntegration.SetSettings)(this.deviceID, settings);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setSettingsAsync.name, "called  with", settings); 
+        return util.promisify(sdkIntegration.SetSettings)(this.deviceID, settings).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setSettingsAsync.name, "returned");
+        });
     }
     /**
      * Restore factory settings to device.
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     resetSettingsAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.FactoryReset)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.resetSettingsAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.FactoryReset)(this.deviceID).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.resetSettingsAsync.name, "returned");
+        });
     }
 
     /**
@@ -370,7 +476,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if device supports factory reset, `false` if device does not support factory reset.
      */
     isFactoryResetSupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsFactoryResetSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isFactoryResetSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsFactoryResetSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isFactoryResetSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
        
     /**
@@ -381,7 +491,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - **Note**: This API should be called if setSettingsAsync API does not return void.
      */
     getFailedSettingNamesAsync(): Promise<Array<string>>{
-        return util.promisify(sdkIntegration.GetFailedSettingNames)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getFailedSettingNamesAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetFailedSettingNames)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getFailedSettingNamesAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     // firmware APIs
@@ -391,7 +505,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<string, Error>} - Resolve version `string` if successful otherwise Reject with `error`.
      */
     getFirmwareVersionAsync(): Promise<string> {
-        return util.promisify(sdkIntegration.GetFirmwareVersion)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getFirmwareVersionAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetFirmwareVersion)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getFirmwareVersionAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -400,7 +518,12 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<FirmwareInfo, Error>} - Resolve firminfo `object` if successful otherwise Reject with `error`.
      */
     getLatestFirmwareInformationAsync(authorization?: string): Promise<FirmwareInfoType> {
-        return util.promisify(sdkIntegration.GetLatestFirmwareInformation)(this.deviceID, authorization || "");
+        const _authorization =  authorization || "";
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getLatestFirmwareInformationAsync.name, "called with", this.deviceID, _authorization); 
+        return util.promisify(sdkIntegration.GetLatestFirmwareInformation)(this.deviceID, _authorization).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getLatestFirmwareInformationAsync.name, "returned with", result);
+            return result;
+        });
     }
     /**
      * Check if Firmware update available for device.
@@ -408,8 +531,13 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<boolean, Error>} - Resolve `boolean` if successful otherwise Reject with `error`.
      * - `true` - if firmware uptodate, `flase` - if firmware is not uptodate.
      */
-    checkForFirmwareUpdateAsync(authorization: string): Promise<boolean> {
-        return util.promisify(sdkIntegration.CheckForFirmwareUpdate)(this.deviceID, authorization || "");
+    checkForFirmwareUpdateAsync(authorization?: string): Promise<boolean> {
+        const _authorization =  authorization || "";
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.checkForFirmwareUpdateAsync.name, "called with", this.deviceID, _authorization);
+        return util.promisify(sdkIntegration.CheckForFirmwareUpdate)(this.deviceID, _authorization).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.checkForFirmwareUpdateAsync.name, "returned with", result);
+            return result;
+        });
     }
     /**
      * Downloads the specified firmware version file.
@@ -418,7 +546,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.   
      */
     downloadFirmwareAsync(version: string, authorization?: string): Promise<void> {
-        return util.promisify(sdkIntegration.DownloadFirmware)(this.deviceID, version, authorization || "");
+        const _authorization =  authorization || "";
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.downloadFirmwareAsync.name, "called with", this.deviceID, _authorization);
+        return util.promisify(sdkIntegration.DownloadFirmware)(this.deviceID, version, _authorization).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.downloadFirmwareAsync.name, "returned");
+        });
     }
 
     /**
@@ -428,7 +560,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - **Note**: Call `downloadFirmwareAsync` first to ensure that data is current
      */
     getFirmwareFilePathAsync(version: string): Promise<string> {
-        return util.promisify(sdkIntegration.GetFirmwareFilePath)(this.deviceID, version);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getFirmwareFilePathAsync.name, "called with", this.deviceID, version); 
+        return util.promisify(sdkIntegration.GetFirmwareFilePath)(this.deviceID, version).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getFirmwareFilePathAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -436,7 +572,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     cancelFirmwareDownloadAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.CancelFirmwareDownload)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.cancelFirmwareDownloadAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.CancelFirmwareDownload)(this.deviceID).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.cancelFirmwareDownloadAsync.name, "returned");
+        });
     }
     /**
      * Upgrades / Updates the firmware for the target device with specified version.
@@ -444,7 +583,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.  
      */
     updateFirmwareAsync(firmwareFilePath: string): Promise<void> {
-        return util.promisify(sdkIntegration.UpdateFirmware)(this.deviceID, firmwareFilePath);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.updateFirmwareAsync.name, "called with", this.deviceID, firmwareFilePath); 
+        return util.promisify(sdkIntegration.UpdateFirmware)(this.deviceID, firmwareFilePath).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.updateFirmwareAsync.name, "returned");
+        });
     }
     /**
      * Get the detailed error response for the last firmware update action performed 
@@ -453,7 +595,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Resolve errDetail `object` if successful otherwise Reject with `error`.
      */
     getLastFirmwareUpdateErrorInfoAsync(): Promise<{ errorExceptionType: string, errorMessage: string, errorDetails: string }> {
-        return util.promisify(sdkIntegration.GetLastFirmwareUpdateErrorInfo)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getLastFirmwareUpdateErrorInfoAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetLastFirmwareUpdateErrorInfo)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getLastFirmwareUpdateErrorInfoAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     // bluetooth APIs
@@ -462,14 +608,20 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setBTPairingAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.SetBTPairing)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setBTPairingAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.SetBTPairing)(this.deviceID).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setBTPairingAsync.name, "returned");
+        });
     }
     /**
      * Stop search for available Bluetooth devices.
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     stopBTPairingAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.StopBTPairing)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.stopBTPairingAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.StopBTPairing)(this.deviceID).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.stopBTPairingAsync.name, "returned");
+        });
     }
     
     /**
@@ -477,14 +629,20 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     searchNewDevicesAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.SearchNewDevices)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.searchNewDevicesAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.SearchNewDevices)(this.deviceID).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.searchNewDevicesAsync.name, "returned");
+        });
     }
     /**
      * Connect/Reconnect Bluetooth device to the Jabra Bluetooth adapter. Ensure the Bluetooth device is switched on and within range.
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     connectBTDeviceAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.ConnectBTDevice)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.connectBTDeviceAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.ConnectBTDevice)(this.deviceID).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.connectBTDeviceAsync.name, "returned");
+        });
     }
     /**
      * Connect a new device.
@@ -494,7 +652,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
     */
     connectNewDeviceAsync(deviceName: string, deviceBTAddr: string, isConnected: boolean): Promise<void> {
-        return util.promisify(sdkIntegration.ConnectNewDevice)(this.deviceID, deviceName, deviceBTAddr, isConnected);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.connectNewDeviceAsync.name, "called with", this.deviceID, deviceName, deviceBTAddr, isConnected);
+        return util.promisify(sdkIntegration.ConnectNewDevice)(this.deviceID, deviceName, deviceBTAddr, isConnected).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.connectNewDeviceAsync.name, "returned");
+        });
     }
     /**
      * Connect a device which was already paired.
@@ -505,7 +666,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - **Note**       : After device connection, getPairingListAsync api has to be called to get updated connection status.
      */
     connectPairedDeviceAsync(deviceName: string, deviceBTAddr: string, isConnected: boolean): Promise<void> {
-        return util.promisify(sdkIntegration.ConnectPairedDevice)(this.deviceID, deviceName, deviceBTAddr, isConnected);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.connectPairedDeviceAsync.name, "called with", this.deviceID, deviceName, deviceBTAddr, isConnected);
+        return util.promisify(sdkIntegration.ConnectPairedDevice)(this.deviceID, deviceName, deviceBTAddr, isConnected).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.connectPairedDeviceAsync.name, "returned");
+        });
     }
 
     /**
@@ -513,7 +677,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     disconnectBTDeviceAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.DisconnectBTDevice)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.disconnectBTDeviceAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.DisconnectBTDevice)(this.deviceID).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.disconnectBTDeviceAsync.name, "returned");
+        });
     }
 
     /**
@@ -525,7 +692,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - **Note**       : After device disconnection, getPairingListAsync api has to be called to get updated connection status.
      */
     disconnectPairedDeviceAsync(deviceName: string, deviceBTAddr: string, isConnected: boolean): Promise<void> {
-        return util.promisify(sdkIntegration.DisconnectPairedDevice)(this.deviceID, deviceName, deviceBTAddr, isConnected)
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.disconnectPairedDeviceAsync.name, "called with", this.deviceID, deviceName, deviceBTAddr, isConnected); 
+        return util.promisify(sdkIntegration.DisconnectPairedDevice)(this.deviceID, deviceName, deviceBTAddr, isConnected).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.disconnectPairedDeviceAsync.name, "returned");
+        });
     }
 
     /**
@@ -534,7 +704,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setAutoPairingAsync(value: boolean): Promise<void> {
-        return util.promisify(sdkIntegration.SetAutoPairing)(this.deviceID, value);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setAutoPairingAsync.name, "called with", this.deviceID, value); 
+        return util.promisify(sdkIntegration.SetAutoPairing)(this.deviceID, value).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setAutoPairingAsync.name, "returned");
+        });
     }
 
     /**
@@ -543,7 +716,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - `true` if auto pairing mode is enabled, `false` otherwise.
      */
     getAutoPairingAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.GetAutoPairing)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getAutoPairingAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetAutoPairing)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getAutoPairingAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -552,7 +729,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if pairing list is supported, false if device does not support pairing list.
      */
     isPairingListSupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsPairingListSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isPairingListSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsPairingListSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isPairingListSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -560,7 +741,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns { Promise<Array<PairedDevice>, Error>} - Resolve pairList `array` if successful otherwise Reject with `error`.
      */
     getPairingListAsync(): Promise<Array<{ deviceName: string, deviceBTAddr: string, isConnected: boolean }>> {
-        return util.promisify(sdkIntegration.GetPairingList)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getPairingListAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetPairingList)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getPairingListAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -568,7 +753,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     clearPairingListAsync(): Promise<void> {
-        return util.promisify(sdkIntegration.ClearPairingList)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.clearPairingListAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.ClearPairingList)(this.deviceID).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.clearPairingListAsync.name, "returned");
+        });
     }
 
     /**
@@ -576,7 +764,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<string, Error>} - Resolve deviceName `string` if successful otherwise Reject with `error`.
      */
     getConnectedBTDeviceNameAsync(): Promise<string> {
-        return util.promisify(sdkIntegration.GetConnectedBTDeviceName)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getConnectedBTDeviceNameAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetConnectedBTDeviceName)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getConnectedBTDeviceNameAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -585,7 +777,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - **Note**: `isConnected`, flag in Pairing List Object, will always be false as device does not give connection status for the found device.
      */
     getSearchDeviceListAsync(): Promise<Array<{ deviceName: string, deviceBTAddr: string, isConnected: boolean }>> {
-	 return util.promisify(sdkIntegration.GetSearchDeviceList)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSearchDeviceListAsync.name, "called with", this.deviceID); 
+	    return util.promisify(sdkIntegration.GetSearchDeviceList)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSearchDeviceListAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     //RMMI APIs
@@ -594,7 +790,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<Array<ButtonEvent>, Error>} - Resolve btnEvent `array` if successful otherwise Reject with `error`.
      */
     getSupportedButtonEventsAsync(): Promise<Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>> {
-        return util.promisify(sdkIntegration.GetSupportedButtonEvents)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSupportedButtonEventsAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetSupportedButtonEvents)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSupportedButtonEventsAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -603,7 +803,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     getButtonFocusAsync(btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>): Promise<void> {
-        return util.promisify(sdkIntegration.GetButtonFocus)(this.deviceID, btnEvents);    
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getButtonFocusAsync.name, "called with", this.deviceID, btnEvents);
+        return util.promisify(sdkIntegration.GetButtonFocus)(this.deviceID, btnEvents).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getButtonFocusAsync.name, "returned");
+        });
     }
 
     /**
@@ -612,7 +815,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     releaseButtonFocusAsync(btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>): Promise<void> {
-        return util.promisify(sdkIntegration.ReleaseButtonFocus)(this.deviceID, btnEvents);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.releaseButtonFocusAsync.name, "called with", this.deviceID, btnEvents);
+        return util.promisify(sdkIntegration.ReleaseButtonFocus)(this.deviceID, btnEvents).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.releaseButtonFocusAsync.name, "returned");
+        });
     }        
 
     /**
@@ -621,7 +827,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if Upload Ringtone to the device is supported, `false` if device does not support the ringtone upload to the device.
      */
     isUploadRingtoneSupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsUploadRingtoneSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isUploadRingtoneSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsUploadRingtoneSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isUploadRingtoneSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -630,7 +840,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     uploadRingtoneAsync(filePath: string): Promise<void> {
-        return util.promisify(sdkIntegration.UploadRingtone)(this.deviceID, filePath);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.uploadRingtoneAsync.name, "called with", this.deviceID, filePath);
+        return util.promisify(sdkIntegration.UploadRingtone)(this.deviceID, filePath).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.uploadRingtoneAsync.name, "returned");
+        });
     }
 
     /**
@@ -638,7 +851,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<{ audioFileType: number, numChannels: number, bitsPerSample: number, sampleRate: number, maxFileSize: number }, Error>} - Resolve Audio File Detail `object` if successful otherwise Reject with `error`.
      */
     getAudioFileParametersForUploadAsync(): Promise<{ audioFileType: number, numChannels: number, bitsPerSample: number, sampleRate: number, maxFileSize: number }> {
-        return util.promisify(sdkIntegration.GetAudioFileParametersForUpload)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getAudioFileParametersForUploadAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetAudioFileParametersForUpload)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getAudioFileParametersForUploadAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -647,7 +864,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     uploadWavRingtoneAsync(filePath: string): Promise<void> {
-        return util.promisify(sdkIntegration.UploadWavRingtone)(this.deviceID, filePath);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.uploadWavRingtoneAsync.name, "called with", this.deviceID, filePath); 
+        return util.promisify(sdkIntegration.UploadWavRingtone)(this.deviceID, filePath).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.uploadWavRingtoneAsync.name, "returned");
+        });
     }
 
     /**
@@ -656,7 +876,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setDateTimeAsync(timedate: { sec: number, min: number, hour: number, mday: number, mon: number, year: number, wday: number }): Promise<void> {
-       return util.promisify(sdkIntegration.SetDatetime)(this.deviceID, timedate);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setDateTimeAsync.name, "called with", this.deviceID, timedate); 
+       return util.promisify(sdkIntegration.SetDatetime)(this.deviceID, timedate).then(() => {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setDateTimeAsync.name, "returned with");
+    });
     }
 
     /**
@@ -665,7 +888,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if configuring time for device is supported, `false` if device does not support date and time configuration.
      */
     isSetDateTimeSupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsSetDateTimeSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isSetDateTimeSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsSetDateTimeSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isSetDateTimeSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -674,7 +901,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if device supports image upload otherwise `false`.
      */
     isUploadImageSupportedAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsUploadImageSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isUploadImageSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsUploadImageSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isUploadImageSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -683,7 +914,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @return {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`. 
      */
     uploadImageAsync(filePath: string): Promise<void> {
-        return util.promisify(sdkIntegration.UploadImage)(this.deviceID, filePath);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.uploadImageAsync.name, "called with", this.deviceID, filePath); 
+        return util.promisify(sdkIntegration.UploadImage)(this.deviceID, filePath).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.uploadImageAsync.name, "returned");
+        });
     }
 
     /**
@@ -692,7 +926,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Returns `true` if setting protection is enabled otherwise `false`.
      */
     isSettingProtectionEnabledAsync(): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsSettingProtectionEnabled)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isSettingProtectionEnabledAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsSettingProtectionEnabled)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isSettingProtectionEnabledAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**  
@@ -701,7 +939,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - panic code will be hex string
      */
     getPanicsAsync(): Promise<Array<string>> {
-        return util.promisify(sdkIntegration.GetPanics)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getPanicsAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetPanics)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getPanicsAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -710,7 +952,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<boolean, Error>} - Resolve isfeatureSupports `boolean` if successful otherwise Reject with `error`.
      */
     isFeatureSupportedAsync(deviceFeature: number): Promise<boolean> {
-        return util.promisify(sdkIntegration.IsFeatureSupported)(this.deviceID,deviceFeature);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isFeatureSupportedAsync.name, "called with", this.deviceID, deviceFeature);
+        return util.promisify(sdkIntegration.IsFeatureSupported)(this.deviceID,deviceFeature).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isFeatureSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -718,7 +964,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      *  @returns {Promise<boolean, Error>} - Resolve isGnHidStdHidSupported `boolean` if successful otherwise Reject with `error`.
      */
     isGnHidStdHidSupportedAsync(): Promise<boolean>  {
-        return util.promisify(sdkIntegration.IsGnHidStdHidSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isGnHidStdHidSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsGnHidStdHidSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isGnHidStdHidSupportedAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -727,7 +977,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * - Resolve array of supported features, should be enumDeviceFeature `array` if successful otherwise Reject with `error`.
      */
     getSupportedFeaturesAsync(): Promise<Array<enumDeviceFeature>> {
-         return util.promisify(sdkIntegration.GetSupportedFeatures)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSupportedFeaturesAsync.name, "called with", this.deviceID); 
+         return util.promisify(sdkIntegration.GetSupportedFeatures)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSupportedFeaturesAsync.name, "returned with", result);
+            return result;
+        });
     }
      
     /**
@@ -736,7 +990,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setHidWorkingStateAsync(hidState: enumHidState): Promise<void>  {
-        return util.promisify(sdkIntegration.SetHidWorkingState)(this.deviceID, hidState);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setHidWorkingStateAsync.name, "called with", this.deviceID, hidState);
+        return util.promisify(sdkIntegration.SetHidWorkingState)(this.deviceID, hidState).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setHidWorkingStateAsync.name, "returned");
+        });
     }
 
     /**
@@ -744,7 +1001,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<number, Error>} - Resolve hidState (`enumHidState`) if successful otherwise Reject with `error`.
      */
     getHidWorkingStateAsync() : Promise<enumHidState>  {
-        return util.promisify(sdkIntegration.GetHidWorkingState)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getHidWorkingStateAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetHidWorkingState)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getHidWorkingStateAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -756,7 +1017,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setWizardModeAsync(wizardMode: enumWizardMode) : Promise<void>  {
-       return util.promisify(sdkIntegration.SetWizardMode)(this.deviceID,wizardMode);
+       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setWizardModeAsync.name, "called with", this.deviceID, wizardMode); 
+       return util.promisify(sdkIntegration.SetWizardMode)(this.deviceID,wizardMode).then(() => {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setWizardModeAsync.name, "returned");
+       });
     }
 
     /**
@@ -768,7 +1032,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     * - Resolve enumWizardMode Current wizard mode (one of WizardModes) `number` if successful otherwise Reject with `error`.
     */ 
     getWizardModeAsync() : Promise<enumWizardMode>  {
-       return util.promisify(sdkIntegration.GetWizardMode)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getWizardModeAsync.name, "called with", this.deviceID); 
+       return util.promisify(sdkIntegration.GetWizardMode)(this.deviceID).then((result) => {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getWizardModeAsync.name, "returned with", result);
+        return result;
+    });
     }
 
      /**
@@ -779,7 +1047,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     clearPairedDeviceAsync(deviceName: string, deviceBTAddr: string, isConnected: boolean): Promise<void>  {
-        return util.promisify(sdkIntegration.ClearPairedDevice)(this.deviceID, deviceName, deviceBTAddr, isConnected);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.clearPairedDeviceAsync.name, "called with", this.deviceID, deviceName, deviceBTAddr, isConnected);
+        return util.promisify(sdkIntegration.ClearPairedDevice)(this.deviceID, deviceName, deviceBTAddr, isConnected).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.clearPairedDeviceAsync.name, "returned");
+        });
     }
 
     /**
@@ -788,7 +1059,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     downloadFirmwareUpdaterAsync(authorization?: string): Promise<void>  {
-        return util.promisify(sdkIntegration.DownloadFirmwareUpdater)(this.deviceID, authorization || "");
+        const _authorization = authorization || "";
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.downloadFirmwareUpdaterAsync.name, "called with", this.deviceID, _authorization);
+        return util.promisify(sdkIntegration.DownloadFirmwareUpdater)(this.deviceID, _authorization).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.downloadFirmwareUpdaterAsync.name, "returned");
+        });
     }
     
     /**
@@ -797,7 +1072,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @return {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setTimestampAsync(timeStamp: number) : Promise<void>  {
-        return util.promisify(sdkIntegration.SetTimestamp)(this.deviceID, timeStamp);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setTimestampAsync.name, "called with", this.deviceID, timeStamp);
+        return util.promisify(sdkIntegration.SetTimestamp)(this.deviceID, timeStamp).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setTimestampAsync.name, "returned");
+        });
     }
     
     /**
@@ -805,7 +1083,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<number, Error>} - Resolve Date in milliseconds `number` if successful otherwise Reject with `error`.
      */
     getTimestampAsync() : Promise<number>  {
-        return util.promisify(sdkIntegration.GetTimestamp)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getTimestampAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetTimestamp)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getTimestampAsync.name, "returned with", result);
+            return result;
+        });
     }
 
     /**
@@ -815,7 +1097,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
     */
     playRingtoneAsync(level: number, type: number): Promise<void>  {
-        return util.promisify(sdkIntegration.PlayRingTone)(this.deviceID,level,type);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.playRingtoneAsync.name, "called with", this.deviceID, level, type);
+        return util.promisify(sdkIntegration.PlayRingTone)(this.deviceID,level,type).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.playRingtoneAsync.name, "returned");
+        });
     }
 
     /**
@@ -824,7 +1109,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     * equalizer otherwise Reject with `error`.
     */
    isEqualizerSupportedAsync(): Promise<boolean>  {
-    return util.promisify(sdkIntegration.IsEqualizerSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isEqualizerSupportedAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsEqualizerSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isEqualizerSupportedAsync.name, "returned with", result);
+            return result;
+        });
    }
     
    /**
@@ -833,7 +1122,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    * supported by the device otherwise Reject with `error`.
    */
    isEqualizerEnabledAsync(): Promise<boolean>  {
-    return util.promisify(sdkIntegration.IsEqualizerSupported)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isEqualizerEnabledAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsEqualizerSupported)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isEqualizerEnabledAsync.name, "returned with", result);
+            return result;
+        });
    }
 
    /**
@@ -842,7 +1135,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
    */
    enableEqualizerAsync(enable: boolean): Promise<void> {
-    return util.promisify(sdkIntegration.EnableEqualizer)(this.deviceID, true);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.enableEqualizerAsync.name, "called with", this.deviceID, enable); 
+        return util.promisify(sdkIntegration.EnableEqualizer)(this.deviceID, enable).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.enableEqualizerAsync.name, "returned");
+        });
    }
 
    /**
@@ -851,7 +1147,9 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    * @returns {Promise<Array<EqualizerBand>, Error>} - Resolve equalizerBand `object` if successful otherwise Reject with `error`.
    */
    getEqualizerParametersAsync(maxNBands?: number): Promise<Array<{ max_gain: number, centerFrequency: number, currentGain: number }>> {
-     return util.promisify(sdkIntegration.GetEqualizerParameters)(this.deviceID, maxNBands || 5);
+        const _maxNBands = maxNBands || 5;
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getEqualizerParametersAsync.name, "called with", this.deviceID, _maxNBands);
+        return util.promisify(sdkIntegration.GetEqualizerParameters)(this.deviceID, _maxNBands);
    }
 
    /**
@@ -861,7 +1159,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
    */
    setEqualizerParametersAsync(bands: Array<number>, nband:number): Promise<void> {
-    return util.promisify(sdkIntegration.SetEqualizerParameters)(this.deviceID, bands, nband);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setEqualizerParametersAsync.name, "called with", this.deviceID, bands);
+        return util.promisify(sdkIntegration.SetEqualizerParameters)(this.deviceID, bands, nband).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setEqualizerParametersAsync.name, "returned");
+        });
    }
 
     /**
@@ -872,7 +1173,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      *  @returns {Promise<boolean, Error>} - Resolve isFirmwareLockEnabled `boolean` if successful otherwise Reject with `error`.
      */
    isFirmwareLockEnabledAsync(): Promise<boolean> {
-    return util.promisify(sdkIntegration.IsFirmwareLockEnabled)(this.deviceID);
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isFirmwareLockEnabledAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.IsFirmwareLockEnabled)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isFirmwareLockEnabledAsync.name, "returned with", result);
+            return result;
+        });
    }
 
    /**
@@ -880,11 +1185,16 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    * for reflective usage of this class.
    */
    getMeta() : ClassEntry {
+      _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getMeta.name, "called with", this.deviceID);
+
       const deviceClassName = this.constructor.name;
       const apiMeta = _getJabraApiMetaSync();
       let deviceTypeMeta = apiMeta.find((c) => c.name === deviceClassName);
       if (!deviceTypeMeta)
          throw new Error("Could not find meta data for " + deviceClassName);
+
+      _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getMeta.name, "returned with", apiMeta);   
+
       return deviceTypeMeta;
    }
 
@@ -953,7 +1263,11 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
                 DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onUploadProgress): this {
 
+      _JabraNativeAddonLog(AddonLogSeverity.verbose, this.on.name, "called with", this.deviceID, event, "<listener>"); 
+
       this._eventEmitter.on(event, listener);
+
+      _JabraNativeAddonLog(AddonLogSeverity.verbose, this.on.name, "returned"); 
 
       return this;
    }
@@ -1023,7 +1337,12 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
                 DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onUploadProgress): this {
 
+
+      _JabraNativeAddonLog(AddonLogSeverity.verbose, this.off.name, "called with", this.deviceID, event, "<listener>"); 
+
       this._eventEmitter.off(event, listener);
+
+      _JabraNativeAddonLog(AddonLogSeverity.verbose, this.off.name, "returned"); 
 
       return this;
    }
