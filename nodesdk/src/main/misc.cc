@@ -25,7 +25,7 @@ Napi::Value napi_GetPanics(const Napi::CallbackInfo& info) {
         {
           uint8_t *panicCode;
           panicCode = panics->panicList[i].panicCode;
-          std::string hexstring = ToHex((char*)panicCode, 25);
+          std::string hexstring = ToHex((char*)panicCode, 25); // To replace magic number with sizeof.
           v.push_back(hexstring);
         }
         Jabra_FreePanicListType(panics);

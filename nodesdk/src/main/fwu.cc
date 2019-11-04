@@ -218,6 +218,8 @@ Napi::Value napi_CheckForFirmwareUpdate(const Napi::CallbackInfo& info) {
         } else {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }   
+
+        return false; // Make compiler happy.
       },
       [](const Napi::Env& env, const bool result) {
         return Napi::Boolean::New(env, result);
