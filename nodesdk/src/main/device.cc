@@ -505,16 +505,19 @@ Napi::Value napi_GetTimestamp(const Napi::CallbackInfo& info) {
     const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
     Napi::Function javascriptResultCallback = info[1].As<Napi::Function>();
 
-    (new util::JAsyncWorker<void, void>(
+    (new util::JAsyncWorker<uint32_t, Napi::Number>(
       functionName, 
       javascriptResultCallback,
       [functionName, deviceId](){ 
         Jabra_ReturnCode retv;  
-         uint32_t result;                    
-        if ((retv = Jabra_GetTimestamp(deviceId,&result)) != Return_Ok) {
+        uint32_t result;
+        if ((retv = Jabra_GetTimestamp(deviceId, &result)) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
         return result;
+      },
+      [](const Napi::Env& env, const uint32_t cppResult) {  
+        return Napi::Number::New(env, cppResult); 
       }
     ))->Queue();
   }
