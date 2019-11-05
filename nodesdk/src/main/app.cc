@@ -777,7 +777,57 @@ Napi::Value napi_GetVersion(const Napi::CallbackInfo& info) {
 Napi::Value napi_SyncExperiment(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   const Napi::Env env = info.Env();
+
+  Jabra_PairingList lst;
+  lst.count = 2;
+  lst.listType = Jabra_DeviceListType::SearchComplete;
+  lst.pairedDevice = new Jabra_PairedDevice[2];
+  lst.pairedDevice[0].deviceName = "device 0 test";
+  lst.pairedDevice[0].isConnected = false;
+  lst.pairedDevice[0].deviceBTAddr[0] = 0;
+  lst.pairedDevice[0].deviceBTAddr[1] = 1;
+  lst.pairedDevice[0].deviceBTAddr[2] = 2;
+  lst.pairedDevice[0].deviceBTAddr[3] = 3;
+  lst.pairedDevice[0].deviceBTAddr[4] = 4;
+  lst.pairedDevice[0].deviceBTAddr[5] = 5;
+  lst.pairedDevice[1].deviceName = "device 1 test";
+  lst.pairedDevice[1].isConnected = true;
+  lst.pairedDevice[1].deviceBTAddr[0] = 10;
+  lst.pairedDevice[1].deviceBTAddr[1] = 11;
+  lst.pairedDevice[1].deviceBTAddr[2] = 12;
+  lst.pairedDevice[1].deviceBTAddr[3] = 13;
+  lst.pairedDevice[1].deviceBTAddr[4] = 14;
+  lst.pairedDevice[1].deviceBTAddr[5] = 15;
   
+  ManagedPairingList mlst(lst);
+
+  Napi::Object jlst = Napi::Object::New(env);
+  jlst.Set(Napi::String::New(env, "listType"), Napi::Number::New(env, mlst.listType));
+
+  Napi::Array jPairedDevices = Napi::Array::New(env);
+
+  int i = 0;
+  for (auto it = mlst.pairedDevice.begin(); it != mlst.pairedDevice.end(); it++) {
+    const ManagedPairedDevice& src =  *it;
+
+    Napi::Object jDev = Napi::Object::New(env);
+
+    jDev.Set(Napi::String::New(env, "deviceName"), Napi::String::New(env, src.deviceName));
+
+    std::string btAddrStr = toBTAddrString(src.deviceBTAddr.data(), src.deviceBTAddr.size());
+
+    jDev.Set(Napi::String::New(env, "deviceBTAddr"), Napi::String::New(env, btAddrStr));
+
+    jDev.Set(Napi::String::New(env, "isConnected"), Napi::Boolean::New(env, src.isConnected));
+
+    jPairedDevices.Set(i++, jDev);
+  }                    
+
+  jlst.Set(Napi::String::New(env, "pairedDevice"), jPairedDevices);
+  return jlst;
+
+
+
   /*
 
   ButtonEvent *buttonEvent = new ButtonEvent();
@@ -843,5 +893,5 @@ Napi::Value napi_SyncExperiment(const Napi::CallbackInfo& info) {
   return buttonEvents;
   */
  
-  return env.Undefined();
+  // return env.Undefined();
 }

@@ -63,7 +63,7 @@ struct ManagedPairingList {
 
   private:
   static std::vector<ManagedPairedDevice> initVector(unsigned short count, Jabra_PairedDevice* pairedDevice) {
-    auto vec = std::vector<ManagedPairedDevice>(count);
+    auto vec = std::vector<ManagedPairedDevice>();
 
     if (pairedDevice != nullptr)  {
       for (int i = 0; i<count; ++i) {

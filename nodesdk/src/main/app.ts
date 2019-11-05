@@ -387,10 +387,15 @@ export class JabraType implements MetaApi {
      **/
     _SyncExperiment(p?: any): any {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this._SyncExperiment.name, "called with", p);
-        return sdkIntegration.SyncExperiment(p).then((result: any) => {
-            _JabraNativeAddonLog(AddonLogSeverity.verbose, this._SyncExperiment.name, "returned with", result);
+        const result = sdkIntegration.SyncExperiment(p);
+        if (result instanceof Promise) {
+            return result.then((result: any) => {
+                _JabraNativeAddonLog(AddonLogSeverity.verbose, this._SyncExperiment.name, "returned with", result);
+                return result;
+            });
+        } else {
             return result;
-        });
+        }
     }
 
     /**

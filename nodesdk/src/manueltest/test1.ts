@@ -27,6 +27,9 @@ let reserved1 = {
             console.log('get sdk version failed with error code : ' + err.code || "undefined"); 
         });
 
+        // let r = jabra._SyncExperiment(0);
+        // console.log("_SyncExperiment returned '" + JSON.stringify(r, null, 3) + "'");
+
         /*
         jabra.getErrorStringAsync(3).then(errStr => {
             console.log("Error 3 is same as '" + errStr + "'");
