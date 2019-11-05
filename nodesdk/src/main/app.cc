@@ -777,7 +777,7 @@ Napi::Value napi_GetVersion(const Napi::CallbackInfo& info) {
 Napi::Value napi_SyncExperiment(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   const Napi::Env env = info.Env();
-
+  /*
   Jabra_PairingList lst;
   lst.count = 2;
   lst.listType = Jabra_DeviceListType::SearchComplete;
@@ -825,7 +825,7 @@ Napi::Value napi_SyncExperiment(const Napi::CallbackInfo& info) {
 
   jlst.Set(Napi::String::New(env, "pairedDevice"), jPairedDevices);
   return jlst;
-
+  */
 
 
   /*
@@ -893,5 +893,5 @@ Napi::Value napi_SyncExperiment(const Napi::CallbackInfo& info) {
   return buttonEvents;
   */
  
-  // return env.Undefined();
+  return env.Undefined();
 }
