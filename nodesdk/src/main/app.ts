@@ -261,9 +261,12 @@ export class JabraType implements MetaApi {
     /**
      * The user must call this function when finished using the wrapper. Otherwise
      * the node process will not shutdown properly.
-     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`. 
+     * 
+     * @param {boolean} shutdownServer Optional parameter only applicable to electronrendererhelper,
+     * where it cause API server shutdown if set. Can safely be ignored otherwise.
+     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
-    disposeAsync(): Promise<void> {
+    disposeAsync(shutdownServer: boolean = false): Promise<void> {
         _JabraNativeAddonLog(AddonLogSeverity.info, this.disposeAsync.name, "called");
 
         this.eventEmitter.removeAllListeners();
