@@ -82,7 +82,7 @@ export function createApiClient(ipcRenderer: IpcRenderer) : Promise<JabraType> {
                             return Promise.reject(error);
                         }
 
-                        let result = doCreateRemoteJabraType(jabraTypeMeta, deviceTypeMeta, ipcRenderer);
+                        const result = doCreateRemoteJabraType(jabraTypeMeta, deviceTypeMeta, ipcRenderer);
 
                         // Calulate the ready time used to replay old events. There is a potential unsolved
                         // theoretical problem if events hanppened while doCreateRemoteJabraType is being executed.
@@ -340,19 +340,25 @@ class SimpleEventEmitter<T extends string> {
     }
 }
 
+// Execution id should be unique across API instances so needs to be a global.
+let methodExecutionId : number = 0;
+
 /**
- * Create remote remote JabraType using a proxy that forwards events and commands using ipc
+ * Create remote remote JabraType using a proxy that forwards events and commands using ipc.
+ * There should only be once instance running at the same time
  */
 function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: ClassEntry, ipcRenderer: IpcRenderer) : JabraType & JabraTypeExtras {
     const devices = new Map<number, DeviceType & DeviceTypeExtras>();
     const resultsByExecutionId = new Map<Number, PromiseCallbacks>();
 
+    // Find out where the range of method execitions start, so we
+    // can dismss messages from an earlier API instance (in case we diposed client and recreated it).
+    // Nb. this assumes that only one instance is functioning at the same time.
+    const startMethodExecutionId = methodExecutionId;
+
     const eventEmitter = new SimpleEventEmitter<JabraTypeEvents>(JabraEventsList);
-    let methodExecutionId : number = 0;
 
     let shutDownStatus: boolean = false;
-
-    let eventsHandlersSetupTime_ms: number = 0;
 
     function isValid(): boolean
     {
@@ -401,6 +407,11 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
      * Receive async method execiution results and resolve/reject corresponding promises.
      */
     ipcRenderer.on(getExecuteJabraTypeApiMethodResponseEventName(), (event, methodName: string, executionId: number, err: SerializedError | undefined, result: any) => {
+        // First, ignore responses from old methods from an earlier instance of the client API:
+        if (executionId<startMethodExecutionId) {
+            return;
+        }
+
         // First make it easier to debug/inspect results:
         addToStringToDeserializedObject(err);
         addToStringToDeserializedObject(result);
@@ -463,16 +474,32 @@ function doCreateRemoteJabraType(jabraTypeMeta: ClassEntry, deviceTypeMeta: Clas
     });
 
     function shutdown() {
+        // Mark this instance.
         shutDownStatus = true;
 
+        // Invalidate singleton so a new can be created.
+        cachedApiClientPromise = null;
+
+        // Unsubscriber everything:
+        ipcRenderer.removeAllListeners(getExecuteJabraTypeApiMethodResponseEventName());
         JabraEventsList.forEach((e) => {
             ipcRenderer.removeAllListeners(getJabraTypeApiCallabackEventName(e));
         });
 
+        // Unsubscriber everything for each device also:
         devices.forEach( (device, key) => {
             device._shutdown();
         });
 
+        // Fail all API calls in progress:
+        const shutdownError = new Error("Operation cancelled - API is shutdown");
+        const inProgressResultsCopy = Array.from(resultsByExecutionId.values());
+        resultsByExecutionId.clear();
+        inProgressResultsCopy.forEach((e) => {
+            e.reject(shutdownError);
+        });
+
+        // Remove all listeners.
         eventEmitter.removeAllListeners();
     }
 
@@ -492,6 +519,9 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo & DeviceTiming, deviceTyp
     const eventEmitter = new SimpleEventEmitter<DeviceTypeEvents>(DeviceEventsList);
 
     const resultsByExecutionId = new Map<Number, PromiseCallbacks>();
+
+    // We use a unique channel for each device (since deviceId is ever increasing), so we don't have
+    // to care with possible collisions of device execution ids. Thus, just use local i
     let methodExecutionId : number = 0;
 
     let shutDownStatus: boolean = false;
@@ -515,7 +545,7 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo & DeviceTiming, deviceTyp
     
     function executeApiMethod(methodName: string, methodMeta: MethodEntry, ...args : any[]) : any {
         if (deviceInfo.detached_time_ms) {
-
+            return;
         }
         if (methodName == nameof<DeviceTypeExtras>("_shutdown")) {
             // Special local handling for when we are finshed with the device.

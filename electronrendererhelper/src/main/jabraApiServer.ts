@@ -255,6 +255,7 @@ export class JabraApiServer
         // missing some important attach events. Thus, we here listen for client
         // becoming ready after the server and replay attach events.
         this.ipcMain.on(jabraApiClientReadyEventName, (event, clientReadyTime: number) => {
+            const frameId = event.frameId;
             const devices = jabraApi.getAttachedDevices().filter(device => device.attached_time_ms < clientReadyTime);
             if (devices.length > 0) {
                 const deviceIds = devices.map(device => device.deviceID);
@@ -262,27 +263,28 @@ export class JabraApiServer
 
                 devices.forEach((device) => {
                     const deviceData = this.getPublicDeviceData(device);
-                    this.window.webContents.send(getJabraTypeApiCallabackEventName('attach'), deviceData);
+                    this.window.webContents.sendToFrame(frameId, getJabraTypeApiCallabackEventName('attach'), deviceData);
                 });
             }
         });
 
         // Receive JabraType api method calls from client:
         this.ipcMain.on(getExecuteJabraTypeApiMethodEventName(), (event, methodName: string, executionId: number, ...args: any[]) => {
+            const frameId = event.frameId;
             try {
-                let result = this.executeJabraApiCall(jabraApi, methodName, ...args);
+                const result = this.executeJabraApiCall(jabraApi, methodName, executionId, ...args);
                 if (result instanceof Promise) {
                     result.then( (v) => {
-                        this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, undefined, v);
+                        this.window.webContents.sendToFrame(frameId, getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, undefined, v);
                     }).catch( (err) => {
-                        this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, serializeError(err), undefined);
+                        this.window.webContents.sendToFrame(frameId, getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, serializeError(err), undefined);
                     });
                 } else {
-                    this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, undefined, result);
+                    this.window.webContents.sendToFrame(frameId, getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, undefined, result);
                 }
             } catch (err) {
                 _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServer.setupElectonEvents", err);
-                this.window.webContents.send(getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, serializeError(err), undefined);
+                this.window.webContents.sendToFrame(frameId, getExecuteJabraTypeApiMethodResponseEventName(), methodName, executionId, serializeError(err), undefined);
             }
         });
     }
@@ -290,20 +292,21 @@ export class JabraApiServer
     private subscribeDeviceTypeEvents(device: DeviceType) {
         // Receive DeviceType api method calls from client:
         this.ipcMain.on(getExecuteDeviceTypeApiMethodEventName(device.deviceID), (event, methodName: string, executionId: number, ...args: any[]) => {
+            const frameId = event.frameId;
             try {
-                let result = this.executeDeviceApiCall(device, methodName, ...args);
+                const result = this.executeDeviceApiCall(device, methodName, executionId, ...args);
                 if (result instanceof Promise) {
                     result.then( (v) => {
-                        this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, undefined, v);
+                        this.window.webContents.sendToFrame(frameId, getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, undefined, v);
                     }).catch( (err) => {
-                        this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, serializeError(err), undefined);
+                        this.window.webContents.sendToFrame(frameId, getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, serializeError(err), undefined);
                     });
                 } else {
-                    this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, undefined, result);
+                    this.window.webContents.sendToFrame(frameId, getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, undefined, result);
                 }
             } catch (err) {
                 _JabraNativeAddonLog(AddonLogSeverity.error, "JabraApiServer.subscribeDeviceTypeEvents", err);
-                this.window.webContents.send(getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, serializeError(err), undefined);
+                this.window.webContents.sendToFrame(frameId, getExecuteDeviceTypeApiMethodResponseEventName(device.deviceID), methodName, executionId, serializeError(err), undefined);
             }
         });
     
@@ -325,15 +328,23 @@ export class JabraApiServer
         });
     }
 
-    private executeJabraApiCall(jabraApi: JabraType, methodName: string, ...args: any[]) : any {
+    private executeJabraApiCall(jabraApi: JabraType,methodName: string,  executionId: number, ...args: any[]) : any {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, "executeJabraApiCall", "Executing " +methodName+ " with execution id " + executionId);
         if (methodName == nameof<JabraType>("disposeAsync")) {
-            return this.shutdown();
+            const shutdownServer = args.length >0 ? !!(args[0]): false
+            if (shutdownServer) {
+              return this.shutdown();
+            } else {
+              return Promise.resolve();
+            }
         } else {
             return (jabraApi as any)[methodName].apply(jabraApi, args);
         }
     }
 
-    private executeDeviceApiCall(device: DeviceType, methodName: string, ...args: any[]) : any {
+    private executeDeviceApiCall(device: DeviceType, methodName: string, executionId: number, ...args: any[]) : any {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, "executeDeviceApiCall", "Executing " +methodName+ " with execution id " + executionId);
+
         if (device.detached_time_ms) {
             throw new Error("Failed executing method " + methodName + " on detached device with id=" + device.deviceID);
         }
