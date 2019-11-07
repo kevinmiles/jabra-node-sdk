@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file
 
 ### 2.0 SDK Beta notes (temporary beta process changes):
+- Beta8 changes:
+  - Fix RegisterPairingListCallback bug providing wrong data etc.
+  - New shutdownServer argument to disposeAsync.
+  - Fix restart bug and multiple frame support for jabra-electron-renderer-helper.
+
 - Beta7 changes:
   - Bugfix for CheckForFirmwareUpdate, GetTimestamp, EnableEqualizer
   - Change parameter handling in testapp.
