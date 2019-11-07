@@ -294,7 +294,7 @@ function setupApiHelp() {
   }
 
   if (meta) {
-    methodSignature.innerText = meta.name + "( " + meta.parameters.map(p => p.name + ": " + p.tsType).join(", ") + "): " + meta.tsType;
+    methodSignature.innerText = meta.name + "( " + meta.parameters.map(p => p.name + (p.optional ? "?": "") + ": " + p.tsType).join(", ") + "): " + meta.tsType;
     methodHelp.innerText = meta.documentation;
 
     if (meta.parameters.length>=1) {
