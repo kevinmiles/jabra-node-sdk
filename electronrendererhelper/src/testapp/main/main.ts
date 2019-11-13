@@ -1,7 +1,8 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, WebPreferences } from "electron";
 import { ConfigParamsCloud } from '@gnaudio/jabra-node-sdk';
 import * as process from 'process';
 import { JabraApiServerFactory, JabraApiServer } from '../../main/index';
+import { isRunningInTestMode } from '../common/util';
 
 import * as path from "path";
 
@@ -14,24 +15,26 @@ let jabraServer: JabraApiServer | null = null;
  * the window is fully loaded and thus ready to receive events.
  */
 function createAndLoadWindow(): Promise<BrowserWindow> {
+  const webPref: WebPreferences = {
+    // Disabled Node integration
+    nodeIntegration: false,
+    // In a sandbox unless we are gui testing.
+    sandbox: !isRunningInTestMode(),
+    // Allow Ipc to/from sandbox
+    contextIsolation: false,
+    // No need for remoting for this app unless we are gui testing.
+    enableRemoteModule: isRunningInTestMode(),
+    // No insecure code.
+    webSecurity: true,
+    // Preload script
+    preload: path.join(__dirname, 'preload.js')
+  };
+
   // Create the browser window.
-  let window = new BrowserWindow({
+  const window = new BrowserWindow({
     height: 600,
     width: 800,
-    webPreferences: {
-      // Disabled Node integration
-      nodeIntegration: false,
-      // In a sandbox
-      sandbox: true,
-      // Allow Ipc to/from sandbox
-      contextIsolation: false,
-      // No need for remoting for this app.
-      enableRemoteModule: false,
-      // No insecure code.
-      webSecurity: true,
-      // Preload script
-      preload: path.join(__dirname, 'preload.js')
-    }
+    webPreferences: webPref
   });
 
   // and load the index.html of the app returning a promise that resolves when loaded.
@@ -40,7 +43,7 @@ function createAndLoadWindow(): Promise<BrowserWindow> {
   const loadPromise = window.loadFile(path.join(__dirname, '../renderer/index.html'));
 
   // Open the DevTools.
-  window.webContents.openDevTools();
+  // window.webContents.openDevTools();
 
   // Emitted when the window is closed.
   window.on("closed", () => {

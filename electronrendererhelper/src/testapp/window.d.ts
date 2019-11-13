@@ -6,5 +6,10 @@ interface Window {
     electron: {
         // Instance of ipcRenderer (http://electronjs.org/docs/api/ipc-renderer) assigned here by preloading.
         ipcRenderer: any;
-    }
+    },
+
+    /**
+     * Used by spectron if running tests.
+     */
+    electronRequire?: any
 }

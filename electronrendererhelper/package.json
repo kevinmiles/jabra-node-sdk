@@ -7,10 +7,11 @@
   "scripts": {
     "build": "npm run compile && npm run browserify && npm run copyresources",
     "compile": "tsc -p tsconfig.json",
-    "browserify": "browserify src/test/renderer/renderer.ts -x electron -p tsify --debug -o dist/test/renderer/bundle.js",
+    "browserify": "browserify src/testapp/renderer/renderer.ts -x electron -p tsify --debug -o dist/testapp/renderer/bundle.js",
     "copyresources": "copyfiles -u 1 src/**/*.html dist",
-    "start": "cross-env LIBJABRA_TRACE_LEVEL=trace electron ./dist/test/main/main.js",
+    "start": "cross-env LIBJABRA_TRACE_LEVEL=trace NODE_ENV=test electron ./dist/testapp/main/main.js",
     "prepare": "npm run build",
+    "test": "cross-env LIBJABRA_TRACE_LEVEL=trace NODE_ENV=test jest --runInBand --verbose",
     "clean": "rimraf dist"
   },
   "files": [
@@ -45,10 +46,14 @@
   },
   "devDependencies": {
     "@gnaudio/jabra-node-sdk": ">=2.0.0-beta.8",
-    "electron": "6.0.10",
-    "typescript": "3.6.3",
-    "rimraf": "2.6.3",
+    "@types/jest": "24.0.23",
+    "spectron": "9.0.0",
+    "electron": "7.1.1",
+    "typescript": "3.7.2",
+    "rimraf": "3.0.0",
     "cross-env": "6.0.3",
+    "jest": "24.9.0",
+    "ts-jest": "24.1.0",
     "copyfiles": "2.1.1",
     "browserify": "16.5.0",
     "tsify": "4.0.1"
