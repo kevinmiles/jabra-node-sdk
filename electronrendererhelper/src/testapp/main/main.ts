@@ -16,6 +16,7 @@ let jabraServer: JabraApiServer | null = null;
  */
 function createAndLoadWindow(): Promise<BrowserWindow> {
   const webPref: WebPreferences = {
+    devTools: !isRunningInTestMode(),
     // Disabled Node integration
     nodeIntegration: false,
     // In a sandbox unless we are gui testing.
@@ -43,7 +44,7 @@ function createAndLoadWindow(): Promise<BrowserWindow> {
   const loadPromise = window.loadFile(path.join(__dirname, '../renderer/index.html'));
 
   // Open the DevTools.
-  // window.webContents.openDevTools();
+  window.webContents.openDevTools();
 
   // Emitted when the window is closed.
   window.on("closed", () => {

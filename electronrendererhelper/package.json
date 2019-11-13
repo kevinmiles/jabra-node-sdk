@@ -9,7 +9,7 @@
     "compile": "tsc -p tsconfig.json",
     "browserify": "browserify src/testapp/renderer/renderer.ts -x electron -p tsify --debug -o dist/testapp/renderer/bundle.js",
     "copyresources": "copyfiles -u 1 src/**/*.html dist",
-    "start": "cross-env LIBJABRA_TRACE_LEVEL=trace NODE_ENV=test electron ./dist/testapp/main/main.js",
+    "start": "cross-env LIBJABRA_TRACE_LEVEL=trace NODE_ENV=dev electron ./dist/testapp/main/main.js",
     "prepare": "npm run build",
     "test": "cross-env LIBJABRA_TRACE_LEVEL=trace NODE_ENV=test jest --runInBand --verbose",
     "clean": "rimraf dist"

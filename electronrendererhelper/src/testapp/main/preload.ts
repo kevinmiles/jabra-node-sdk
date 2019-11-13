@@ -2,7 +2,13 @@
 // It has the same sandbox as a Chrome extension.
 
 import { ipcRenderer } from 'electron';
-import { isRunningInTestMode } from '../common/util';
+
+// We can't import anything but electron core stuff like ipcRenderer
+// so for now redelare it here.
+function isRunningInTestMode() : boolean
+{
+    return (process.env.NODE_ENV === 'test') 
+}
 
 console.log('preload.js loaded with testMode = "' + isRunningInTestMode() + '"');
 
