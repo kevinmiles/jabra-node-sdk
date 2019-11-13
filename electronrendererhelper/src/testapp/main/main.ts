@@ -28,7 +28,7 @@ function createAndLoadWindow(): Promise<BrowserWindow> {
     // No insecure code.
     webSecurity: true,
     // Preload script
-    preload: path.join(__dirname, 'preload.js')
+    preload: path.join(__dirname, 'preload_bundle.js')
   };
 
   // Create the browser window.

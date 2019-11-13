@@ -5,9 +5,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "npm run compile && npm run browserify && npm run copyresources",
+    "build": "npm run compile && npm run browserify-render && npm run browserify-preload && npm run copyresources",
     "compile": "tsc -p tsconfig.json",
-    "browserify": "browserify src/testapp/renderer/renderer.ts -x electron -p tsify --debug -o dist/testapp/renderer/bundle.js",
+    "browserify-preload": "browserify src/testapp/main/preload.ts -x electron -x process -p tsify --bare --debug -o dist/testapp/main/preload_bundle.js",
+    "browserify-render": "browserify src/testapp/renderer/renderer.ts -x electron -p tsify --debug -o dist/testapp/renderer/bundle.js",
     "copyresources": "copyfiles -u 1 src/**/*.html dist",
     "start": "cross-env LIBJABRA_TRACE_LEVEL=trace NODE_ENV=dev electron ./dist/testapp/main/main.js",
     "prepare": "npm run build",
