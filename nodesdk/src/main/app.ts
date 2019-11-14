@@ -1,6 +1,6 @@
 import { SdkIntegration } from "./sdkintegration";
-import { AddonLogSeverity } from "./core-types";
-import { isNodeJs } from './util';
+import { AddonLogSeverity, DevLogData } from "./core-types";
+import { isNodeJs, nameof } from './util';
 import { _JabraNativeAddonLog } from './logger';
 
 // Browser friendly type-only import:
@@ -180,7 +180,8 @@ export class JabraType implements MetaApi {
                     _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onDevLogEvent", (() => `onDevLogEvent event received from native sdk with jsonData=${jsonData}`));
                     let device = this.deviceTypes.get(deviceId);
                     if (device) {
-                        device._eventEmitter.emit('onDevLogEvent', jsonData);
+                        const data = JSON.parse(jsonData);                        
+                        device._eventEmitter.emit('onDevLogEvent', data as DevLogData);
                     } else {
                         _JabraNativeAddonLog(AddonLogSeverity.error, "onDevLogEvent callback", "Could not lookup device with id " + deviceId);
                     }

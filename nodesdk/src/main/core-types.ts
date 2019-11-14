@@ -167,3 +167,31 @@ export interface NamedAsset {
     elements: Array<{url: string, mime: string}>;
     metadata: Array<{name: string, value: string}>
 }
+
+/**
+ * Event data type for dev log call backs.
+ */
+export interface DevLogData {
+    AppID: string;
+    ESN: string;
+    FW: string;
+    LocalTimeStamp: string;
+
+    /*
+    * TODO: Consider changing this to a proper number
+    */
+    Pid: string;
+    Variant: string;
+    "Device Name": string;
+    "Raw data": string;
+    "Seq.No": number;
+    "TX Acoustic Logging Level"?: string;
+    "TX Acoustic Logging Peak"?: string;
+    "RX Acoustic Logging Level"?: string;
+    "RX Acoustic Logging Peak"?: string;
+    "Speech_Analysis_TX"?: string;
+    "Speech_Analysis_RX"?: string;
+    "Boom Position Guidance OK"?: string;
+    "Bad_Mic_detect Flag"?: string;
+    "ID?": string;
+  }

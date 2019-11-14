@@ -6,7 +6,7 @@ import { createJabraApplication, DeviceType, JabraType, jabraEnums,
         let jabra = await createJabraApplication('A7tSsfD42VenLagL2mM6i2f0VafP/842cbuPCnC+uE8=')
 
         let meta = _getJabraApiMetaSync();
-        console.log("Got Jabra meta " + JSON.stringify(meta, null, 2));
+        // console.log("Got Jabra meta " + JSON.stringify(meta, null, 2));
 
         _JabraNativeAddonLog(AddonLogSeverity.info, "test2", "this is a test");
 
@@ -19,6 +19,10 @@ import { createJabraApplication, DeviceType, JabraType, jabraEnums,
 
         jabra.on('attach', (device: DeviceType) => {
             console.log("Device attached with device " + JSON.stringify(device));
+
+            device.on('onDevLogEvent', (event) => {
+                console.log("Devlog event is '" + JSON.stringify(event, null, 3) + "'");
+            });
         });
 
         jabra.on('detach', (device: DeviceType) => {

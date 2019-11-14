@@ -1,5 +1,5 @@
 import { SdkIntegration } from "./sdkintegration";
-import { AddonLogSeverity, DeviceTiming } from "./core-types";
+import { AddonLogSeverity, DeviceTiming, DevLogData } from "./core-types";
 import { isNodeJs } from './util';
 import { _JabraNativeAddonLog } from './logger';
 
@@ -42,7 +42,7 @@ export namespace DeviceTypeCallbacks {
     export type downloadFirmwareProgress = (type: enumFirmwareEventType, status: enumFirmwareEventStatus, dwnldStatusInPrcntg: number) => void;
     export type onBTParingListChange = (pairedListInfo: PairedListInfo) => void;
     export type onGNPBtnEvent = (btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void;
-    export type onDevLogEvent = (eventString: string) => void;
+    export type onDevLogEvent = (data: DevLogData) => void;
     export type onBatteryStatusUpdate = (levelInPercent: number, isCharging: boolean, isBatteryLow: boolean) => void;
     export type onUploadProgress = (status: enumUploadEventStatus, levelInPercent: number) => void;
 }
