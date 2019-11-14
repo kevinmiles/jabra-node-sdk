@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file
 
 ### 2.0 SDK Beta notes (temporary beta process changes):
+- Beta9 changes:
+  - Changed devlog event to return a described object instead of string.
+
 - Beta8 changes:
   - Fix RegisterPairingListCallback bug providing wrong data etc.
   - New shutdownServer argument to disposeAsync.
