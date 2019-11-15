@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file
 
 ### 2.0 SDK Beta notes (temporary beta process changes):
+- Beta10 changes:
+  - Fix for SetEqualizerParameters + parameter change.
+  - Fix for GetErrorString when failing.
+
 - Beta9 changes:
   - Changed devlog event to return a described object instead of string.
 

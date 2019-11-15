@@ -1158,9 +1158,9 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     * (must be within range of +/- max_gain).
     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
    */
-   setEqualizerParametersAsync(bands: Array<number>, nband:number): Promise<void> {
+   setEqualizerParametersAsync(bands: Array<number>): Promise<void> {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setEqualizerParametersAsync.name, "called with", this.deviceID, bands);
-        return util.promisify(sdkIntegration.SetEqualizerParameters)(this.deviceID, bands, nband).then(() => {
+        return util.promisify(sdkIntegration.SetEqualizerParameters)(this.deviceID, bands).then(() => {
             _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setEqualizerParametersAsync.name, "returned");
         });
    }

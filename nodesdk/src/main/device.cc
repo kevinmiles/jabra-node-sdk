@@ -410,18 +410,26 @@ Napi::Value napi_SetEqualizerParameters(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   Napi::Env env = info.Env();
 
-  if (util::verifyArguments(functionName, info, {util::NUMBER, util::NUMBER, util::NUMBER, util::FUNCTION})) {
-    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
-    float bands =(unsigned short)(info[1].As<Napi::Number>().Int32Value());
-    const unsigned int nbands = (unsigned int)(info[2].As<Napi::Number>().Int32Value());
-    Napi::Function javascriptResultCallback = info[3].As<Napi::Function>();
+  if (util::verifyArguments(functionName, info, {util::NUMBER, util::ARRAY, util::FUNCTION})) {
+    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());   
+    Napi::Array bands =info[1].As<Napi::Array>();
+
+    const int nbands = bands.Length();
+    std::vector<float> managedBands(nbands);
+    for (int i=0; i<nbands; ++i) {
+      managedBands[i] = bands.Get(i).ToNumber().FloatValue();
+    }
+
+    Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<void, void>(
       functionName, 
       javascriptResultCallback,
-      [functionName,deviceId,&bands,nbands](){ 
-        Jabra_ReturnCode retv;                       
-        if ((retv = Jabra_SetEqualizerParameters(deviceId,&bands,nbands)) != Return_Ok) {
+      [functionName, deviceId, managedBands](){ 
+        Jabra_ReturnCode retv;       
+        float * bands = const_cast<float*>(managedBands.data()); // Should be safe as SDK ought not to change data.
+        const int nbands = managedBands.size();
+        if ((retv = Jabra_SetEqualizerParameters(deviceId, bands, nbands)) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
       }

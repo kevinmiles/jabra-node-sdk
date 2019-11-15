@@ -194,14 +194,14 @@ export declare interface SdkIntegration {
     
     CancelFirmwareDownload( deviceId: number, callback: (error: JabraError, result: void) => void): void;
     SetTimestamp( deviceId: number, timeStamp: number, callback: (error: JabraError, result: void) => void): void;
-    SetEqualizerParameters( deviceId: number,bands:Array<number>,nbands:number, callback: (error: JabraError, result: void) => void): void;
+    SetEqualizerParameters( deviceId: number, bands:Array<number>, callback: (error: JabraError, result: void) => void): void;
     CheckForFirmwareUpdate( deviceId: number, authorization:string, callback: (error: JabraError, result: boolean) => void): void;
-    PlayRingTone( deviceId: number,level:number,type:number,callback: (error: JabraError, result:void) => void): void;
+    PlayRingTone( deviceId: number, level:number, type:number,callback: (error: JabraError, result:void) => void): void;
     GetESN(deviceId: number, callback: (error: JabraError, result: string) => void): void;
     GetLastFirmwareUpdateErrorInfo(deviceId: number, callback: (error: JabraError, result: { errorExceptionType: string, errorMessage: string, errorDetails: string }) => void): void;
     GetFailedSettingNames(deviceId: number, callback: (error: JabraError, result: Array<string>) => void): void;
     GetTimestamp(deviceId: number, callback: (error: JabraError, result: number) => void): void;
-    SetWizardMode(deviceId: number,wizardModes:number, callback: (error: JabraError, result: void) => void): void;
+    SetWizardMode(deviceId: number, wizardModes:number, callback: (error: JabraError, result: void) => void): void;
     GetAudioFileParametersForUpload(deviceId: number, callback: (error: JabraError, result: { audioFileType: number, numChannels: number, bitsPerSample: number, sampleRate: number, maxFileSize: number }) => void): void;
     SetDatetime(deviceId: number, dateTime: { sec: number, min: number, hour: number, mday: number, mon: number, year: number, wday: number }, callback: (error: JabraError, result: void) => void): void;
     GetEqualizerParameters(deviceId: number, maxNBands:number, callback: (error: JabraError, result: Array<{ max_gain: number, centerFrequency: number, currentGain: number }>) => void): void;

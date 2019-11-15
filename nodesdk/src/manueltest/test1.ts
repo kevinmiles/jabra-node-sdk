@@ -1,10 +1,5 @@
 import readline = require("readline");
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
 import { createJabraApplication, DeviceType, JabraType, jabraEnums, enumHidState, enumWizardMode, JabraError } from '../main/index';
 
 let reserved1 = {
@@ -25,6 +20,12 @@ let reserved1 = {
         }).catch(err => {
             console.error("'get sdk version failed : " + err);
             console.log('get sdk version failed with error code : ' + err.code || "undefined"); 
+        });
+ 
+        jabra.getErrorStringAsync(3999).then((r) => {
+            console.log("getErrorStringAsync success with result " + r);
+        }).catch((err: JabraError) => {
+            console.log("getErrorStringAsync failed with error " + err);
         });
 
         // let r = jabra._SyncExperiment(0);
@@ -50,21 +51,27 @@ let reserved1 = {
 
             console.log("Device attached with device " + JSON.stringify(device, null, 2));
 
-            // await device.connectNewDeviceAsync("myname", "010AFF000F07", true);
-            
+            // await device.connectNewDeviceAsync("myname", "010AFF000F07", true);            
 
             device.getSupportedFeaturesAsync().then((v) => {
                 console.log("getSupportedFeaturesAsync returned " + JSON.stringify(v, null, 2));
             });
-            /*
+
+            
             device.getEqualizerParametersAsync().then((result) => {
                 console.log("getEqualizerParametersAsync returned " + JSON.stringify(result, null, 2));
             }).catch(err => {
                 console.log("getEqualizerParametersAsync failed with error " + err);
             });
-            */
-           
+            
 
+            device.setEqualizerParametersAsync([1, 2, 3]).then ((v) => {
+                console.log("setEqualizerParametersAsync sucess");
+            }).catch((err: JabraError) => {
+                console.log("setEqualizerParametersAsync failed with error " + err);
+            });
+
+            /*
             device.getButtonFocusAsync([
                 {
                     buttonTypeKey: 27,
@@ -75,7 +82,7 @@ let reserved1 = {
                 console.log("getButtonFocusAsync returned " + JSON.stringify(result, null, 2));
             }).catch((err: JabraError) => {
                 console.log("getButtonFocusAsync failed with error " + err);
-            });
+            });*/
 
             /*
             device.setDateTimeAsync({
@@ -460,19 +467,20 @@ let reserved1 = {
 
         jabra.on('detach', (device) => {
             console.log('Device detached with device: ', JSON.stringify(device, null, 2));
+            jabra.disposeAsync();
         });
 
         jabra.on('firstScanDone', () => {
             console.log('First scan done');
         });
-
+/*
         console.log("Waiting... Press ctrl-c to exit");
 
         rl.on('close', () => {            
             jabra.disposeAsync();
             console.log("Got close event");
         });   
-      
+  */    
     } catch (err) {
         console.error("Got exception err " + err);
         console.log('get exception error code : ' + err.code || "undefined"); 
