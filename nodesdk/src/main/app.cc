@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <unordered_map>
 #include <chrono>
+#include <string.h>
 #include "bt.h"
 
 // -----------------------------------------------------------
@@ -741,7 +742,19 @@ Napi::Value napi_GetErrorString(const Napi::CallbackInfo& info)
       functionName, 
       javascriptResultCallback,
       [functionName, errorCode](){              
-        return Jabra_GetErrorString(errorCode);
+        const char * result = Jabra_GetErrorString(errorCode);
+
+        // Warning: This error code is very brittle.
+        // TODO: Find/arrange a better way with SDK team.
+        if (result == nullptr) {
+          util::JabraException::LogAndThrow(functionName, "Could not lookup error");
+        } else if (strcmp(result, "Unable to download the files. Please check Internet connection and reconnect the device")) {
+          util::JabraException::LogAndThrow(functionName, result);
+        } else if (strcmp(result, "Unknown error code")) {
+          util::JabraException::LogAndThrow(functionName, result);
+        }
+
+        return result;
       }, 
       [](const Napi::Env& env, const char * result) {
         return Napi::String::New(env, result ? result : "");
