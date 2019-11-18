@@ -3,34 +3,48 @@ import * as electronPath from "electron";
 
 import { _JabraNativeAddonLog, AddonLogSeverity } from '@gnaudio/jabra-node-sdk';
 
-test('app runs', (done) => {  
-    var app = new Application({
-      path: electronPath as any,
-      requireName: "electronRequire",
-      args: ["./dist/testapp/main/main.js"]
+const startupTimeout = 10000;
+
+var app: Application | null;
+
+beforeEach((done) => {
+    app = new Application({
+        path: electronPath as any,
+        requireName: "electronRequire",
+        args: ["./dist/testapp/main/main.js"]
     });
 
     app.start().then(() => {
-        return app.client.waitUntilWindowLoaded(10000);
+        return app!.client.waitUntilWindowLoaded(startupTimeout);
     }).then(() => {
         // Get visibility + workaround for wrong typing in spectron ts decl:
-        const visiblePromise: Promise<boolean> = (app.browserWindow.isVisible()) as any as Promise<boolean>;
-        return visiblePromise;
-    }).then((isVisible) => {
-        // Verify that browser window is shown:
-        expect(isVisible).toBe(true);
-    }).then(() => {    
-        return app.stop();
-    }).then(() => {
+        return (app!.browserWindow.isVisible()) as any as Promise<boolean>;
+    }).then((v) => {
+        if (v)
+            done();
+        else done(new Error("Window not visible"));
+    }).catch((err) => {
+        _JabraNativeAddonLog(AddonLogSeverity.error, __filename, err);
+    });
+}, startupTimeout);
+  
+afterEach((done) => {
+    if (app && app.isRunning()) {
+        app.stop().finally(() => {
+            app = null;
+            done();
+        })
+    } else {
+        app = null;
         done();
-    }).catch((error: any) => {
-        _JabraNativeAddonLog(AddonLogSeverity.error, __filename, error);
-        if (app && app.isRunning()) {
-            app.stop().finally(() => {
-                done(error);
-            })
-        } else {
-            done(error);
-        }
+    }
+});
+
+test('app runs', (done) => {
+    return app!.client.getWindowCount().then((count) => {
+        expect(count).toBe(1);
+        done();
+    }).catch((err) =>  {
+        done(err);
     });
 }, 10000);
