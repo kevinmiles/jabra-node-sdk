@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file
 - Beta11 changes:
   - Fix getAudioFileParametersForUpload + stronger return type. 
   - Fixes for GetErrorString, incl. switch to use Jabra_GetReturnCodeString.
-  - Improved docs for setDateTimeAsync.
+  - Improved docs with JabraError for failed promises, setDateTimeAsync usage.
 
 - Beta10 changes:
   - Fix for SetEqualizerParameters + parameter change.
