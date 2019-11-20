@@ -265,7 +265,7 @@ export class JabraType implements MetaApi {
      * 
      * @param {boolean} shutdownServer Optional parameter only applicable to electronrendererhelper,
      * where it cause API server shutdown if set. Can safely be ignored otherwise.
-     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, JabraError>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     disposeAsync(shutdownServer: boolean = false): Promise<void> {
         _JabraNativeAddonLog(AddonLogSeverity.info, this.disposeAsync.name, "called");
@@ -300,7 +300,7 @@ export class JabraType implements MetaApi {
      * Integrates softphone app to Jabra applications like Jabra Direct(JD) and Jabra Suite for Mac(JMS).
      * @param {string} guid Client unique ID.
      * @param {string} softphoneName Name of the application to be shown in JD or JMS.
-     * @returns {Promise<boolean, Error>} - Resolve `boolean` if successful otherwise Reject with `error`. 
+     * @returns {Promise<boolean, JabraError>} - Resolve `boolean` if successful otherwise Reject with `error`. 
      * - Returns `true` if softphone app integrates to Jabra application, `false` otherwise.
      */   
     connectToJabraApplicationAsync(guid: string, softphoneName: string): Promise<boolean> {
@@ -313,7 +313,7 @@ export class JabraType implements MetaApi {
 
     /**
      * Disconnects connected from Jabra applications.
-     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`. 
+     * @returns {Promise<void, JabraError>} - Resolve `void` if successful otherwise Reject with `error`. 
      */
     disconnectFromJabraApplicationAsync(): Promise<void> {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.disconnectFromJabraApplicationAsync.name, "called");        
@@ -325,7 +325,7 @@ export class JabraType implements MetaApi {
     /**
      * Sets the softphone to Ready. Currently applicable for only Jabra Direct.
      * @param {boolean} isReady Sets the softphone readiness state.
-     * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, JabraError>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setSoftphoneReadyAsync(isReady: boolean): Promise<void> {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setSoftphoneReadyAsync.name, "called with", isReady);
@@ -336,7 +336,7 @@ export class JabraType implements MetaApi {
 
     /**
      * Indicates whether the softphone is in focus.
-     * @returns {Promise<boolean, Error>} - Resolve `boolean` if successful otherwise Reject with `error`.
+     * @returns {Promise<boolean, JabraError>} - Resolve `boolean` if successful otherwise Reject with `error`.
      * - Returns `true` if softphone is in focus, `false` otherwise.
      */
     isSoftphoneInFocusAsync(): Promise<boolean> {
@@ -359,7 +359,7 @@ export class JabraType implements MetaApi {
 
     /**
      * Get the SDK version.
-     * @returns {Promise<string, Error>} - Resolve SDK version `string` if successful otherwise Reject with `error`.
+     * @returns {Promise<string, JabraError>} - Resolve SDK version `string` if successful otherwise Reject with `error`.
      */
     getSDKVersionAsync(): Promise<string> {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSDKVersionAsync.name, "called");
@@ -372,7 +372,7 @@ export class JabraType implements MetaApi {
     /**
      * Get return error string from a previously returned SDK error status.
      * @param {number} errStatusCode Status code of the error from the Jabra Device.
-     * @returns {Promise<string, Error>} - Resolve Error String `string` if successful otherwise Reject with `error`.
+     * @returns {Promise<string, JabraError>} - Resolve Error String `string` if successful otherwise Reject with `error`.
     */
     getErrorStringAsync(errStatusCode: number): Promise<string> {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getErrorStringAsync.name, "called"); 
