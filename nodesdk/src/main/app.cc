@@ -735,20 +735,20 @@ Napi::Value napi_GetErrorString(const Napi::CallbackInfo& info)
   Napi::Env env = info.Env();
 
   if (util::verifyArguments(functionName, info, {util::NUMBER, util::FUNCTION})) {
-    const Jabra_ErrorStatus errorCode = (Jabra_ErrorStatus)info[0].As<Napi::Number>().Uint32Value();  
+    const Jabra_ReturnCode errorCode = (Jabra_ReturnCode)info[0].As<Napi::Number>().Uint32Value();  
     Napi::Function javascriptResultCallback = info[1].As<Napi::Function>();
 
     (new util::JAsyncWorker<const char *, Napi::String>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
       [functionName, errorCode](){              
-        const char * result = Jabra_GetErrorString(errorCode);
+        const char * result = Jabra_GetReturnCodeString(errorCode);
 
-        // Warning: This error code is very brittle.
+        // Warning: This error handling is very brittle.
         // TODO: Find/arrange a better way with SDK team.
         if (result == nullptr) {
           util::JabraException::LogAndThrow(functionName, "Could not lookup error");
-        } else if (strcmp(result, "Unknown error code")) {
+        } else if (strcmp(result, "Unknown error code") == 0) {
           util::JabraException::LogAndThrow(functionName, result);
         }
 

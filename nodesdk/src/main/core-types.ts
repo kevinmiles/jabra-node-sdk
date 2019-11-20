@@ -119,6 +119,14 @@ export interface RCCStatus {
     isRinging: boolean
 }
 
+export declare const enum AudioFileFormatEnum {
+    AUDIO_FILE_FORMAT_NOT_USED = 0,
+    AUDIO_FILE_FORMAT_WAV_UNCOMPRESSED = 1,
+    AUDIO_FILE_FORMAT_ULAW_COMPRESSED = 2,
+    AUDIO_FILE_FORMAT_SBC_COMPRESSED = 3,
+    AUDIO_FILE_FORMAT_G72_COMPRESSED =4,
+};
+
 export interface ConfigInfo {
     configName: string,
     configId: string

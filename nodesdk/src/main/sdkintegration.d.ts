@@ -4,7 +4,7 @@
  * supplied for maximum type safety internally for this module.
  */
 
-import { ConfigParamsCloud, enumHidState, DeviceSettings, DeviceInfo, PairedListInfo, 
+import { ConfigParamsCloud, enumHidState, AudioFileFormatEnum, DeviceSettings, DeviceInfo, PairedListInfo, 
          NamedAsset, AddonLogSeverity, JabraError } from './core-types';
 import { enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, 
          enumUploadEventStatus, enumBTPairedListType } from './jabra-enums';
@@ -202,7 +202,7 @@ export declare interface SdkIntegration {
     GetFailedSettingNames(deviceId: number, callback: (error: JabraError, result: Array<string>) => void): void;
     GetTimestamp(deviceId: number, callback: (error: JabraError, result: number) => void): void;
     SetWizardMode(deviceId: number, wizardModes:number, callback: (error: JabraError, result: void) => void): void;
-    GetAudioFileParametersForUpload(deviceId: number, callback: (error: JabraError, result: { audioFileType: number, numChannels: number, bitsPerSample: number, sampleRate: number, maxFileSize: number }) => void): void;
+    GetAudioFileParametersForUpload(deviceId: number, callback: (error: JabraError, result: { audioFileType: AudioFileFormatEnum, numChannels: number, bitsPerSample: number, sampleRate: number, maxFileSize: number }) => void): void;
     SetDatetime(deviceId: number, dateTime: { sec: number, min: number, hour: number, mday: number, mon: number, year: number, wday: number }, callback: (error: JabraError, result: void) => void): void;
     GetEqualizerParameters(deviceId: number, maxNBands:number, callback: (error: JabraError, result: Array<{ max_gain: number, centerFrequency: number, currentGain: number }>) => void): void;
     GetSupportedFeatures(deviceId: number, callback: (error: JabraError, result: Array<enumDeviceFeature>) => void): void;

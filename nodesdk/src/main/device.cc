@@ -540,16 +540,13 @@ Napi::Value napi_GetAudioFileParametersForUpload(const Napi::CallbackInfo& info)
       return Jabra_GetAudioFileParametersForUpload(deviceId);
     },
     [](const Napi::Env& env, const Jabra_AudioFileParams& audioFileParams) { 
-      Napi::Array array = Napi::Array::New(env);
-      {
-        Napi::Object item = Napi::Object::New(env);
-        item.Set(Napi::String::New(env, "audioFileType"), (Napi::Number::New(env, audioFileParams.audioFileType)));
-        item.Set(Napi::String::New(env, "numChannels"), (Napi::Number::New(env, audioFileParams.numChannels)));
-        item.Set(Napi::String::New(env, "bitsPerSample"), (Napi::Number::New(env,audioFileParams.bitsPerSample)));
-        item.Set(Napi::String::New(env, "sampleRate"), (Napi::Number::New(env,audioFileParams.sampleRate)));
-        item.Set(Napi::String::New(env, "maxFileSize"), (Napi::Number::New(env,audioFileParams.maxFileSize)));
-      }
-      return array;
+      Napi::Object result = Napi::Object::New(env);
+      result.Set(Napi::String::New(env, "audioFileType"), (Napi::Number::New(env, audioFileParams.audioFileType)));
+      result.Set(Napi::String::New(env, "numChannels"), (Napi::Number::New(env, audioFileParams.numChannels)));
+      result.Set(Napi::String::New(env, "bitsPerSample"), (Napi::Number::New(env,audioFileParams.bitsPerSample)));
+      result.Set(Napi::String::New(env, "sampleRate"), (Napi::Number::New(env,audioFileParams.sampleRate)));
+      result.Set(Napi::String::New(env, "maxFileSize"), (Napi::Number::New(env,audioFileParams.maxFileSize)));
+      return result;
     }
   );
 }
@@ -729,7 +726,7 @@ Napi::Value napi_SetDatetime(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<void, void>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
       [functionName, deviceId, dateTime](){ 
         Jabra_ReturnCode retv;                       

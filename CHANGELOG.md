@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file
 
 ### 2.0 SDK Beta notes (temporary beta process changes):
+- Beta11 changes:
+  - Fix getAudioFileParametersForUpload + stronger return type. 
+  - Fixes for GetErrorString, incl. switch to use Jabra_GetReturnCodeString.
+  - Improved docs for setDateTimeAsync.
+
 - Beta10 changes:
   - Fix for SetEqualizerParameters + parameter change.
   - Fix for GetErrorString when failing.

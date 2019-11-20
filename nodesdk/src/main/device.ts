@@ -1,5 +1,5 @@
 import { SdkIntegration } from "./sdkintegration";
-import { AddonLogSeverity, DeviceTiming, DevLogData } from "./core-types";
+import { AddonLogSeverity, DeviceTiming, DevLogData, AudioFileFormatEnum } from "./core-types";
 import { isNodeJs } from './util';
 import { _JabraNativeAddonLog } from './logger';
 
@@ -848,9 +848,9 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Get details of audio file for uploading to device.
-     * @returns {Promise<{ audioFileType: number, numChannels: number, bitsPerSample: number, sampleRate: number, maxFileSize: number }, Error>} - Resolve Audio File Detail `object` if successful otherwise Reject with `error`.
+     * @returns {Promise<{ audioFileType: AudioFileFormatEnum, numChannels: number, bitsPerSample: number, sampleRate: number, maxFileSize: number }, Error>} - Resolve Audio File Detail `object` if successful otherwise Reject with `error`.
      */
-    getAudioFileParametersForUploadAsync(): Promise<{ audioFileType: number, numChannels: number, bitsPerSample: number, sampleRate: number, maxFileSize: number }> {
+    getAudioFileParametersForUploadAsync(): Promise<{ audioFileType: AudioFileFormatEnum, numChannels: number, bitsPerSample: number, sampleRate: number, maxFileSize: number }> {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getAudioFileParametersForUploadAsync.name, "called with", this.deviceID); 
         return util.promisify(sdkIntegration.GetAudioFileParametersForUpload)(this.deviceID).then((result) => {
             _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getAudioFileParametersForUploadAsync.name, "returned with", result);
@@ -872,7 +872,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
 
     /**
      * Feature of configuring time to device (Async).
-     * @param {DateTimeParam} timedate date and time in object format
+     * @param {DateTimeParam} timedate date and time in object format, where year is an offset from 1900.
      * @returns {Promise<void, Error>} - Resolve `void` if successful otherwise Reject with `error`.
      */
     setDateTimeAsync(timedate: { sec: number, min: number, hour: number, mday: number, mon: number, year: number, wday: number }): Promise<void> {

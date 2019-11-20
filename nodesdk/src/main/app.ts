@@ -370,7 +370,7 @@ export class JabraType implements MetaApi {
     }
 
     /**
-     * Get error string from a previously returned SDK error status.
+     * Get return error string from a previously returned SDK error status.
      * @param {number} errStatusCode Status code of the error from the Jabra Device.
      * @returns {Promise<string, Error>} - Resolve Error String `string` if successful otherwise Reject with `error`.
     */

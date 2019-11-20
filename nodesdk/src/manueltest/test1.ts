@@ -1,6 +1,6 @@
 import readline = require("readline");
 
-import { createJabraApplication, DeviceType, JabraType, jabraEnums, enumHidState, enumWizardMode, JabraError } from '../main/index';
+import { createJabraApplication, DeviceType, JabraType, jabraEnums, enumHidState, enumWizardMode, JabraError, AudioFileFormatEnum } from '../main/index';
 
 let reserved1 = {
     proxy: "this.httpProxyService.getProxy()",
@@ -22,7 +22,7 @@ let reserved1 = {
             console.log('get sdk version failed with error code : ' + err.code || "undefined"); 
         });
  
-        jabra.getErrorStringAsync(3999).then((r) => {
+        jabra.getErrorStringAsync(8).then((r) => {
             console.log("getErrorStringAsync success with result " + r);
         }).catch((err: JabraError) => {
             console.log("getErrorStringAsync failed with error " + err);
@@ -30,19 +30,12 @@ let reserved1 = {
 
         // let r = jabra._SyncExperiment(0);
         // console.log("_SyncExperiment returned '" + JSON.stringify(r, null, 3) + "'");
-
-        /*
-        jabra.getErrorStringAsync(3).then(errStr => {
-            console.log("Error 3 is same as '" + errStr + "'");
-        }).catch(err => {
-            console.error("'getErrorString failed : " + err);
-            console.log('getErrorString failed with error code : ' + err.code || "undefined"); 
-        });
-        */
-
+  
         jabra.on('attach', async (device: DeviceType) => {
-            device.setHidWorkingStateAsync(enumHidState.GN_HID);
-
+            device.setHidWorkingStateAsync(enumHidState.GN_HID).catch( (err) => {
+                console.error("setHidWorkingStateAsync failed with error " + err);
+            });
+            /*
             device.getTimestampAsync().then((n) => {
                 console.log("getTimestampAsync returned " + n);
             }).catch((err: JabraError) => {
@@ -70,8 +63,8 @@ let reserved1 = {
             }).catch((err: JabraError) => {
                 console.log("setEqualizerParametersAsync failed with error " + err);
             });
+            */
 
-            /*
             device.getButtonFocusAsync([
                 {
                     buttonTypeKey: 27,
@@ -81,18 +74,16 @@ let reserved1 = {
              ]).then((result) => {
                 console.log("getButtonFocusAsync returned " + JSON.stringify(result, null, 2));
             }).catch((err: JabraError) => {
-                console.log("getButtonFocusAsync failed with error " + err);
-            });*/
+                console.error("getButtonFocusAsync failed with error " + err);
+            });
 
-            /*
             device.setDateTimeAsync({
                 sec: 12, min: 38, hour: 10, mday: 24, mon: 8, year: 119, wday: 2 
             }).then(() => {
                 console.log("setDateTimeAsync succeded ");
             }).catch((err) => {
-                console.log("setDateTimeAsync failed with error " + err);
+                console.error("setDateTimeAsync failed with error " + err);
             });
-            */
 
             // console.log("before getFirmwareVersionAsync");
 /*
@@ -170,11 +161,13 @@ let reserved1 = {
             //     console.error("Failed isEqualizerEnabledAsync with error: " + err);
             // });
 
-            // device.getAudioFileParametersForUploadAsync().then((result) => {
-            //                     console.log("getAudioFileParametersForUploadAsync returns ");
-            //                 }).catch((err) => {
-            //                     console.error("Failed getAudioFileParametersForUploadAsync with error: " + err);
-            //                 }); 
+            device.getAudioFileParametersForUploadAsync().then((result) => {
+              if (result.audioFileType == AudioFileFormatEnum.AUDIO_FILE_FORMAT_NOT_USED) {}
+
+              console.log("getAudioFileParametersForUploadAsync returns " + JSON.stringify(result, null, 3));
+            }).catch((err) => {
+              console.error("Failed getAudioFileParametersForUploadAsync with error: " + err);
+            }); 
 
             // device.enableEqualizerAsync().then(() => {
             //     console.log("...........................................................");
