@@ -36,6 +36,14 @@ let reserved1 = {
                 console.error("setHidWorkingStateAsync failed with error " + err);
             });
             /*
+            device.uploadImageAsync("dummyfilename.ext").then((r) => {
+                console.log("updateFirmwareAsync success ");
+            }).catch((err: JabraError) => {
+                console.log("updateFirmwareAsync failed with error " + err);
+            });
+            */
+
+            /*
             device.getTimestampAsync().then((n) => {
                 console.log("getTimestampAsync returned " + n);
             }).catch((err: JabraError) => {
