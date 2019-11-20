@@ -451,7 +451,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     /**
      * Sets all the settings( including all groups and its settings) for a device.
      * @param {Array<DeviceSettings>} settings - pass only changed settings in an array
-     * @returns {Promise<void, JabraError>} - Resolve `void` if successful otherwise Reject with `error`.
+     * @returns {Promise<void, JabraError>} - Resolve `void` if successful otherwise Reject with `error`, `reboot` etc.
+     * 
+     * Nb. Currently this method returns an error with code=24 if rebooting as bi-result. 
+     * TODO: Change signature to return reboot information normally instead.
      */
     setSettingsAsync(settings: DeviceSettings): Promise<void> {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setSettingsAsync.name, "called  with", settings); 
