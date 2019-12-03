@@ -532,7 +532,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * Check if Firmware update available for device.
      * @param {string} [authorization] - authorizationId
      * @returns {Promise<boolean, JabraError>} - Resolve `boolean` if successful otherwise Reject with `error`.
-     * - `true` - if firmware uptodate, `flase` - if firmware is not uptodate.
+     * - `true` - if a new firmware update is available (existing firmware not up to date), `false` otherwise (existing firmware up to date).
      */
     checkForFirmwareUpdateAsync(authorization?: string): Promise<boolean> {
         const _authorization =  authorization || "";
