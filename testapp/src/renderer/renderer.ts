@@ -307,7 +307,7 @@ function setupApiHelp() {
     }
     if (meta.parameters.length>=3) {
       param3Hint.innerText =  getTypeHint(meta.parameters[2]);
-      (txtParam4 as any).style =  getInputStyle(meta.parameters[2].optional);
+      (txtParam3 as any).style =  getInputStyle(meta.parameters[2].optional);
     }
     if (meta.parameters.length>=4) {
       param4Hint.innerText =  getTypeHint(meta.parameters[3]);
