@@ -266,7 +266,7 @@ Napi::Value napi_GetLastFirmwareUpdateErrorInfo(const Napi::CallbackInfo& info) 
         return fwUpdateErrorInfo;
       }, [deviceId](const Napi::Env& env, Jabra_FirmwareErrorInfo * const fwUpdateErrorInfo) {  
           Napi::Object napiResult = Napi::Object::New(env);
-          if (fwUpdateErrorInfo) {
+          if (fwUpdateErrorInfo!=nullptr) {
             toNodeType(deviceId, fwUpdateErrorInfo, napiResult);
           }
           return napiResult;
