@@ -35,6 +35,12 @@ let reserved1 = {
             device.setHidWorkingStateAsync(enumHidState.GN_HID).catch( (err) => {
                 console.error("setHidWorkingStateAsync failed with error " + err);
             });
+
+            device.getFailedSettingNamesAsync().then((r) => {
+                console.log("getFailedSettingNamesAsync success with result " + r);
+            }).catch( (err) => {
+                console.error("getFailedSettingNamesAsync failed with error " + err);
+            });
             /*
             device.uploadImageAsync("dummyfilename.ext").then((r) => {
                 console.log("updateFirmwareAsync success ");
