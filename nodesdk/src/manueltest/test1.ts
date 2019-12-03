@@ -36,6 +36,12 @@ let reserved1 = {
                 console.error("setHidWorkingStateAsync failed with error " + err);
             });
 
+            device.checkForFirmwareUpdateAsync().then((r) => {
+                console.log("checkForFirmwareUpdateAsync success with result " + r);
+            }).catch( (err) => {
+                console.error("checkForFirmwareUpdateAsync failed with error " + err);
+            });
+
             device.getFailedSettingNamesAsync().then((r) => {
                 console.log("getFailedSettingNamesAsync success with result " + r);
             }).catch( (err) => {
