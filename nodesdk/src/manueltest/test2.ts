@@ -23,6 +23,36 @@ import { createJabraApplication, DeviceType, JabraType, jabraEnums,
             device.on('onDevLogEvent', (event) => {
                 console.log("Devlog event is '" + JSON.stringify(event, null, 3) + "'");
             });
+
+            device.on("onGNPBtnEvent", (event) => {
+                console.log("GNPBtnEvent is " + JSON.stringify(event, null, 3));
+            });
+
+            device.getButtonFocusAsync([
+
+                {
+                
+                buttonTypeKey: 1,
+                
+                buttonTypeValue: "Volume up",
+                
+                buttonEventType: [
+                
+                {
+                
+                key: 0,
+                
+                value: "Tap"
+                
+                }
+                
+                ]
+                
+                }
+                
+                ]).catch((err) => {
+                    console.log("getButtonFocusAsync failed with: " + err);
+                });
         });
 
         jabra.on('detach', (device: DeviceType) => {

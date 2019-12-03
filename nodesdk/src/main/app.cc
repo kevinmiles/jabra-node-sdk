@@ -508,8 +508,8 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
               try {
                 LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterForGNPButtonEvent callback called with " << (buttonEvent!=nullptr ? std::to_string(buttonEvent->buttonEventCount) : "null") << " button events";
 
+                // First unpack individual key/values into a managed structure that we can safely pass to the callback.
                 std::vector<ManagedButtonEventInfo> buttonInfos;
-                      
                 for (int i=0; i<buttonEvent->buttonEventCount; ++i) {
                   const ButtonEventInfo src = buttonEvent->buttonEventInfo[i];
 
@@ -527,29 +527,41 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                   gNPButtonEventCallBack->call([deviceID, buttonInfos](Napi::Env env, std::vector<napi_value>& args) {
                       Napi::Array buttonEvents = Napi::Array::New(env);
 
-                      std::unordered_map<unsigned short, Napi::Array *> targets;
+                      // Now repack individual key/value entries into a json structure similar to the orginal:
+                      std::unordered_map<unsigned short, uint32_t> targets;
                       for (auto itr = buttonInfos.begin(); itr != buttonInfos.end(); itr++) {
                         const ManagedButtonEventInfo& src = *itr;
 
+                        // Find out if there is there is already an entry for this buttontype, so we can
+                        // and add to that if it exist.
                         if (targets.find(src.buttonTypeKey) == targets.end()) {
                            Napi::Array buttonEventInfos = Napi::Array::New(env);
-                           targets.insert(std::pair<unsigned short, Napi::Array *>(src.buttonTypeKey, &buttonEventInfos));
                            
                            Napi::Object o = Napi::Object::New(env);
                            o.Set(Napi::String::New(env, "buttonTypeKey"), Napi::Number::New(env, src.buttonTypeKey));
                            o.Set(Napi::String::New(env, "buttonTypeValue"), Napi::String::New(env, src.buttonTypeValue));
                            o.Set(Napi::String::New(env, "buttonEventType"), buttonEventInfos);
 
-                           buttonEvents.Set(buttonEvents.Length(), o);
-                        } 
-                        Napi::Array * target = targets[src.buttonTypeKey];
-                        assert(target != nullptr);
+                           uint32_t buttonEventsIndex = buttonEvents.Length();
+                           buttonEvents.Set(buttonEventsIndex, o);
+                           targets.insert(std::pair<unsigned short, uint32_t>(src.buttonTypeKey, buttonEventsIndex)); 
+                        }
 
-                        Napi::Object keyValue = Napi::Object::New(env);
-                        keyValue.Set(Napi::String::New(env, "key"), Napi::Number::New(env, src.key));
-                        keyValue.Set(Napi::String::New(env, "value"), Napi::String::New(env, src.value));
+                        int buttonEventsIndex = targets[src.buttonTypeKey]; // Should always succed.
+                        Napi::Value targetButtonEventInfo = buttonEvents.Get(buttonEventsIndex);
 
-                        target->Set(target->Length(), keyValue);
+                        if (!targetButtonEventInfo.IsUndefined()) {
+                          Napi::Object targetButtonEventInfoObj = targetButtonEventInfo.As<Napi::Object>();
+                          Napi::Array targetArray = targetButtonEventInfoObj.Get("buttonEventType").As<Napi::Array>();
+
+                          Napi::Object keyValue = Napi::Object::New(env);
+                          keyValue.Set(Napi::String::New(env, "key"), Napi::Number::New(env, src.key));
+                          keyValue.Set(Napi::String::New(env, "value"), Napi::String::New(env, src.value));
+
+                          targetArray.Set(targetArray.Length(), keyValue);
+                        } else { // We should not get here.
+                          LOG_ERROR_(LOGINSTANCE) << "Jabra_RegisterForGNPButtonEvent callback internal error - could not lookup target";
+                        }
                       }
 
                       args = { Napi::Number::New(env, deviceID), buttonEvents };
