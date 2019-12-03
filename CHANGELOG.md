@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file
 
 ### 2.0 SDK Beta notes (temporary beta process changes):
+- Beta12 changes:
+
+  - Test app fix: Some APIs need to enter value in parameter 3 but focused on parameter 4.
+  - Doc fix: checkForFirmwareUpdateAsync return value (true/false meaning swapped).
+  - getFailedSettingNamesAsync now returns empty array if there are no failures.
+  - GNP Button event crash fix (Mac).
+
 - Beta11 changes:
   - Fix getAudioFileParametersForUpload + stronger return type. 
   - Fixes for GetErrorString, incl. switch to use Jabra_GetReturnCodeString.
