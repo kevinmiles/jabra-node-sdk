@@ -569,23 +569,15 @@ Napi::Value napi_GetFailedSettingNames(const Napi::CallbackInfo& info) {
       javascriptResultCallback,
       [functionName, deviceId]() -> FailedSettings * { 
         FailedSettings * const rawSetttings = Jabra_GetFailedSettingNames(deviceId);
-
-        if (!rawSetttings) {
-          util::JabraException::LogAndThrow(functionName, "null returned");
-        } else {
-            IF_LOG_(LOGINSTANCE, plog::verbose) {
-              //LOG_VERBOSE_(LOGINSTANCE) << "napi_GetFailedSettingNames got raw object : '" << toString(rawSetttings) << "'";
-            }
-        }
         return rawSetttings;
       }, [deviceId](const Napi::Env& env, FailedSettings * const rawSetttings) {  
           Napi::Array napiResult = Napi::Array::New(env);
-          if (rawSetttings) {
+          if (rawSetttings != nullptr) {
             toNodeType(deviceId, rawSetttings, napiResult);
           }
           return napiResult;
       }, [](FailedSettings * rawSetttings) {
-          if (rawSetttings) {
+          if (rawSetttings != nullptr) {
             Jabra_FreeFailedSettings(rawSetttings);
           }
       }

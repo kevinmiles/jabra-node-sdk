@@ -43,7 +43,7 @@ let reserved1 = {
             });
 
             device.getFailedSettingNamesAsync().then((r) => {
-                console.log("getFailedSettingNamesAsync success with result " + r);
+                console.log("getFailedSettingNamesAsync success with result " + JSON.stringify(r, null, 3));
             }).catch( (err) => {
                 console.error("getFailedSettingNamesAsync failed with error " + err);
             });
