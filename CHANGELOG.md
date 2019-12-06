@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file
 
-### 2.0.0 - (2019-12-11)
+### v2.0.0 - (2019-12-11)
 - New npm package with gnaudio scope "@gnaudio/jabra-node-sdk" that replaces previous "jabra" and "jabra-dev" packages.
 - New optional "@gnaudio/jabra-electron-renderer-helper" to make secure client-side access to Jabra api much easier from Electron.
 
