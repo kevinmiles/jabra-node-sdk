@@ -1,11 +1,8 @@
-# Jabra Node.js Electron Renderer Helper - BETA RELEASE
+# Jabra Node.js Electron Renderer Helper
 
 This optional package allows a secure render process in ElectronJs (https://electronjs.org/) to transparently access the full [Jabra Node.js SDK](../nodesdk/README.md) API through proxies implemented on top of Electron's IPC mechanism. This makes it much easier for a sandboxed render process to call into Jabra classes without having to pass messages around.
 
-Note that this package is optional and only potentially useful in a sandboxed electron setup, where the render process does not have access rights to call into the node modules such as the Jabra Node.js API npm module. Even in this case this package is optional, as electron applications can perfectly decide to manage any such messaging themselves.
-
-**Warning: ALL software released here is in BETA. All software can be considered unstable, possibly untested and might be updated at any time. Use at your own risk. If you want to use something stable, please await completion of our development and Q/A process OR consider using our previous ["jabra"](https://www.npmjs.com/package/jabra) package (until it will be deprecated at a later stage).**
-
+*Note that this package is optional and only potentially useful in a sandboxed electron setup, where the render process does not have access rights to call into the node modules such as the Jabra Node.js API npm module. Even in this case this package is optional, as electron applications can perfectly decide to manage any such messaging themselves.*
 
 # Usage tips
 
