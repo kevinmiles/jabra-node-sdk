@@ -1,4 +1,4 @@
-Jabra Node.js SDK - BETA RELEASE
+Jabra Node.js SDK
 
 # Table of Contents
 - [Pre-requisite](#pre-requisite)
@@ -12,8 +12,6 @@ Jabra Node.js SDK - BETA RELEASE
 - [Changelog](https://github.com/gnaudio/jabra-node-sdk/blob/master/CHANGELOG.md)
 - [License](https://github.com/gnaudio/jabra-node-sdk/blob/master/LICENSE.md)
 - [FAQ](https://github.com/gnaudio/jabra-node-sdk/blob/master/FAQ.md)
-
-**Warning: ALL software released here is in BETA. All software can be considered unstable, possibly untested and might be updated at any time. In addition, this documentation is not fully updated. Use at your own risk. If you want to use something stable, please await completion of our development and Q/A process OR consider using our previous ["jabra" npm](https://www.npmjs.com/package/jabra) package (until it will be deprecated at a later stage).**
 
 ## Pre-requisite
 1. Node.js v8.x or later.
