@@ -1,6 +1,7 @@
 Jabra Node.js SDK
 
 # Table of Contents
+- [Versions](#versions)
 - [Pre-requisite](#pre-requisite)
 - [Installation](#installation)
 - [Debugging and Logging](#debugging-and-logging)
@@ -12,6 +13,26 @@ Jabra Node.js SDK
 - [Changelog](https://github.com/gnaudio/jabra-node-sdk/blob/master/CHANGELOG.md)
 - [License](https://github.com/gnaudio/jabra-node-sdk/blob/master/LICENSE.md)
 - [FAQ](https://github.com/gnaudio/jabra-node-sdk/blob/master/FAQ.md)
+
+## Versions
+Latest STABLE release is [v2.0.0 distributed on npmjs.com](https://www.npmjs.com/package/@gnaudio/jabra-node-sdk/v/2.0.0) (see [changelog](https://github.com/gnaudio/jabra-node-sdk/blob/master/CHANGELOG.md) for changes and notable defects). 
+
+In addition, BETA versions may be available on npmjs with a version name ending with "-beta.X" specifier. For such BETA versions,the following applies:
+
+    > Disclaimer for Alpha and Beta Software Release
+
+    > Please note that this is a copyrighted Jabra Product ((c) 2017 GN Audio A/S) (the “Product”) which is still undergoing final testing before its official release. The Product and all content found on it are provided on an “as is” and “as available” basis. Jabra does not provide any warranties, neither express nor implied, as to the suitability or usability of the Product or any of its content.
+
+    > Jabra disclaims liability for any loss, whether direct, indirect, special or consequential, suffered by any person as a result of their use of the Product or the software embedded, and for any claim arising from any injury or damage, including but not limited to, any personal or bodily injury or tangible property damage, arising from or resulting in any way from any alleged defects in the material, workmanship, or performance of the Product, and Company shall indemnify Jabra in
+    respect of any such claims. All usage of the Product is at users’ own risk and the user will be solely responsible for any resulting from such activities.
+
+    > Should you encounter any bugs, glitches, dangers, lack of functionality, lack of comfort or other
+    problems with the Product, please let us know immediately so we can rectify these accordingly. Your help in this regard is greatly appreciated.
+
+    > The Product is released solely for test use in Company’s organization and must not under any
+    circumstances be distributed to third parties without prior written acceptance from Jabra.
+
+    > By using the software, I accept and acknowledge the content herein.`
 
 ## Pre-requisite
 1. Node.js v8.x or later.
