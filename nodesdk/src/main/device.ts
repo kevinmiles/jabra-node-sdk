@@ -591,19 +591,6 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
             _JabraNativeAddonLog(AddonLogSeverity.verbose, this.updateFirmwareAsync.name, "returned");
         });
     }
-    /**
-     * Get the detailed error response for the last firmware update action performed 
-     * (Check for firmware update / Get the firmware info list / download firmware).
-     * @returns {Promise<{errorExceptionType: string, errorMessage: string, errorDetails: string}, JabraError>} 
-     * - Resolve errDetail `object` if successful otherwise Reject with `error`.
-     */
-    getLastFirmwareUpdateErrorInfoAsync(): Promise<{ errorExceptionType: string, errorMessage: string, errorDetails: string }> {
-        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getLastFirmwareUpdateErrorInfoAsync.name, "called with", this.deviceID); 
-        return util.promisify(sdkIntegration.GetLastFirmwareUpdateErrorInfo)(this.deviceID).then((result) => {
-            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getLastFirmwareUpdateErrorInfoAsync.name, "returned with", result);
-            return result;
-        });
-    }
 
     // bluetooth APIs
     /**

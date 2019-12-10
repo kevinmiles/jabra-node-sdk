@@ -129,7 +129,8 @@ typedef struct _SettingInfo {
   void* dependentDefaultValue;
 
   /* PC setting or not */
-  bool isPCsetting;
+  /** @deprecated */
+  bool isPCsetting; 
 
   /* Child device setting or not */
   bool isChildDeviceSetting;

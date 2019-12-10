@@ -1,7 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file
 
-### v2.0.0 - (2019-12-11)
+### v3.0.0 beta1 - (2009-12-10)
+- Upgraded embedded native "C" sdk to v1.8.3.10.
+- Removed getLastFirmwareUpdateErrorInfoAsync (no longer supported by "C" sdk).
+
+### v2.0.0 - (2019-12-10)
 - New npm package with gnaudio scope "@gnaudio/jabra-node-sdk" that replaces previous "jabra" and "jabra-dev" packages.
 - New optional "@gnaudio/jabra-electron-renderer-helper" to make secure client-side access to Jabra api much easier from Electron.
 

@@ -179,7 +179,8 @@ LIBRARY_API Jabra_ReturnCode Jabra_GetHidWorkingState(unsigned short deviceID, J
 
 /**
  * @brief Sets the HID working state to either standard HID (usb.org HID
- * specification) or GN HID.
+ * specification) or GN HID. HID Events will (default) NOT be triggered 
+ * for standard HID to avoid conflicts.
  * @param[in] deviceID ID for a specific device.
  * @param[in] state HID working state.
  * @return Return_Ok working state has been set successfully.
