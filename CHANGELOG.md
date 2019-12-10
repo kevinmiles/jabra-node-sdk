@@ -18,7 +18,11 @@ All notable changes to this project will be documented in this file
     - Some settings functions renamed, also now uses DeviceSettings as type.
     - Various bugfixes in typescript declarations.
     - Removed all FFI related artifacts, incl. constants and error codes.
-  
+
+- Known important issues: 
+    - This version will nondeterministicly produce 100% CPU load on some Windows machines in some 
+      CC scenarios. We aim to identify and fix this issue in an upcomming beta release.
+                
 
 ### v1.0.5 (2017-02-27)
 - Minor changes in documentation. 
