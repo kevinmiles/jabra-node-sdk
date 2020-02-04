@@ -249,12 +249,6 @@ typedef struct _FirmwareInfoList {
   Jabra_FirmwareInfo* items;
 } Jabra_FirmwareInfoList;
 
-typedef struct _FirmwareErrorInfo {
-  char* errorExceptionType;
-  char* errorMessage;
-  char* errorDetails;
-} Jabra_FirmwareErrorInfo;
-
 /** This enum represents event type for callback. */
 typedef enum  _FirmwareEventType {
   Firmware_Download = 0,
@@ -276,8 +270,23 @@ typedef enum _FirmwareEventStatus {
   Update_Error,
   Invalid_Authentication,
   File_UnderDownload,
-  Not_Allowed
+  Not_Allowed,
+  Sdk_TooOldForUpdate
 } Jabra_FirmwareEventStatus;
+
+
+/* Firmware update return codes */
+typedef enum _FirmwareUpdateReturnCode {
+    Success = 0,
+    AlreadyRunning,
+    FirmwareFileDoesNotMatchDevice,
+    HeadsetNotDocked,
+    FirmwareUpdateFailed,
+    FirmwareAlreadyUpToDate,
+    DowngradeNotAllowed,
+    SuccessButPowerCycleRequired,
+    SuccessButEarbudsMustBePlacedInCradle
+} Jabra_FirmwareUpdateReturnCode;
 
 typedef enum _UploadEventStatus {
   Upload_InProgress = 0,
@@ -312,6 +321,41 @@ typedef enum _DeviceFeature {
   AudioStreaming = 1023,
   CustomerSupport = 1024
 } DeviceFeature;
+
+/** This enum represents actions/parameters required to update firmware in a given device. */
+typedef enum _DeviceFWURequirement {
+  LanguagePackRegion = 2000,                /** It requires selecting a language region pack (display) */
+  TunePackRegion = 2001,                    /** It requires selecting a tune region pack */
+  LanguageSelection = 2002,                 /** It requires selecting a language (if a device requires region selection, it doesn't require language selection, and viceversa) */
+  HasDockableHeadset = 2003,                /** It has a dockable headset that must be docked before updating firmware */
+  IsSelfPowered = 2004,                     /** It is self-powered, therefore if it needs to power cycle it must be turned off and on */
+  MustBePowerCycledAfterFwUpdate = 2005,    /** It must be power cycled after updating firmware */
+  MustBeDockedInCradleAfterFwUpdate = 2006, /** It must be docked in the cradle after updating firmware */
+  SupportsOtaUpdate = 2007                  /** Supports OTA updates */
+} DeviceFWURequirement;
+
+/** This enum represents all the language regions that can be supported */
+typedef enum _Regions {
+    EMEA_AU_NZ = 1,
+    NA = 2,
+    NA_Japan = 3,
+    UK_APAC = 4,
+    Korean = 5,
+    EA_Oceania = 6,
+    Global = 7
+}Regions;
+
+/** This structure represents a single language with an integer id and a wide character string. */
+typedef struct _Language {
+    unsigned int id;
+    char* languageName;      /** Language name in UTF-8 encoding */
+}Language;
+
+/** This structure represents a list of languages */
+typedef struct _LanguageList {
+    int count;              /** Amount of languages stored in this list */
+    Language *languages;
+}LanguageList;
 
 /** @brief This structure represents the product registration info. */
 typedef struct _ProductRegistration {
@@ -623,6 +667,11 @@ typedef struct _JackStatus{
     bool inserted;
 } JackStatus;
 
+/** The connection status of the link e.g. left earbud connected or not (not supported by all devices) */
+typedef struct _LinkConnectStatus{
+  bool open;
+} LinkConnectStatus;
+
 /** The status of the on-head detection of the device (not supported by all devices) */
 typedef struct _HeadDetectionStatus{
     bool leftOn; /** true: left earcup is on head (false: off) */
@@ -634,6 +683,9 @@ typedef void (*JackConnectorStatusListener)(unsigned short deviceID, const JackS
 
 /** Listener for HeadDetectionStatus events */
 typedef void (*HeadDetectionStatusListener)(unsigned short deviceID, const HeadDetectionStatus status);
+
+/** Listener for link connection status events */
+typedef void (*LinkConnectionStatusListener)(unsigned short deviceID, const LinkConnectStatus status);
 
 /****************************************************************************/
 /*                           EXPORTED FUNCTIONS                             */
@@ -671,6 +723,42 @@ LIBRARY_API void Jabra_SetAppID(const char* inAppID);
  * @param[in] DeviceRemovedFunc Callback method, called when a device is
  * removed. Can be NULL if not used.
  * @param[in] ButtonInDataRawHidFunc Callback method, called on new input data.
+ * HID Events will (default) NOT be triggered for standard HID to avoid conflicts
+ * Raw HID. Low-level. Can be NULL if not used. 
+ * @param[in] ButtonInDataTranslatedFunc Callback method, called on new input
+ * data. High-level. Can be NULL if not used.
+ * @param[in] nonJabraDeviceDectection true non Jabra and Jabra devices will be detected,
+ * false only Jabra devices will be detected. Non Jabra device detection is not supported on Linux
+ * @param[in] configParams Optional configuration of various SDK library
+ * behavior. Can be NULL if not used.
+ * @return True if library initialization is successful.
+ * @return False if library initialization is not successful. One reason could
+ * be that the library is already initialized or that #Jabra_SetAppID has not
+ * been called prior to calling this function.
+ * @note AppID must be set using #Jabra_SetAppID before the library
+ * initialization is called. If not the initialization fails.
+ */
+LIBRARY_API bool Jabra_InitializeV2(void(*FirstScanForDevicesDoneFunc)(void),
+  void(*DeviceAttachedFunc)(Jabra_DeviceInfo deviceInfo),
+  void(*DeviceRemovedFunc)(unsigned short deviceID),
+  void(*ButtonInDataRawHidFunc)(unsigned short deviceID, unsigned short usagePage, unsigned short usage, bool buttonInData),
+  void(*ButtonInDataTranslatedFunc)(unsigned short deviceID, Jabra_HidInput translatedInData, bool buttonInData),
+  bool nonJabraDeviceDectection,
+  Config_params* configParams
+  );
+
+/**
+ * @deprecated This API is going to be deprecated, consider using Jabra_InitializeV2 instead
+ * @brief Library initialization - only intended to be called once.
+ * @param[in] FirstScanForDevicesDoneFunc Callback method, called when USB scan
+ * is done. Can be NULL if not used.
+ * @param[in] DeviceAttachedFunc Callback method, called when a device is
+ * attached. Can be NULL if not used. Callee must call #Jabra_FreeDeviceInfo to
+ * free memory.
+ * @param[in] DeviceRemovedFunc Callback method, called when a device is
+ * removed. Can be NULL if not used.
+ * @param[in] ButtonInDataRawHidFunc Callback method, called on new input data.
+ * HID Events will (default) NOT be triggered for standard HID to avoid conflicts
  * Raw HID. Low-level. Can be NULL if not used.
  * @param[in] ButtonInDataTranslatedFunc Callback method, called on new input
  * data. High-level. Can be NULL if not used.
@@ -685,13 +773,14 @@ LIBRARY_API void Jabra_SetAppID(const char* inAppID);
  * initialization is called. If not the initialization fails.
  */
 LIBRARY_API bool Jabra_Initialize(void(*FirstScanForDevicesDoneFunc)(void),
-  void(*DeviceAttachedFunc)(Jabra_DeviceInfo deviceInfo),
-  void(*DeviceRemovedFunc)(unsigned short deviceID),
-  void(*ButtonInDataRawHidFunc)(unsigned short deviceID, unsigned short usagePage, unsigned short usage, bool buttonInData),
-  void(*ButtonInDataTranslatedFunc)(unsigned short deviceID, Jabra_HidInput translatedInData, bool buttonInData),
-  unsigned int instance,
-  Config_params* configParams
-  );
+                                  void(*DeviceAttachedFunc)(Jabra_DeviceInfo deviceInfo),
+                                  void(*DeviceRemovedFunc)(unsigned short deviceID),
+                                  void(*ButtonInDataRawHidFunc)(unsigned short deviceID, unsigned short usagePage, unsigned short usage, bool buttonInData),
+                                  void(*ButtonInDataTranslatedFunc)(unsigned short deviceID, Jabra_HidInput translatedInData, bool buttonInData),
+                                  unsigned int instance,
+                                  Config_params* configParams
+);
+
 
 /**
  * @brief Library uninitialize.
@@ -704,16 +793,29 @@ LIBRARY_API bool Jabra_Uninitialize(void);
 /**
  * @brief Enable Hid events from non Jabra devices.
  * @param[in] hidEvents true HID events are send to app, false HID events are discarded
- * initialized).
+ * @return Return_Ok if successful
+ * @return Non_Jabra_Device_Detection_disabled if non-jabra device detection is disabled
+ * @return System_Error  if device manager instance is not available.
  */
-LIBRARY_API void Jabra_SetHidEventsFromNonJabraDevices(bool hidEvents);
+LIBRARY_API Jabra_ReturnCode Jabra_SetHidEventsFromNonJabraDevices(bool hidEvents);
 
 /**
  * @brief Is Hid events from non Jabra devices enabled.
  * @return true HID events are enabled, false HID events are not enabled
- * initialized).
  */
 LIBRARY_API bool Jabra_IsHidEventsFromNonJabraDevicesEnabled(void);
+
+/**
+ * @brief Enable Hid events from Jabra devices.
+ * @param[in] hidEvents true HID events are send to app, false HID events are discarded
+ */
+LIBRARY_API void Jabra_SetStdHidEventsFromJabraDevices(bool hidEvents);
+
+/**
+ * @brief Is Hid events from Jabra devices enabled.
+ * @return true HID events are enabled, false HID events are not enabled
+ */
+LIBRARY_API bool Jabra_IsStdHidEventsFromJabraDevicesEnabled(void);
 
 /**
  * @brief Check if device scan is done.
@@ -751,6 +853,7 @@ LIBRARY_API void Jabra_GetAttachedJabraDevices(int* count, Jabra_DeviceInfo* dev
 LIBRARY_API void Jabra_FreeDeviceInfo(Jabra_DeviceInfo info);
 
 /**
+* @deprecated This API has been deprecated, consider using Jabra_GetESN instead
  * @brief Get device serial number.
  * @param[in] deviceID ID for a specific device.
  * @param[in] serialNumber Pointer to location where the serial number is
@@ -849,7 +952,74 @@ LIBRARY_API char* Jabra_GetDeviceImagePath(unsigned short deviceID);
  */
 LIBRARY_API char* Jabra_GetDeviceImageThumbnailPath(unsigned short deviceID);
 
+
+typedef enum _BatteryComponent {
+    UNKNOWN, /*!< Unable to determine the component. Try updating the SDK. */
+    MAIN, /*!< Generally applies to headsets with headband that only contains one battery. */
+    COMBINED, /*!< For headsets that contains multiple batteries but is not capable of sending each individual state. */
+    RIGHT, /*!< The battery in the right unit */ 
+    LEFT, /*!< The battery in the left unit */ 
+    CRADLE_BATTERY /*!< The battery in the cradle */ 
+} BatteryComponent;
+
+typedef struct _BatteryStatusUnitType {
+    /*Level in percent*/
+    uint8_t levelInPercent;
+    /*The component for which the level corresponds to. @see BatteryComponent*/
+    BatteryComponent component;
+} Jabra_BatteryStatusUnit;
+
+typedef struct _BatteryStatusType {
+    /*Level in percent*/
+    uint8_t levelInPercent;
+    /*Indicates if the battery is charging or not*/
+    bool charging;
+    /*Indicates if the battery is low. The logic depends on the device and differs*/
+    bool batteryLow;
+    /*The component for which the level corresponds to. @see BatteryComponent*/
+    BatteryComponent component;
+    /*Count of extra units*/
+    size_t extraUnitsCount;
+    /*Contains additional information about other units in the headset - @see Jabra_BatteryStatusUnit.*/
+    Jabra_BatteryStatusUnit* extraUnits;
+} Jabra_BatteryStatus;
+
 /**
+ * @brief Get battery status, if supported by device.
+ * @param[in] deviceID ID for a specific device.
+ * @param[out] batteryStatus Struct containing battery status.
+ * @return Return_Ok if get battery information is returned.
+ * @return Device_Unknown if the deviceID specified is not known.
+ * @return Not_Supported if device does not have battery information.
+ * @note Since dongle does not have battery, SDK returns Not_Supported when
+ * battery status is requested for dongle device.
+ * @note As memory is allocated through SDK, need to be freed by calling
+ * #Jabra_FreeBatteryStatus.
+ * @see Jabra_RegisterBatteryStatusUpdateCallback
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetBatteryStatusV2(unsigned short deviceID, Jabra_BatteryStatus** batteryStatus);
+
+/**
+ * @brief Copy the content of a Jabra_BatteryStatus struct. See @Jabra_BatteryStatus.
+ * @param[in] from pointer containing the source.
+ * @param[out] dest pointer to copy to. Must be instantiated by the caller.
+*/
+LIBRARY_API void Jabra_CopyJabraBatteryStatus(const Jabra_BatteryStatus* from, Jabra_BatteryStatus* to);
+
+/**
+ * Frees the #Jabra_BatteryStatus
+ * @param[in] batteryStatus #Jabra_BatteryStatus structure to be freed.
+ */
+LIBRARY_API void Jabra_FreeBatteryStatus(Jabra_BatteryStatus* batteryStatus);
+
+/**
+ * Type definition of function pointer to use for
+ * #Jabra_RegisterBatteryStatusCallback. See @Jabra_BatteryStatus
+ */
+typedef void(*BatteryStatusUpdateCallbackV2)(unsigned short deviceID, Jabra_BatteryStatus* batteryStatus);
+
+/**
+ * @deprecated This API has been deprecated, use #Jabra_GetBatteryStatusV2
  * @brief Get battery status, if supported by device.
  * @param[in] deviceID ID for a specific device.
  * @param[out] levelInPercent Battery level in percent (0 - 100).
@@ -874,10 +1044,20 @@ typedef void(*BatteryStatusUpdateCallback)(unsigned short deviceID, int levelInP
  * @brief Register for battery status update callback.
  * @param[in] callback Callback method called when the battery status changes.
  * @see Jabra_GetBatteryStatus
+ * @note As memory is allocated through SDK, need to be freed by calling #Jabra_FreeBatteryStatus.
+ */
+LIBRARY_API void Jabra_RegisterBatteryStatusUpdateCallbackV2(BatteryStatusUpdateCallbackV2 const callback);
+
+/**
+ * @deprecated This API has been deprecated, use #Jabra_RegisterBatteryStatusUpdateCallbackV2
+ * @brief Register for battery status update callback.
+ * @param[in] callback Callback method called when the battery status changes.
+ * @see Jabra_GetBatteryStatus
  */
 LIBRARY_API void Jabra_RegisterBatteryStatusUpdateCallback(BatteryStatusUpdateCallback const callback);
 
 /**
+ * @deprecated This API has been deprecated.
  * @brief Get the warranty end date of the device.
  * @param[in] deviceID ID for a device.
  * @return Warranty end date of the device if warranty for the device is not
@@ -892,7 +1072,7 @@ LIBRARY_API char* Jabra_GetWarrantyEndDate(unsigned short deviceID);
  * and Jabra Suite for Mac(JMS).
  * @param[in] guid Client unique ID.
  * @param[in] softphoneName Name of the application to be shown in JD or JMS.
- * @return True if softphone app integrates to Jabra application, false
+ * @return True if softphone app integrates to Jabra application, false if it fails or already connected
  * otherwise.
  * @see Jabra_DisconnectFromJabraApplication
  */
@@ -1477,7 +1657,7 @@ LIBRARY_API char* Jabra_GetNpsUrl(unsigned short deviceID, const char* appName, 
 LIBRARY_API Jabra_ReturnCode Jabra_ProductRegistration(unsigned short deviceID, const ProductRegInfo* prodReg);
 
 /**
- * @brief Tells the device to execute a AVRCP command.
+ * @brief Tells the device to execute a AVRCP command. This interface is only supported by iOS.
  * @param[in] deviceID ID for a specific device.
  * @param[in] command The command to execute.
  * @return Return_Ok if setting is successful.
@@ -1610,13 +1790,15 @@ LIBRARY_API bool Jabra_IsFirmwareLockEnabled(unsigned short deviceID);
  * @param[in] deviceID ID for specific device.
  * @param[in] authorizationId Authorization Id.
  * @return Device_Unknown if the deviceID specified is not known.
- * @return Device_Invalid if deviceID is wrong.
+ * @return Return_ParameterFail if authorizationId is a null pointer
+ * or the request to the server is invalid.
  * @return Firmware_UpToDate if device has latest firmware version.
  * @return Firmware_Available if new firmware version is available for the
  * device.
  * @return No_Information if firmware file is not available.
  * @return NetworkRequest_Fail if request to the server fails.
  * @return Invalid_Authorization if authorization is invalid.
+ * @return Not_Supported if check is not supported for given device.
  * @see Jabra_IsFirmwareLockEnabled
  * @see Jabra_GetLatestFirmwareInformation
  * @see Jabra_FreeFirmwareInfo
@@ -1636,7 +1818,8 @@ LIBRARY_API Jabra_ReturnCode Jabra_CheckForFirmwareUpdate(unsigned short deviceI
  * @param[in] deviceID ID for specific device.
  * @param[in] authorizationId Authorization Id.
  * @return #Jabra_FirmwareInfo structure pointer for details of the latest
- * firmware.
+ * firmware, nullptr if the device is unknown, authorizationId is a nullptr
+ * or there was a request error.
  * @note As memory is allocated through SDK, memory needs to be freed by
  * calling #Jabra_FreeFirmwareInfo.
  * @see Jabra_IsFirmwareLockEnabled
@@ -1674,10 +1857,11 @@ LIBRARY_API void Jabra_FreeFirmwareInfo(Jabra_FirmwareInfo* firmwareInfo);
  * @brief Get the file path of the downloaded file.
  * @param[in] deviceID ID for specific device.
  * @param[in] version Version for which the path is required.
- * @return firmwareFilePath firmware file path of the device.
+ * @return firmwareFilePath firmware file path of the device, nullptr
+ * if the device is unknown or version is a nullptr.
  * @note Call #Jabra_DownloadFirmware first to ensure that data is current
  * @note As memory is allocated through SDK for firmwareFilePath, it must be
- * freed by calling, memory needs to be freed by calling #Jabra_FreeString.
+ * freed by calling #Jabra_FreeString.
  * @see Jabra_IsFirmwareLockEnabled
  * @see Jabra_CheckForFirmwareUpdate
  * @see Jabra_GetLatestFirmwareInformation
@@ -1698,7 +1882,8 @@ LIBRARY_API char* Jabra_GetFirmwareFilePath(unsigned short deviceID, const char*
  * @param[in] deviceID ID for the specific device.
  * @param[in] authorizationId Authorization ID.
  * @return A list of information about all firmware versions. If no information
- * is available NULL is returned.
+ * is available, the device is unknown or authorizationId is a null pointer, nullptr
+ * is returned.
  * @note The list must be freed by calling #Jabra_FreeFirmwareInfoList.
  * @see Jabra_IsFirmwareLockEnabled
  * @see Jabra_CheckForFirmwareUpdate
@@ -1855,24 +2040,6 @@ LIBRARY_API void Jabra_RegisterFirmwareProgressCallBack(FirmwareProgress const c
  * are connected to the phone and not to the application.
  */
 LIBRARY_API void Jabra_Reconnect(void);
-
-/**
- * @brief Get the detailed error response for the last firmware update action
- * performed(Check for firmware update/ Get the firmware info list/ download
- * firmware).
- * @param[in] deviceID ID for the specific device.
- * @return #Jabra_FirmwareErrorInfo structure pointer for the detailed error
- * info.
- * @note As memory is allocated through SDK, memory needs to be freed by
- * calling #Jabra_FreeFirmwareErrorInfo.
- */
-LIBRARY_API Jabra_FirmwareErrorInfo* Jabra_GetLastFirmwareUpdateErrorInfo(unsigned short deviceID);
-
-/**
- * @brief Frees the firmware error information structure members.
- * @param[in] firmwareErrorInfo #Jabra_FirmwareErrorInfo structure to be freed.
- */
-LIBRARY_API void Jabra_FreeFirmwareErrorInfo(Jabra_FirmwareErrorInfo* firmwareErrorInfo);
 
 /**
  * @brief Check if a feature is supported by a device.
@@ -2306,32 +2473,6 @@ LIBRARY_API bool Jabra_PreloadDeviceInfo(const char* zipFileName);
  */
 LIBRARY_API Jabra_ReturnCode Jabra_PlayRingtone(unsigned short deviceID, const uint8_t level, const uint8_t type);
 
-/**
- * @brief Request the device to start an audio stream on the special channel (originally used for SmartSound, but could have other uses).
- * The audio stream is implemented per platform (in the wrapper), and will most likely have different implementations. The format of the audio stream is defined in the platform-specific wrapper.
- * This API is merely for starting and stopping the stream.
- * The audio stream consists of sound snippets of specified length, sent at specified interval (ex: 3s snippets every 10s).
- * The stream will be automatically stopped if the connection to the device is lost.
- * @param[in] deviceID ID for a specific device.
- * @param[in] clipLength_cs length of the sound clip/snippet in centiseconds
- * @param[in] clipInterval_cs interval of the sound clips/snippets in centiseconds
- * @return Return_Ok if successful
- * @return Device_Unknown if the deviceID specified is not known.
- * @return Parameter_Fail if clipLength > clipInterval.
- * @return Device_BadState if the device is not supporting the feature, if the audio channel is not opened (by the wrapper), if it is already streaming, or if otherwise busy.
- */
-LIBRARY_API Jabra_ReturnCode Jabra_StartAudioStreaming(unsigned short deviceID, unsigned short clipLength_cs, unsigned short clipInterval_cs);
-
-/**
- * @brief Stop an audio stream that was started with Jabra_StartAudioStreaming.
- * @param[in] deviceID ID for a specific device.
- * @return Return_Ok if successful
- * @return Device_Unknown if the deviceID specified is not known.
- * @return Device_BadState if the device is not supporting the feature, or is not streaming.
- */
-LIBRARY_API Jabra_ReturnCode Jabra_StopAudioStreaming(unsigned short deviceID);
-
-
 /** @brief Subscribe/unsubscribe to JackStatus events. Not available on all devices. If not available, the client will get no events.
  * @param[in] deviceID ID for a specific device.
  * @param[in] listener The callback for JackStatus events. Set to nullptr to unsubscribe. Callback will occur on a separate thread.
@@ -2345,4 +2486,10 @@ LIBRARY_API Jabra_ReturnCode Jabra_SetJackConnectorStatusListener(unsigned short
   */
 LIBRARY_API Jabra_ReturnCode Jabra_SetHeadDetectionStatusListener(unsigned short deviceID, HeadDetectionStatusListener listener);
 
+/**
+  * @brief Subscribe/unsubscribe to LinkConnectionStatus events. Not available on all devices. If not available, the client will get no events.
+  * @param[in] deviceID ID for a specific device.
+  * @param[in] listener The callback for LinkConnectiontatus events. Set to nullptr to unsubscribe. Callback will occur on a separate thread.
+  */
+LIBRARY_API Jabra_ReturnCode Jabra_SetLinkConnectionStatusListener(unsigned short deviceID, LinkConnectionStatusListener listener);
 #endif /* COMMON_H */

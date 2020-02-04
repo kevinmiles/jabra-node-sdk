@@ -87,7 +87,6 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   EXPORTS_SET(IsFirmwareLockEnabled)
   EXPORTS_SET(CancelFirmwareDownload)
   EXPORTS_SET(CheckForFirmwareUpdate)
-  EXPORTS_SET(GetLastFirmwareUpdateErrorInfo)
 
   // Device settings:
   EXPORTS_SET(SetSettings)

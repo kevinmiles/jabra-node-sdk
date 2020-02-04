@@ -18,6 +18,9 @@ For more information, refer to the [individual README files](#Project-Contents) 
 - [License](LICENSE.md)
 - [FAQ](FAQ.md)
 
+# Versioning schme
+
+This project adhere to semantic versioning so increases in majorVersion between releases indicate breaking changes so developers using the software may need to change their code when updating. Increases in minorVersion indicates that all changes are backwards compatible.
 
 # Bug reports
 If you find any bug or have any suggestion then fill in the form at [Jabra developer support site](https://developer.jabra.com) with below details:
