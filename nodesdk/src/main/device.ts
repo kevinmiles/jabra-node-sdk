@@ -28,7 +28,7 @@ import { DeviceInfo, RCCStatus, ConfigInfo, ConfigParamsCloud, DeviceCataloguePa
 import { enumAPIReturnCode, enumDeviceErrorStatus, enumDeviceBtnType, enumDeviceConnectionType,
     enumSettingDataType, enumSettingCtrlType, enumSettingLoadMode, enumFirmwareEventStatus,
     enumFirmwareEventType, enumBTPairedListType, enumUploadEventStatus, audioFileFormat,
-    enumDeviceFeature, enumHidState, enumWizardMode, enumLogging } from './jabra-enums';
+    enumDeviceFeature, enumHidState, enumWizardMode, enumSecureConnectionMode, enumLogging } from './jabra-enums';
 import * as _jabraEnums from './jabra-enums';
 
 import { MetaApi, ClassEntry, _getJabraApiMetaSync } from './meta';
@@ -1028,6 +1028,19 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
         return result;
     });
     }
+
+    /**
+    * Reads the secure connection status (whether it is in legacy mode, secure mode or restricted) 
+    * @returns {Promise<number, JabraError>} 
+    * - Resolve enumSecureCommectionMode secure connection mode (one of SecureConnectionModes) `number` if successful otherwise Reject with `error`.
+    */ 
+   getSecureConnectionModeAsync() : Promise<enumSecureConnectionMode>  {
+    _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSecureConnectionModeAsync.name, "called with", this.deviceID); 
+   return util.promisify(sdkIntegration.GetSecureConnectionMode)(this.deviceID).then((result) => {
+    _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSecureConnectionModeAsync.name, "returned with", result);
+    return result;
+});
+}
 
      /**
      * Clear a device from paired device list.

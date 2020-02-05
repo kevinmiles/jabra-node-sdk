@@ -67,6 +67,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   EXPORTS_SET(GetNamedAsset)
   EXPORTS_SET(GetWizardMode)
   EXPORTS_SET(SetWizardMode)
+  EXPORTS_SET(GetSecureConnectionMode)
   EXPORTS_SET(GetAudioFileParametersForUpload)
   EXPORTS_SET(GetSupportedButtonEvents)
   EXPORTS_SET(GetButtonFocus)

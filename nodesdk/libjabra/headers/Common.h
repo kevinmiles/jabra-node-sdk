@@ -84,6 +84,16 @@ typedef struct _PairingList {
   Jabra_PairedDevice* pairedDevice;
 } Jabra_PairingList;
 
+/** @brief The secure connection modes */
+typedef enum _SecureConnectionMode {
+    /** Normal pairing allowed */
+    SC_LEGACY_MODE = 0,
+    /** Device is allowed to connect a audio gateway eg. a mobile phone */
+    SC_SECURE_MODE,
+    /** Pairing not allowed */
+    SC_RESTRICTED_MODE
+} Jabra_SecureConnectionMode;
+
 /**
  * @brief This enum is used for the return values from API.
  * @def DEFINE_CODE macro is used to a and b.
@@ -319,7 +329,9 @@ typedef enum _DeviceFeature {
   OnHeadDetection = 1021,
   SettingsChangeNotification = 1022,
   AudioStreaming = 1023,
-  CustomerSupport = 1024
+  CustomerSupport = 1024,
+  MySound = 1025,
+  UIConfigurableButtons = 1026
 } DeviceFeature;
 
 /** This enum represents actions/parameters required to update firmware in a given device. */
@@ -467,8 +479,12 @@ typedef enum _RemoteMmiType {
   MMI_TYPE_LISTEN_IN = 17,
   MMI_TYPE_DOT3      = 18,
   MMI_TYPE_DOT4      = 19,
+  MMI_TYPE_MEDIA     = 20,
   SEPERATOR_FOR_MMI_TYPE = 128, /* not to be used */
-  MMI_TYPE_BUSYLIGHT = SEPERATOR_FOR_MMI_TYPE
+  MMI_TYPE_BUSYLIGHT = SEPERATOR_FOR_MMI_TYPE,
+  MMI_TYPE_LED_BUSYLIGHT = SEPERATOR_FOR_MMI_TYPE,
+  MMI_TYPE_LED_MULTIFUNCTIONAL = SEPERATOR_FOR_MMI_TYPE + 1,
+  MMI_TYPE_LED_MUTE = SEPERATOR_FOR_MMI_TYPE + 2
 } RemoteMmiType;
 
 /**
@@ -667,9 +683,16 @@ typedef struct _JackStatus{
     bool inserted;
 } JackStatus;
 
+/** The link connection status component */
+typedef enum _LinkStatusComponent {
+    RIGHT_EARBUD = 0,
+    LEFT_EARBUD  = 1
+} LinkStatusComponent;
+
 /** The connection status of the link e.g. left earbud connected or not (not supported by all devices) */
 typedef struct _LinkConnectStatus{
-  bool open;
+    bool open;
+    LinkStatusComponent component;
 } LinkConnectStatus;
 
 /** The status of the on-head detection of the device (not supported by all devices) */
@@ -892,6 +915,15 @@ LIBRARY_API Jabra_ReturnCode Jabra_GetESN( unsigned short deviceID, char* const 
  * @return Return_ParameterFail if sku or count is incorrect.
  */
 LIBRARY_API Jabra_ReturnCode Jabra_GetSku(unsigned short deviceID, char* const sku, unsigned int count);
+
+/**
+ * @brief Get the hardware and config version of the device
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] HwVersion Pointer to buffer where hardware version is saved.
+ * @param[in] configVersion Pointer to buffer where config version is saved.
+ * @return Device_Unknown if the deviceID specified is not known.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetHwAndConfigVersion(unsigned short deviceID, unsigned short *HwVersion, unsigned short *configVersion);
 
 /**
  * @brief Get ESN for all device components. Some devices may be a system of
@@ -1304,6 +1336,23 @@ LIBRARY_API char* Jabra_GetConnectedBTDeviceName(unsigned short deviceID);
  * @see Jabra_RegisterPairingListCallback
  */
 LIBRARY_API bool Jabra_IsPairingListSupported(unsigned short deviceID);
+
+/**
+ * @brief Gets the secure connection mode. The interface is only valid to use for a dongle
+ * @param[in] deviceID ID for a device.
+ * @param[out] Secure connection mode.
+ * @return Return_Ok if success.
+ * @return Not_Supported if not supported by the device (all non dongle devices will return this)
+ * @return Return_ParameterFail if scMode is a null pointer
+ * @return Device_Unknown if the deviceID specified is not known.
+ * @return Device_ReadFails if not able to read the mode
+ * @see Jabra_GetPairingList
+ * @see Jabra_ClearPairingList
+ * @see Jabra_FreePairingList
+ * @see Jabra_ClearPairedDevice
+ * @see Jabra_RegisterPairingListCallback
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetSecureConnectionMode(unsigned short deviceID, Jabra_SecureConnectionMode *scMode);
 
 /**
  * @brief Gets the list of devices which are paired previously.
@@ -2492,4 +2541,5 @@ LIBRARY_API Jabra_ReturnCode Jabra_SetHeadDetectionStatusListener(unsigned short
   * @param[in] listener The callback for LinkConnectiontatus events. Set to nullptr to unsubscribe. Callback will occur on a separate thread.
   */
 LIBRARY_API Jabra_ReturnCode Jabra_SetLinkConnectionStatusListener(unsigned short deviceID, LinkConnectionStatusListener listener);
+
 #endif /* COMMON_H */
