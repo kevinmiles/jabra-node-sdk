@@ -244,4 +244,13 @@ export enum enumLogging {
   All = 2
 }
 
+export enum enumSecureConnectionMode {
+  /** Normal pairing allowed */
+  SC_LEGACY_MODE = 0,
+  /** Device is allowed to connect a audio gateway eg. a mobile phone */
+  SC_SECURE_MODE,
+  /** Pairing not allowed */
+  SC_RESTRICTED_MODE
+}
+
 
