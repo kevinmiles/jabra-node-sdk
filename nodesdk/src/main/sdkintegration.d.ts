@@ -186,7 +186,6 @@ export declare interface SdkIntegration {
     IsSetDateTimeSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
     IsFeatureSupported(deviceId: number, feature: number, callback: (error: JabraError, result: boolean) => void): void;
     GetWizardMode(deviceId: number, callback: (error: JabraError, result: number) => void): void;   
-    GetSecureConnectionMode(deviceId: number, callback: (error: JabraError, result: number) => void): void;   
     IsEqualizerSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
     IsEqualizerEnabled(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
     EnableEqualizer(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;

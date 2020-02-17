@@ -1,6 +1,6 @@
 import readline = require("readline");
 
-import { createJabraApplication, DeviceType, JabraType, jabraEnums, enumHidState, enumWizardMode, enumSecureConnectionMode, JabraError, AudioFileFormatEnum } from '../main/index';
+import { createJabraApplication, DeviceType, JabraType, jabraEnums, enumHidState, enumWizardMode, JabraError, AudioFileFormatEnum } from '../main/index';
 
 let reserved1 = {
     proxy: "this.httpProxyService.getProxy()",
@@ -46,11 +46,6 @@ let reserved1 = {
                 console.log("getFailedSettingNamesAsync success with result " + JSON.stringify(r, null, 3));
             }).catch( (err) => {
                 console.error("getFailedSettingNamesAsync failed with error " + err);
-            });
-            device.getSecureConnectionModeAsync().then((r) => {
-                console.log("getSecureConnectionModeAsync success with result " + r);
-            }).catch( (err) => {
-                console.error("getSecureConnectionModeAsync failed with error " + err);
             });
             /*
             device.uploadImageAsync("dummyfilename.ext").then((r) => {
