@@ -1,10 +1,45 @@
 # Changelog
 All notable changes to this project will be documented in this file
 
-### v3.0.0 beta1 - (2019-12-10)
-- Upgraded embedded native "C" sdk to v1.8.3.10.
+### General
+
+Latest v3.0.0 release is an interim production release for node.js on Windows that specifically targets an issue where code in the Jabra core libraries can cause the client app to incurr a 100% CPU load, making the application inoperable.
+
+This release changes the underlying core library from an older v1.7.9 to the latest production release 1.8.3.
+
+In addition to fixing the CPU-load issue, the latest version of the core library also includes a large number of bug-fixes and general improvements that results in faster operation and much improved stability.
+
+Please note that even though the node.js wrapper layer in v3.0.0 is almost identical to one in v2.0.0, the upgrade of the core library from v1.7 to v1.8 may mean that you can experience the need for minor changes to your application logic.
+
+V3.0.0 production version is code-wise identical to v3.0.0-beta1. If you already have integrated the v3.0.0-beta1, you should not experience any need for changes.
+
+--------------------------------
+
+### v3.0.0 - (2019-2-28)
+- Upgraded embedded native "C" sdk to v1.8.3.10 which fixes the following:
+  - Sometimes, core library functions could cause 100% CPU load on Windows clients.
+  - Inserting or removing chorded headsets sometime could cause host application to crash
 - Removed getLastFirmwareUpdateErrorInfoAsync (no longer supported by "C" sdk).
 - Versioning scheme documented, beta disclaimer updated.
+
+For other minor functional changes/updates, see release notes for v1.8.3 on developer.jabra.com
+
+Disclaimer: Exceptionally, this release is only validated for Windows. Mac and Linux core library versions do not suffer from the 100% CPU utilisation issue. We therefore recommend that you for production use stay on v2.0.0 for those platforms, until the next general relase is made for all platforms.
+
+Known issues: 
+  - Third party products can't be recognized by NodeJS SDK. Non-jabra headsets are no longer visible through the API, as this option is turned off be default in new version of the underlying core library.
+  - Speak 710 connected via Link 370 can't set settings (also present in v2.0.0).
+  - API function enableEquailzerAsync() do not work as expected (also present in v2.0.0).
+
+Device support:
+The device support is identical to the one for Windows SDK v1.8.3.10, but please note that this release of the node.js SDK has only been validation-tested with the following devices:
+
+- Biz 2400 II
+- Engage 50
+- Engage 75
+- Evolve 65t
+- Evolve 75 / Link 370
+- Speak 710 / Link 370
 
 ### v2.0.0 - (2019-12-10)
 - New npm package with gnaudio scope "@gnaudio/jabra-node-sdk" that replaces previous "jabra" and "jabra-dev" packages.
