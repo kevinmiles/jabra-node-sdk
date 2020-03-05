@@ -1029,6 +1029,19 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     });
     }
 
+    /**
+    * Reads the secure connection status (whether it is in legacy mode, secure mode or restricted) 
+    * @returns {Promise<number, JabraError>} 
+    * - Resolve enumSecureCommectionMode secure connection mode (one of SecureConnectionModes) `number` if successful otherwise Reject with `error`.
+    */ 
+    getSecureConnectionModeAsync() : Promise<enumSecureConnectionMode>  {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSecureConnectionModeAsync.name, "called with", this.deviceID); 
+      return util.promisify(sdkIntegration.GetSecureConnectionMode)(this.deviceID).then((result) => {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSecureConnectionModeAsync.name, "returned with", result);
+      return result;
+      });
+    } 
+
      /**
      * Clear a device from paired device list.
      * @param {string} deviceName - name of device to be connected.
