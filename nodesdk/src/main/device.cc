@@ -551,6 +551,20 @@ Napi::Value napi_GetAudioFileParametersForUpload(const Napi::CallbackInfo& info)
   );
 }
 
+Napi::Value napi_GetSecureConnectionMode(const Napi::CallbackInfo& info) {
+  const char * const functionName = __func__;
+  return util::SimpleDeviceAsyncFunction<Napi::Number, Jabra_SecureConnectionMode>(functionName, info, [functionName](unsigned short deviceId) {
+    Jabra_ReturnCode retv;
+    Jabra_SecureConnectionMode secureConnectionModes;
+    if ((retv = Jabra_GetSecureConnectionMode(deviceId, &secureConnectionModes)) == Return_Ok) {
+      return secureConnectionModes;
+    } else {
+      util::JabraReturnCodeException::LogAndThrow(functionName, retv);
+      return secureConnectionModes; // Dummy return - avoid compiler warnings.
+    }
+  }, [](const Napi::Env& env, Jabra_SecureConnectionMode cppResult) {  return Napi::Number::New(env, cppResult); });
+}
+
 Napi::Value napi_GetWizardMode(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   return util::SimpleDeviceAsyncFunction<Napi::Number, WizardModes>(functionName, info, [functionName](unsigned short deviceId) {

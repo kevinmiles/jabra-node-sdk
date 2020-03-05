@@ -34,6 +34,7 @@ Napi::Value napi_IsFeatureSupported(const Napi::CallbackInfo& info);
 Napi::Value napi_GetSupportedFeatures(const Napi::CallbackInfo& info);
 
 Napi::Value napi_GetWizardMode(const Napi::CallbackInfo& info);
+Napi::Value napi_GetSecureConnectionMode(const Napi::CallbackInfo& info);
 Napi::Value napi_IsEqualizerSupported(const Napi::CallbackInfo& info);
 Napi::Value napi_IsEqualizerEnabled(const Napi::CallbackInfo& info);
 Napi::Value napi_EnableEqualizer(const Napi::CallbackInfo& info);

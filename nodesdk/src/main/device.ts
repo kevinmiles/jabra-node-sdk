@@ -28,7 +28,7 @@ import { DeviceInfo, RCCStatus, ConfigInfo, ConfigParamsCloud, DeviceCataloguePa
 import { enumAPIReturnCode, enumDeviceErrorStatus, enumDeviceBtnType, enumDeviceConnectionType,
     enumSettingDataType, enumSettingCtrlType, enumSettingLoadMode, enumFirmwareEventStatus,
     enumFirmwareEventType, enumBTPairedListType, enumUploadEventStatus, audioFileFormat,
-    enumDeviceFeature, enumHidState, enumWizardMode, enumLogging } from './jabra-enums';
+    enumDeviceFeature, enumHidState, enumWizardMode, enumSecureConnectionMode, enumLogging } from './jabra-enums';
 import * as _jabraEnums from './jabra-enums';
 
 import { MetaApi, ClassEntry, _getJabraApiMetaSync } from './meta';
@@ -1022,11 +1022,24 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     * - Resolve enumWizardMode Current wizard mode (one of WizardModes) `number` if successful otherwise Reject with `error`.
     */ 
     getWizardModeAsync() : Promise<enumWizardMode>  {
-        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getWizardModeAsync.name, "called with", this.deviceID); 
+       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getWizardModeAsync.name, "called with", this.deviceID); 
        return util.promisify(sdkIntegration.GetWizardMode)(this.deviceID).then((result) => {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getWizardModeAsync.name, "returned with", result);
         return result;
-    });
+       });
+    }
+
+    /**
+    * Reads the secure connection status (whether it is in legacy mode, secure mode or restricted) 
+    * @returns {Promise<number, JabraError>} 
+    * - Resolve enumSecureCommectionMode secure connection mode (one of SecureConnectionModes) `number` if successful otherwise Reject with `error`.
+    */ 
+    getSecureConnectionModeAsync() : Promise<enumSecureConnectionMode>  {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSecureConnectionModeAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.GetSecureConnectionMode)(this.deviceID).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getSecureConnectionModeAsync.name, "returned with", result);
+            return result;
+        });
     }
 
      /**
