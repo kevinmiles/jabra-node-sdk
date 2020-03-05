@@ -65,6 +65,15 @@ export interface ConfigParamsCloud {
     proxy?: string,
 }
 
+/** 
+ * Misc non-cloud config parameters.
+ * 
+ * @internal 
+ **/
+export interface GenericConfigParams {
+    nonJabraDeviceDectection: boolean,
+}
+
 export interface DeviceCatalogueParams {
     preloadZipFile: string,
     delayInSecondsBeforeStartingRefresh: number,

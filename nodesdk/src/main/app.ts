@@ -22,7 +22,7 @@ if (isNodeJs()) {
     events = require('events');
 } 
 
-import { DeviceInfo, RCCStatus, ConfigInfo, ConfigParamsCloud, DeviceCatalogueParams,
+import { DeviceInfo, RCCStatus, ConfigInfo, ConfigParamsCloud, GenericConfigParams, DeviceCatalogueParams,
          FirmwareInfoType, SettingType, DeviceSettings } from './core-types';
 
 import { enumAPIReturnCode, enumDeviceErrorStatus, enumDeviceBtnType, enumDeviceConnectionType,
@@ -36,28 +36,45 @@ import * as util from 'util';
 
 import { DeviceType } from './device';
 
-// Singleton containing our top-level object.
+// Singletons containing our top-level object and parameters.
+
 /** @internal */
 let jabraApp: Promise<JabraType> | null = null;
+
+/** @internal */
+let jabraAppOptions: (ConfigParamsCloud & GenericConfigParams) | null = null;
+
+/** @internal */
+let jabraAppID: string | null = null;
 
 /**
  * This function should be called to create/get the main JabraType (application) instance.
  * @param appID The user should first register the app on [Jabra developer site](https://developer.jabra.com/) to get application id.
  * @param configCloudParams Optional configuration parameters for the sdk.
+ * @param nonJabraDeviceDectection If true non Jabra and Jabra devices will be detected, false by default.
  */
-export function createJabraApplication(appID: string, configCloudParams: ConfigParamsCloud = {}): Promise<JabraType> {
-    // TODO: What should be done if configCloudParams is different ?
-
+export function createJabraApplication(appID: string, configCloudParams: ConfigParamsCloud = {}, nonJabraDeviceDectection: boolean = false): Promise<JabraType> {
     if (!isNodeJs()) {
         return Promise.reject(new Error("This createJabraApplication() function needs to run under NodeJs and not in a browser"));
     }
 
+    let options = configCloudParams ? JSON.parse(JSON.stringify(configCloudParams)) : {};
+    options!.nonJabraDeviceDectection = nonJabraDeviceDectection;
+
     if (!jabraApp) {
         _JabraNativeAddonLog(AddonLogSeverity.info, "createJabraApplication", "Init - Creating new jabraApp");
+
+        jabraAppID = appID;
+        jabraAppOptions = options;
         jabraApp = new Promise<JabraType>((resolve, reject) => {
-            return new JabraType(appID, configCloudParams, resolve, reject);
+            return new JabraType(appID, options, resolve, reject);
         });
-    } else {
+    } else { // Reuse existing promise:
+        // Nb. This simple comparison unfortunately requires options argument order to be same.
+        if ((JSON.stringify(options) !== JSON.stringify(jabraAppOptions)) || (appID !== jabraAppID)) {
+            return Promise.reject(new Error("Repeated calls to createJabraApplication() function must have the same arguments"));
+        }
+
         _JabraNativeAddonLog(AddonLogSeverity.info, "createJabraApplication", "Init - Reuseing existing jabraApp");
     }
 
@@ -98,7 +115,7 @@ export class JabraType implements MetaApi {
      * @internal 
      * @hidden
      **/
-    constructor(appID: string, configCloudParams: ConfigParamsCloud, resolve: (value: JabraType) => void, reject: (reason: Error) => void) {
+    constructor(appID: string, configParams: ConfigParamsCloud & GenericConfigParams, resolve: (value: JabraType) => void, reject: (reason: Error) => void) {
         if (!isNodeJs()) {
             throw new Error("This JabraType constructor() function needs to run under NodeJs and not in a browser");
         }
@@ -255,7 +272,7 @@ export class JabraType implements MetaApi {
                     _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onGNPBtnEventChange callback", err)
                 }
             },
-            configCloudParams);  
+            configParams);  
         });
     }
 

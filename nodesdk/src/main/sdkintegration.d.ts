@@ -4,7 +4,7 @@
  * supplied for maximum type safety internally for this module.
  */
 
-import { ConfigParamsCloud, enumHidState, AudioFileFormatEnum, DeviceSettings, DeviceInfo, PairedListInfo, 
+import { ConfigParamsCloud, GenericConfigParams, enumHidState, AudioFileFormatEnum, DeviceSettings, DeviceInfo, PairedListInfo, 
          NamedAsset, AddonLogSeverity, JabraError } from './core-types';
 import { enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, 
          enumUploadEventStatus, enumBTPairedListType } from './jabra-enums';
@@ -40,7 +40,7 @@ export declare interface SdkIntegration {
                uploadProgressCallback: (deviceId: number, status: enumUploadEventStatus, percentage: number) => void,
                registerPairingListCallback: (deviceId: number, pairedListInfo: PairedListInfo) => void,
                onGNPBtnEventCallback: (deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void,
-               configParams: ConfigParamsCloud) : void;
+               configParams: ConfigParamsCloud & GenericConfigParams) : void;
 
     /**
      * Uninitialize SDK and free resources. Must be called when 

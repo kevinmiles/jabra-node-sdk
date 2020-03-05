@@ -11,7 +11,7 @@ let reserved1 = {
 
 (async () => {
     try {
-        let jabra = await createJabraApplication('A7tSsfD42VenLagL2mM6i2f0VafP/842cbuPCnC+uE8=')
+        let jabra = await createJabraApplication('A7tSsfD42VenLagL2mM6i2f0VafP/842cbuPCnC+uE8=', {}, true)
 
         console.log("!! Jabra initialized correctly !!");
 
@@ -32,6 +32,8 @@ let reserved1 = {
         // console.log("_SyncExperiment returned '" + JSON.stringify(r, null, 3) + "'");
   
         jabra.on('attach', async (device: DeviceType) => {
+            console.log('Device attched: ', JSON.stringify(device, null, 2));
+
             device.setHidWorkingStateAsync(enumHidState.GN_HID).catch( (err) => {
                 console.error("setHidWorkingStateAsync failed with error " + err);
             });

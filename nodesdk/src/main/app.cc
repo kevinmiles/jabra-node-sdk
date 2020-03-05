@@ -32,6 +32,7 @@ class StateJabraInitialize {
   std::string baseUrl_capabilities;
   std::string baseUrl_fw;
   bool blockAllNetworkAccess;
+  bool nonJabraDeviceDectection;
 
   bool initializationStartedState;
   
@@ -74,7 +75,8 @@ class StateJabraInitialize {
            const std::string& _proxy,
            const std::string& _baseUrl_capabilities,
            const std::string& _baseUrl_fw,
-           bool _blockAllNetworkAccess
+           const bool _blockAllNetworkAccess,
+           const bool _nonJabraDeviceDectection 
            ) {
       env = _env;
       appId = _appId;
@@ -95,6 +97,8 @@ class StateJabraInitialize {
       baseUrl_capabilities = _baseUrl_capabilities;
       baseUrl_fw = _baseUrl_fw;
       blockAllNetworkAccess = _blockAllNetworkAccess;
+
+      nonJabraDeviceDectection = _nonJabraDeviceDectection;
 
       initializationStartedState = true;
   }
@@ -167,6 +171,10 @@ class StateJabraInitialize {
 
   bool getBlockAllNetworkAccess() {
     return blockAllNetworkAccess;
+  }
+
+  bool getNonJabraDeviceDectection() {
+    return nonJabraDeviceDectection;
   }
 
   // Must be called to free resources (both to ensure no memory/resource leaks AND 
@@ -257,6 +265,8 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
     const std::string baseUrl_capabilities =  configParams.Has("baseUrl_capabilities") ? (std::string)configParams.Get("baseUrl_capabilities").As<Napi::String>() : "";
     const std::string baseUrl_fw = configParams.Has("baseUrl_fw") ? (std::string)configParams.Get("baseUrl_fw").As<Napi::String>() : "";
     const bool blockAllNetworkAccess =  configParams.Has("blockAllNetworkAccess") ? (bool)configParams.Get("blockAllNetworkAccess").As<Napi::Boolean>() : false;
+    const bool nonJabraDeviceDectection =  configParams.Has("nonJabraDeviceDectection") ? (bool)configParams.Get("nonJabraDeviceDectection").As<Napi::Boolean>() : false;
+
 
     state_Jabra_Initialize.set(env,
                                appId,
@@ -274,7 +284,8 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                                proxy,
                                baseUrl_capabilities,
                                baseUrl_fw,
-                               blockAllNetworkAccess);
+                               blockAllNetworkAccess,
+                               nonJabraDeviceDectection);
 
     std::thread initThread([functionName](){
       try {                  
@@ -289,11 +300,13 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
           config.cloudConfig_params = &configParams_cloud;
           config.reserved2 = nullptr;
 
+          bool nonJabraDeviceDectection = state_Jabra_Initialize.getNonJabraDeviceDectection();
+
           LOG_DEBUG_(LOGINSTANCE) << "Calling Jabra_SetAppID";
           Jabra_SetAppID(state_Jabra_Initialize.getAppId().c_str());
 
           LOG_DEBUG_(LOGINSTANCE) << "Calling Jabra_Initialize";
-          if (Jabra_Initialize([]() {  // First scan done.
+          if (Jabra_InitializeV2([]() {  // First scan done.
               try {
                 LOG_DEBUG_(LOGINSTANCE) << "First scan done";
 
@@ -402,7 +415,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
             },
-            0, &config
+            nonJabraDeviceDectection, &config
           )) { // Init success
             LOG_DEBUG_(LOGINSTANCE) << "Jabra_Initialize successful - now registering callbacks";
 
