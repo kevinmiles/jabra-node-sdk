@@ -18,6 +18,27 @@ let mainWindow: BrowserWindow | null = null;
 let jabraServerFactory : JabraApiServerFactory | null = null;
 let jabraServer: JabraApiServer | null = null;
 
+// Get optional command line runtime options:
+const actualCommandLineOptions: any = {};
+process.argv.slice(2, process.argv.length).forEach( (arg) => {
+    if (arg.slice(0,2) === '--') {
+        const longArg = arg.split('=');
+        const longArgFlag = longArg[0].slice(2,longArg[0].length);
+        const longArgValue = longArg.length > 1 ? longArg[1] : true;
+        actualCommandLineOptions[longArgFlag] = longArgValue;
+    }
+});
+
+const nonJabraDeviceDectectionArg: boolean = actualCommandLineOptions.nonJabraDeviceDectection || false;
+const cloudParamsArg: ConfigParamsCloud = {
+  blockAllNetworkAccess: actualCommandLineOptions.blockAllNetworkAccess || undefined,
+  baseUrl_capabilities: actualCommandLineOptions.baseUrl_capabilities || undefined,
+  baseUrl_fw: actualCommandLineOptions.baseUrl_fw || undefined,
+  proxy: actualCommandLineOptions.proxy || undefined
+};
+
+console.log("Using arguments: nonJabraDeviceDectectionArg="+nonJabraDeviceDectectionArg+ ", cloudParamsArg=" + JSON.stringify(cloudParamsArg));
+
 /**
  * Create electon window returning a promise that resolves when
  * the window is fully loaded and thus ready to receive events.
@@ -106,10 +127,6 @@ function setup() {
   }
 
   createAndLoadWindow().then((fullyLoadedWindow) => {   
-    let config: ConfigParamsCloud = {
-      // Set any needed configuration parameters here.
-    };
-
     ipcMain.on(openHelpWindow, (event: any) => {
       const helpWindow = new BrowserWindow({
         height: 900,
@@ -134,7 +151,7 @@ function setup() {
     });
 
     // As window is now fully loaded we can create our api server for the client.
-    jabraServerFactory!.create('A7tSsfD42VenLagL2mM6i2f0VafP/842cbuPCnC+uE8=', config, fullyLoadedWindow).then( (result) => {
+    jabraServerFactory!.create('A7tSsfD42VenLagL2mM6i2f0VafP/842cbuPCnC+uE8=', cloudParamsArg, nonJabraDeviceDectectionArg, fullyLoadedWindow).then( (result) => {
       jabraServer = result;
       console.log("JabraApiServer sucessfully created");
 

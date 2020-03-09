@@ -111,8 +111,10 @@ function setup() {
       // Set any needed configuration parameters here.
     };
 
+    let allowNonJabraDevices = false;
+
     // As window is now fully loaded we can create our api server for the client.
-    jabraServerFactory!.create('A7tSsfD42VenLagL2mM6i2f0VafP/842cbuPCnC+uE8=', config, fullyLoadedWindow).then( (result) => {
+    jabraServerFactory!.create('A7tSsfD42VenLagL2mM6i2f0VafP/842cbuPCnC+uE8=', config, allowNonJabraDevices, fullyLoadedWindow).then( (result) => {
       jabraServer = result;
       console.log("JabraApiServer sucessfully created");
 

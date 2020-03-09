@@ -39,6 +39,7 @@ export class JabraApiServerFactory
         server: Promise<JabraApiServer>,
         appID: string, 
         configCloudParams: ConfigParamsCloud, 
+        nonJabraDeviceDectection: boolean,
         fullyLoadedWindow: BrowserWindow;
     } | null;
 
@@ -123,21 +124,23 @@ export class JabraApiServerFactory
      * wait for electron's 'did-finish-load' event) before creating this object !
      * 
      */
-    public create(appID: string, configCloudParams: ConfigParamsCloud, fullyLoadedWindow: BrowserWindow) : Promise<JabraApiServer> {
+    public create(appID: string, configCloudParams: ConfigParamsCloud, nonJabraDeviceDectection: boolean, fullyLoadedWindow: BrowserWindow) : Promise<JabraApiServer> {
         if (this.cachedApiServer != null) {
             if (this.cachedApiServer.appID !== appID 
-                || this.cachedApiServer.configCloudParams !== configCloudParams 
+                || this.cachedApiServer.configCloudParams !== configCloudParams
+                || this.cachedApiServer.nonJabraDeviceDectection !== nonJabraDeviceDectection 
                 || this.cachedApiServer.fullyLoadedWindow !== fullyLoadedWindow) {
                     return Promise.reject(new Error("JabraApiServerFactory.create must be called with identical parameters if called multiple times as return value is a singleton"));
                 }
 
             return this.cachedApiServer.server;
         } else if (!this.startupError) {
-            let server = JabraApiServer.create(appID, configCloudParams, this.ipcMain, this.jabraApiMeta, this.clientInitResponsesRequested, fullyLoadedWindow);
+            let server = JabraApiServer.create(appID, configCloudParams, nonJabraDeviceDectection, this.ipcMain, this.jabraApiMeta, this.clientInitResponsesRequested, fullyLoadedWindow);
             this.cachedApiServer = {
                 server,
                 appID,
                 configCloudParams,
+                nonJabraDeviceDectection,
                 fullyLoadedWindow
             };
             return server;
@@ -173,8 +176,8 @@ export class JabraApiServer
      * 
      * @internal This function is intended for internal use only - clients should NOT use this - only our own factory!
      */
-    public static create(appID: string, configCloudParams: ConfigParamsCloud, ipcMain: IpcMain, jabraApiMeta: ClassEntry[], clientInitResponsesRequested: ApiClientIntResponse[], window: BrowserWindow) : Promise<JabraApiServer> {
-        return createJabraApplication(appID, configCloudParams).then( (jabraApi) => {
+    public static create(appID: string, configCloudParams: ConfigParamsCloud, nonJabraDeviceDectection: boolean, ipcMain: IpcMain, jabraApiMeta: ClassEntry[], clientInitResponsesRequested: ApiClientIntResponse[], window: BrowserWindow) : Promise<JabraApiServer> {
+        return createJabraApplication(appID, configCloudParams, nonJabraDeviceDectection).then( (jabraApi) => {
             const server = new JabraApiServer(jabraApi, ipcMain, jabraApiMeta, clientInitResponsesRequested, window);
             _JabraNativeAddonLog(AddonLogSeverity.info, "JabraApiServer.create", "JabraApiServer server ready");
             return server;
