@@ -102,6 +102,16 @@ Napi::Value napi_IsFirmwareLockEnabled(const Napi::CallbackInfo& info) {
   }, [](const Napi::Env& env, bool cppResult) {  return Napi::Boolean::New(env, cppResult); });
 }
 
+Napi::Value napi_EnableFirmwareLock(const Napi::CallbackInfo& info) {
+  const char * const functionName = __func__;
+  return util::SimpleDeviceAsyncBoolSetter(functionName, info, [functionName](unsigned short deviceId, bool enable) {
+        const Jabra_ReturnCode result = Jabra_EnableFirmwareLock(deviceId, enable);
+        if (result != Return_Ok) {
+          throw util::JabraReturnCodeException(functionName, result);
+        }
+  });
+}
+
 Napi::Value napi_GetFirmwareVersion(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   return util::SimpleDeviceAsyncFunction<Napi::String, std::string>(functionName, info, 

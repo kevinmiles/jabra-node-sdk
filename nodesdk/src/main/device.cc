@@ -565,6 +565,17 @@ Napi::Value napi_GetSecureConnectionMode(const Napi::CallbackInfo& info) {
   }, [](const Napi::Env& env, Jabra_SecureConnectionMode cppResult) {  return Napi::Number::New(env, cppResult); });
 }
 
+Napi::Value napi_RebootDevice(const Napi::CallbackInfo& info) {
+  const char * const functionName = __func__;
+  return util::SimpleDeviceAsyncFunction<Napi::Value, Jabra_ReturnCode>(functionName, info, [functionName](unsigned short deviceId) {
+    Jabra_ReturnCode retv;
+     if ((retv = Jabra_RebootDevice(deviceId)) != Return_Ok) {
+        util::JabraReturnCodeException::LogAndThrow(functionName, retv);
+     }
+     return retv;
+  }, [](const Napi::Env& env, Jabra_ReturnCode retv) {  return env.Undefined(); });
+}
+
 Napi::Value napi_GetWizardMode(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   return util::SimpleDeviceAsyncFunction<Napi::Number, WizardModes>(functionName, info, [functionName](unsigned short deviceId) {

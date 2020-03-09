@@ -100,6 +100,7 @@ export declare interface SdkIntegration {
     GetLatestFirmwareInformation(deviceId: number, string: authorizationId, callback: (error: JabraError, result: FirmwareInfoType) => void): void;
     GetFirmwareVersion(deviceId: number, callback: (error: JabraError, result: string) => void): void;
     IsFirmwareLockEnabled(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
+    EnableFirmwareLock(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
 
     IsDevLogEnabled(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
     EnableDevLog(deviceId: number, enabled: boolean, callback: (error: JabraError, result: void) => void): void;
@@ -187,6 +188,7 @@ export declare interface SdkIntegration {
     IsFeatureSupported(deviceId: number, feature: number, callback: (error: JabraError, result: boolean) => void): void;
     GetWizardMode(deviceId: number, callback: (error: JabraError, result: number) => void): void;   
     GetSecureConnectionMode(deviceId: number, callback: (error: JabraError, result: number) => void): void;   
+    RebootDevice(deviceId: number, callback: (error: JabraError, result: void) => void): void;   
     IsEqualizerSupported(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
     IsEqualizerEnabled(deviceId: number, callback: (error: JabraError, result: boolean) => void): void;
     EnableEqualizer(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
