@@ -15,6 +15,13 @@ V3.0.0 production version is code-wise identical to v3.0.0-beta1. If you already
 
 --------------------------------
 
+### v3.1.0.beta1
+- Upgraded embedded native "C" sdk to vXXXX
+- Added various new APIs for above "C" sdk, incl. reboot, locking etc.
+- Added support for detecting non-Jabra devices (new optional argument to createJabraApplication).
+- Updated related electron helper JabraApiServerFactory.create method arguments (breaking change if used).
+
+
 ### v3.0.0 - (2019-2-28)
 - Upgraded embedded native "C" sdk to v1.8.3.10 which fixes the following:
   - Sometimes, core library functions could cause 100% CPU load on Windows clients.

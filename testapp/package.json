@@ -30,20 +30,20 @@
     "url": "https://developer.jabra.com/site/global/support/index.gsp"
   },
   "dependencies": {
-    "@gnaudio/jabra-node-sdk": "3.0.0",
-    "@gnaudio/jabra-electron-renderer-helper": "1.0.0",
+    "@gnaudio/jabra-node-sdk": "file:../nodesdk",
+    "@gnaudio/jabra-electron-renderer-helper": "file:../electronrendererhelper",
     "jquery": "3.4.1",
-    "notyf": "3.0.4"
+    "notyf": "3.1.0",
+    "electron": "8.1.0"
   },
   "devDependencies": {
-    "@types/notyf": "2.0.0",
-    "electron": "6.0.12",
-    "typescript": "3.6.4",
-    "electron-packager": "14.0.6",
-    "rimraf": "2.6.3",
-    "copyfiles": "2.1.1",
+    "@types/notyf": "3.0.0",
+    "typescript": "3.8.3",
+    "electron-packager": "14.2.1",
+    "rimraf": "3.0.2",
+    "copyfiles": "2.2.0",
     "browserify": "16.5.0",
     "tsify": "4.0.1",
-    "cross-env": "6.0.3"
+    "cross-env": "7.0.2"
   }
 }

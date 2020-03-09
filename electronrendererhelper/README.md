@@ -48,6 +48,7 @@ This optional package allows a secure render process in ElectronJs (https://elec
       // As window is now fully loaded we can instantiate our api server for the client.
       jabraServer = await jabraServerFactory.create('<Set your Jabra API key here>', 
                                                     { /* config here if needed */}, 
+                                                    false, // set to true if support for non Jabra devices.
                                                     fullyLoadedWindow);
     });
     ```
