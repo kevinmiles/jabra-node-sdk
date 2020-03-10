@@ -1276,7 +1276,7 @@ LIBRARY_API Jabra_ReturnCode Jabra_DisconnectBTDevice(unsigned short deviceID);
  * @param[in] device Pointer to structure #Jabra_PairingList.
  * @return Return_Ok if success.
  * @return Device_Unknown if the deviceID specified is not known.
- * @return Device_AlreadyConnected if the device is already connected.
+ * @return Device_AlreadyConnected if a device is already connected.
  * @return Device_WriteFail if it fails to write the value to the device.
  * @note After device connection, #Jabra_GetPairingList api has to be called
  * to get updated connection status. In order to connect to a device from the
@@ -1833,6 +1833,18 @@ LIBRARY_API bool Jabra_IsDevLogEnabled(unsigned short deviceID);
  * @see Jabra_RegisterFirmwareProgressCallBack
  */
 LIBRARY_API bool Jabra_IsFirmwareLockEnabled(unsigned short deviceID);
+
+/**
+ * @brief Enable or disable firmware up-and-downgrade lock.
+ * @param[in] deviceID ID for a device.
+ * @param[in] enable set to true to enable or false to disable the lock.
+ * @return Device_Unknown if the device is unknown.
+ * @return Not_Supported if firmware lock is not supported for this device.
+ * @return Return_Ok if success.
+ * @see Jabra_IsFirmwareLockEnabled
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_EnableFirmwareLock(unsigned short deviceID, bool enable);
+
 
 /**
  * @brief Check if Firmware update available for device.
@@ -2541,5 +2553,14 @@ LIBRARY_API Jabra_ReturnCode Jabra_SetHeadDetectionStatusListener(unsigned short
   * @param[in] listener The callback for LinkConnectiontatus events. Set to nullptr to unsubscribe. Callback will occur on a separate thread.
   */
 LIBRARY_API Jabra_ReturnCode Jabra_SetLinkConnectionStatusListener(unsigned short deviceID, LinkConnectionStatusListener listener);
+
+/**
+ * @brief Reboot the device.
+ * @param[in] deviceID ID for a specific device.
+ * @return Return_Ok if success.
+ * @return Device_Unknown if the deviceID specified is not known.
+ * @return Not_Supported if not supported
+  */
+LIBRARY_API Jabra_ReturnCode Jabra_RebootDevice(unsigned short deviceID);
 
 #endif /* COMMON_H */

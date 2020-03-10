@@ -55,6 +55,13 @@ let reserved1 = {
                 console.error("getSecureConnectionModeAsync failed with error " + err);
             });
             /*
+            device.rebootDeviceAsync().then((r) => {
+                console.log("rebootDeviceAsync success with result " + r);
+            }).catch( (err) => {
+                console.error("rebootDeviceAsync failed with error " + err);
+            });
+            */
+            /*
             device.uploadImageAsync("dummyfilename.ext").then((r) => {
                 console.log("updateFirmwareAsync success ");
             }).catch((err: JabraError) => {
@@ -484,6 +491,39 @@ let reserved1 = {
              
             console.log("done all calls - waiting");
         });
+
+        /*
+         // Below can be used to test device connected via a dongle (Just un-comment the code)
+         // Make sure you BT device is connected to the dongle.
+         // Unplug the dongle
+         // Start this program
+         // First the above test is runned for the dongle
+         // Next the belov is runned for the dongle connect device        
+        jabra.on('attach', async (device: DeviceType) => {
+            console.log('Device attched: ', JSON.stringify(device, null, 2));
+
+            device.enableFirmwareLockAsync(true).then(() => {
+                console.log('Enable firmware lock succeded');
+             }).catch( (err) => {
+                console.log('Enable firmware lock failed with error: ' + err); 
+            });
+            device.isFirmwareLockEnabledAsync().then((r) => {
+                console.log('Is firmware lock enabled succeded ' + r);
+             }).catch( (err) => {
+                console.log('Is firmware lock enabled failed with error: ' + err); 
+            });
+            device.enableFirmwareLockAsync(false).then(() => {
+                console.log('Enable firmware lock succeded');
+             }).catch( (err) => {
+                console.log('Enable firmware lock failed with error: ' + err); 
+            });
+            device.isFirmwareLockEnabledAsync().then((r) => {
+                console.log('Is firmware lock enabled succeded ' + r);
+             }).catch( (err) => {
+                console.log('Is firmware lock enabled failed with error: ' + err); 
+            });
+        });
+        */
 
         jabra.on('detach', (device) => {
             console.log('Device detached with device: ', JSON.stringify(device, null, 2));

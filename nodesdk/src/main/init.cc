@@ -68,6 +68,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   EXPORTS_SET(GetWizardMode)
   EXPORTS_SET(SetWizardMode)
   EXPORTS_SET(GetSecureConnectionMode)
+  EXPORTS_SET(RebootDevice)
   EXPORTS_SET(GetAudioFileParametersForUpload)
   EXPORTS_SET(GetSupportedButtonEvents)
   EXPORTS_SET(GetButtonFocus)
@@ -86,6 +87,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   EXPORTS_SET(DownloadFirmwareUpdater)
   EXPORTS_SET(GetFirmwareFilePath)
   EXPORTS_SET(IsFirmwareLockEnabled)
+  EXPORTS_SET(EnableFirmwareLock)
   EXPORTS_SET(CancelFirmwareDownload)
   EXPORTS_SET(CheckForFirmwareUpdate)
 

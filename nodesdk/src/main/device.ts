@@ -1042,6 +1042,17 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
         });
     }
 
+    /**
+     * Reboot device.
+     * @returns {Promise<void, JabraError>} - Resolve `void` if successful otherwise Reject with `error`.
+     */
+    rebootDeviceAsync(): Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.rebootDeviceAsync.name, "called with", this.deviceID); 
+        return util.promisify(sdkIntegration.RebootDevice)(this.deviceID).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.rebootDeviceAsync.name, "returned");
+        });
+    }
+
      /**
      * Clear a device from paired device list.
      * @param {string} deviceName - name of device to be connected.
@@ -1182,6 +1193,18 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
             return result;
         });
    }
+
+     /**
+     * Enable/disable the firmware lock. if the firmware is locked the device should not be upgraded.
+     * @param {boolean} enable - whether to lock the firmware in the device.
+     * @returns {Promise<void, JabraError>} - Resolve `void` if successful otherwise Reject with `error`.
+     */
+    enableFirmwareLockAsync(enable: boolean): Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.enableFirmwareLockAsync.name, "called with", this.deviceID, enable); 
+        return util.promisify(sdkIntegration.EnableFirmwareLock)(this.deviceID, enable).then(() => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.enableFirmwareLockAsync.name, "returned");
+        });
+    }
 
    /**
    * Get meta information about methods, properties etc. that can be used 
