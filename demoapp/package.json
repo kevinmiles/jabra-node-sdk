@@ -1,6 +1,6 @@
 {
   "name": "@gnaudio/jabra-electron-demo-app",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "A electon demo application for Jabra Electron/Node SDK",
   "main": "dist/main/main.js",
   "browser": "dist/renderer/renderer.js",
@@ -28,14 +28,14 @@
     "url": "https://developer.jabra.com"
   },
   "dependencies": {
-    "@gnaudio/jabra-node-sdk": "file:../nodesdk",
-    "@gnaudio/jabra-electron-renderer-helper": "file:../electronrendererhelper",
+    "@gnaudio/jabra-node-sdk": "3.1.0-beta.1",
+    "@gnaudio/jabra-electron-renderer-helper": "2.0.0-beta.1",
     "jquery": "3.4.1",
     "notyf": "3.1.0"
   },
   "devDependencies": {
     "@types/notyf": "3.0.0",
-    "electron": "8.0.3",
+    "electron": "8.1.1",
     "typescript": "3.8.3",
     "electron-packager": "14.2.1",
     "rimraf": "3.0.2",
