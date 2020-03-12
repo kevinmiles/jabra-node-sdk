@@ -29,9 +29,9 @@ process.argv.slice(2, process.argv.length).forEach( (arg) => {
     }
 });
 
-const nonJabraDeviceDectectionArg: boolean = actualCommandLineOptions.nonJabraDeviceDectection || false;
+const nonJabraDeviceDectectionArg: boolean = (actualCommandLineOptions.nonJabraDeviceDectection || "false") === "true";
 const cloudParamsArg: ConfigParamsCloud = {
-  blockAllNetworkAccess: actualCommandLineOptions.blockAllNetworkAccess || undefined,
+  blockAllNetworkAccess: actualCommandLineOptions.blockAllNetworkAccess ? (actualCommandLineOptions.blockAllNetworkAccess === "true") : undefined,
   baseUrl_capabilities: actualCommandLineOptions.baseUrl_capabilities || undefined,
   baseUrl_fw: actualCommandLineOptions.baseUrl_fw || undefined,
   proxy: actualCommandLineOptions.proxy || undefined
