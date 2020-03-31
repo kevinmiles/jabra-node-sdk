@@ -1,4 +1,5 @@
 **/dist/
+**/.vs/
 **/.vscode/ipch/
 **/.ionide
 **/build/
