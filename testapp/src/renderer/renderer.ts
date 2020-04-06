@@ -44,6 +44,23 @@ let messages = new BoundedQueue<string>(maxQueueSize);
 let stressInvokeCount: number | undefined = undefined;
 let stressInterval: NodeJS.Timeout | undefined = undefined;
 
+// The user args for a method. Normally this is the same as declared in the meta
+// but in some cases the test app will fillout (some of) the values.
+const expectedUserArgs: { [name: string]: (method: MethodEntry) => ParameterEntry[] } = {
+  __default__: (method: MethodEntry) => method.parameters
+};
+
+// Resolves arguments for different API methods. All methods that require
+// complex values or have default values should be explicitly handled here:
+// Nb. must match expectedUserArgs.
+const commandArgs: { [name: string]: (method: MethodEntry) => any[] } = {
+  __default__: (method: MethodEntry) => [ convertParam(txtParam1.value, method.parameters.length>0 ? method.parameters[0] : undefined),
+                                          convertParam(txtParam2.value, method.parameters.length>1 ? method.parameters[1] : undefined),
+                                          convertParam(txtParam3.value, method.parameters.length>2 ? method.parameters[2] : undefined),
+                                          convertParam(txtParam4.value, method.parameters.length>3 ? method.parameters[3] : undefined),
+                                          convertParam(txtParam5.value, method.parameters.length>4 ? method.parameters[4] : undefined) ],
+};
+
 initStaticVersionInfo();
 
 let jabra: JabraType | undefined = undefined;
@@ -212,16 +229,6 @@ stressInvokeApiBtn.onclick = () => {
     }
 };
 
-// Resolves arguments for different API methods. All methods that require
-// complex values or have default values should be explicitly handled here:
-const commandArgs: { [name: string]: (method: MethodEntry) => any[] } = {
-  __default__: (method: MethodEntry) => [ convertParam(txtParam1.value, method.parameters.length>0 ? method.parameters[0] : undefined),
-                                          convertParam(txtParam2.value, method.parameters.length>1 ? method.parameters[1] : undefined),
-                                          convertParam(txtParam3.value, method.parameters.length>2 ? method.parameters[2] : undefined),
-                                          convertParam(txtParam4.value, method.parameters.length>3 ? method.parameters[3] : undefined),
-                                          convertParam(txtParam5.value, method.parameters.length>4 ? method.parameters[4] : undefined) ],
-};
-
 // Call into user selected API method.
 function invokeSelectedApi(currentApiObject: JabraType | DeviceType | undefined, method: MethodEntry): Promise<any> {
     if (currentApiObject && method) {
@@ -294,28 +301,38 @@ function setupApiHelp() {
   }
 
   if (meta) {
+    let userArgsResolver = expectedUserArgs[meta.name];
+    if (!userArgsResolver) {
+      userArgsResolver = expectedUserArgs["__default__"];
+    }
+    const userArgs = userArgsResolver(meta);
+
+    // Show always the full signature regardless of what user parms to fillout.
+    // TODO: Consider comparing with userargs and crossing out those that are supplied
+    // automatically by user app.
     methodSignature.innerText = meta.name + "( " + meta.parameters.map(p => p.name + (p.optional ? "?": "") + ": " + p.tsType).join(", ") + "): " + meta.tsType;
     methodHelp.innerText = meta.documentation;
 
-    if (meta.parameters.length>=1) {
-      param1Hint.innerText = getTypeHint(meta.parameters[0]);
-      (txtParam1 as any).style = getInputStyle(meta.parameters[0].optional);
+    // Highlight the user input fields for better UX experience:
+    if (userArgs.length>=1) {
+      param1Hint.innerText = getTypeHint(userArgs[0]);
+      (txtParam1 as any).style = getInputStyle(userArgs[0].optional);
     }
-    if (meta.parameters.length>=2) {
-      param2Hint.innerText =  getTypeHint(meta.parameters[1]);
-      (txtParam2 as any).style = getInputStyle(meta.parameters[1].optional);
+    if (userArgs.length>=2) {
+      param2Hint.innerText =  getTypeHint(userArgs[1]);
+      (txtParam2 as any).style = getInputStyle(userArgs[1].optional);
     }
-    if (meta.parameters.length>=3) {
-      param3Hint.innerText =  getTypeHint(meta.parameters[2]);
-      (txtParam3 as any).style =  getInputStyle(meta.parameters[2].optional);
+    if (userArgs.length>=3) {
+      param3Hint.innerText =  getTypeHint(userArgs[2]);
+      (txtParam3 as any).style =  getInputStyle(userArgs[2].optional);
     }
-    if (meta.parameters.length>=4) {
-      param4Hint.innerText =  getTypeHint(meta.parameters[3]);
-      (txtParam4 as any).style =  getInputStyle(meta.parameters[3].optional);
+    if (userArgs.length>=4) {
+      param4Hint.innerText =  getTypeHint(userArgs[3]);
+      (txtParam4 as any).style =  getInputStyle(userArgs[3].optional);
     }
-    if (meta.parameters.length>=5) {
-      param5Hint.innerText =  getTypeHint(meta.parameters[4]);
-      (txtParam5 as any).style =  getInputStyle(meta.parameters[4].optional);
+    if (userArgs.length>=5) {
+      param5Hint.innerText =  getTypeHint(userArgs[4]);
+      (txtParam5 as any).style =  getInputStyle(userArgs[4].optional);
     }
   }
 }
