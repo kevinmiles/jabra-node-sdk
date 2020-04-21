@@ -99,8 +99,6 @@ j.createJabraApplication('123').then((jabra) => { // 123 is appID here
     jabra.on('attach', (device) => {
         console.log('Press any key on Jabra device ' + device.deviceName);
         
-        // If you are creating a softphone, consider using GN protocol when device supports it
-        // in order to receive all events. E.g. device.setHidWorkingStateAsync(j.enumHidState.GN_HID);
         device.on('btnPress', (btnType, btnValue) => {
           console.log('New input from device is received: ', j.enumDeviceBtnType[btnType], btnValue);
         });
@@ -116,8 +114,6 @@ createJabraApplication('123').then((jabra) => { // 123 is appID here
     jabra.on('attach', (device) => {
         console.log('Press any key on Jabra device ' + device.deviceName);
 
-        // If you are creating a softphone, consider using GN protocol when device supports it
-        // in order to receive all events. E.g. device.setHidWorkingStateAsync(enumHidState.GN_HID);
         device.on('btnPress', (btnType, btnValue) => {
           console.log('New input from device is received: ', enumDeviceBtnType[btnType], btnValue);
         });

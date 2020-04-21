@@ -24,6 +24,9 @@ V3.0.0 production version is code-wise identical to v3.0.0-beta1. If you already
 ### v3.1.0-beta.2
 - Upgraded embedded native "C" sdk to v1.8.7.10.
 - Updated 3rd party dependencies to latest versions, incl. security fixes.
+- It is no longer necessary/advised to set GN_HID protocol to get 
+  all call control events! Call control applications that upgrade should remove
+  explicit setting of the protocol.
 
 ### v3.0.0 - (2019-2-28)
 - Upgraded embedded native "C" sdk to v1.8.3.10 which fixes the following:

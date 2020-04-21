@@ -39,16 +39,6 @@ createApiClient(window.electron.ipcRenderer).then((jabra) => {
     jabra.on('attach', (device) => {
         notyf.success(device.deviceName + " attached");
 
-        device.isGnHidStdHidSupportedAsync().then((supported) => {
-            if (supported) {
-                return device.setHidWorkingStateAsync(enumHidState.GN_HID);
-            } else {
-                return Promise.reject(new Error("GN protocol not supported"));
-            }
-        }).catch( (e) => {
-            showError("Could not switch to GN protocol for device " + device.deviceName +". Please try another device as some functions in this demo may not work.");
-        });
-
         device.on("btnPress", (btnType: enumDeviceBtnType, value: boolean) => {
            if (activeDemoDeviceId === device.deviceID) {
             let msg = getBtnMessageEventDescription(device.deviceID, btnType, value);
