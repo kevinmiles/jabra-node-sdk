@@ -1,5 +1,16 @@
 #include "napiutil.h"
 
+// OS-specific macros
+#if (defined(_WIN32) || defined(__WIN32__)) && !defined(WIN32)
+#define WIN32
+#endif
+
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+#endif
+
 namespace util {
     static inline std::string toString(FormalParameterType type) {
         switch (type) {
@@ -88,24 +99,14 @@ namespace util {
      */
     char * newCString(const Napi::Value& src) {
         if (src.IsString()) {
-        Napi::String strSrc = src.As<Napi::String>();
-        return newCString((std::string)strSrc);
+            Napi::String strSrc = src.As<Napi::String>();
+            return newCString((std::string)strSrc);
         } else {
-        return nullptr;
+            return nullptr;
         }
     }
-}
-
-#if defined(WIN32)
-
-#include <Windows.h>
-
-#endif
-
-namespace util {
 
     #ifdef WIN32
-
     /**
      * Return the error message for the latest error.
      *
