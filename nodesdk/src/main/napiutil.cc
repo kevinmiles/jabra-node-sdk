@@ -56,6 +56,108 @@ namespace util {
             default: throw std::runtime_error(std::string("Unknown enum type value " + std::to_string(type)));
         }
     }
+    
+    #ifdef WIN32
+    /**
+     * Return the error message for the latest error.
+     *
+     * @return  The Windows-formatted error message for the laters error.
+     */
+    static std::string getErrorMessage() {
+        /*
+         * Shortly, this function calls FormatMessage with GetLastError() and
+         * a bunch of other parameters to get a dynamically allocated error
+         * message, which is copied into a std::string and then deallocated.
+         */
+
+        DWORD flags = FORMAT_MESSAGE_ALLOCATE_BUFFER
+            | FORMAT_MESSAGE_FROM_SYSTEM
+            | FORMAT_MESSAGE_IGNORE_INSERTS;
+        DWORD lang = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
+        LPTSTR msg = nullptr;
+
+        FormatMessage(flags, NULL, GetLastError(), lang, (LPTSTR) &msg, 0,
+            nullptr);
+
+        std::string result = msg;
+        LocalFree(msg);
+
+        return result;
+    }
+
+    /**
+     * Converts a wide string to a UTF-8 multi-byte string.
+     *
+     * @param   src     The wide string to be converted. Must not be empty.
+     * @return  `src` converted to a UTF-8 multi-byte string.
+     */
+    static std::string toMultiByte(const std::vector<WCHAR>& src) {
+        /*
+         * First we call WideCharToMultiByte with 0 as the char string buffer
+         * length (sixth parameter). This returns the length the buffer should
+         * have to contain the result of the conversion.
+         */
+        int srcLength = static_cast<int>(src.size());
+        int dstLength = WideCharToMultiByte(CP_UTF8, 0x0,
+            (LPWSTR) src.data(), srcLength, nullptr, 0, NULL, NULL);
+        if (dstLength <= 0) {
+            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
+            return std::string();
+        }
+
+        /*
+         * Here we actually perform the conversion, after creating a buffer of
+         * the desired length inside an std::string. The string is filled with
+         * null terminators since the constructor needs a char.
+         */
+        std::string dst(dstLength, '\0');
+        bool error = 0 == WideCharToMultiByte(CP_UTF8, 0x0,
+            (LPWSTR) src.data(), srcLength, (LPSTR) dst.data(), dstLength,
+            NULL, NULL);
+        if (error) {
+            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
+            return std::string();
+        }
+
+        return dst;
+    }
+
+    /**
+     * Converts a string to a UTF-16 wide string.
+     *
+     * @param   src     The string to be converted. Must not be empty.
+     * @return  `src` converted to a UTF-16 wide string.
+     */
+    static std::vector<WCHAR> toWideChar(const std::string& src) {
+        /*
+         * First we call MultiByteToWideChar with 0 as the wide string buffer
+         * length (last parameter). This returns the length the buffer should
+         * have to contain the result of the conversion.
+         */
+        int srcLength = static_cast<int>(src.length() + 1);
+        int dstLength = MultiByteToWideChar(CP_ACP, 0, src.data(), srcLength,
+            nullptr, 0);
+        if (dstLength <= 0) {
+            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
+            return std::vector<WCHAR>();
+        }
+
+        /*
+         * Here we actually perform the conversion, after creating a buffer of
+         * the desired length inside an std::vector.
+         */
+        std::vector<WCHAR> dst(dstLength);
+        bool error = 0 == MultiByteToWideChar(CP_ACP, 0, src.data(), srcLength,
+            (LPWSTR) dst.data(), dstLength);
+        if (error) {
+            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
+            return std::vector<WCHAR>();
+        }
+
+        return dst;
+    }
+
+    #endif
 
     bool verifyArguments(const char * const functionName, const Napi::CallbackInfo& info, std::initializer_list<FormalParameterType> expectedArgumentTypes) {
         const Napi::Env env = info.Env();
@@ -105,108 +207,6 @@ namespace util {
             return nullptr;
         }
     }
-
-    #ifdef WIN32
-    /**
-     * Return the error message for the latest error.
-     *
-     * @return  The Windows-formatted error message for the laters error.
-     */
-    std::string getErrorMessage() {
-        /*
-         * Shortly, this function calls FormatMessage with GetLastError() and
-         * a bunch of other parameters to get a dynamically allocated error
-         * message, which is copied into a std::string and then deallocated.
-         */
-
-        DWORD flags = FORMAT_MESSAGE_ALLOCATE_BUFFER
-            | FORMAT_MESSAGE_FROM_SYSTEM
-            | FORMAT_MESSAGE_IGNORE_INSERTS;
-        DWORD lang = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
-        LPTSTR msg = nullptr;
-
-        FormatMessage(flags, NULL, GetLastError(), lang, (LPTSTR) &msg, 0,
-            nullptr);
-
-        std::string result = msg;
-        LocalFree(msg);
-
-        return result;
-    }
-
-    /**
-     * Converts a wide string to a UTF-8 multi-byte string.
-     *
-     * @param   src     The wide string to be converted. Must not be empty.
-     * @return  `src` converted to a UTF-8 multi-byte string.
-     */
-    std::string toMultiByte(const std::vector<WCHAR>& src) {
-        /*
-         * First we call WideCharToMultiByte with 0 as the char string buffer
-         * length (sixth parameter). This returns the length the buffer should
-         * have to contain the result of the conversion.
-         */
-        int srcLength = static_cast<int>(src.size());
-        int dstLength = WideCharToMultiByte(CP_UTF8, 0x0,
-            (LPWSTR) src.data(), srcLength, nullptr, 0, NULL, NULL);
-        if (dstLength <= 0) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::string();
-        }
-
-        /*
-         * Here we actually perform the conversion, after creating a buffer of
-         * the desired length inside an std::string. The string is filled with
-         * null terminators since the constructor needs a char.
-         */
-        std::string dst(dstLength, '\0');
-        bool error = 0 == WideCharToMultiByte(CP_UTF8, 0x0,
-            (LPWSTR) src.data(), srcLength, (LPSTR) dst.data(), dstLength,
-            NULL, NULL);
-        if (error) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::string();
-        }
-
-        return dst;
-    }
-
-    /**
-     * Converts a string to a UTF-16 wide string.
-     *
-     * @param   src     The string to be converted. Must not be empty.
-     * @return  `src` converted to a UTF-16 wide string.
-     */
-    std::vector<WCHAR> toWideChar(const std::string& src) {
-        /*
-         * First we call MultiByteToWideChar with 0 as the wide string buffer
-         * length (last parameter). This returns the length the buffer should
-         * have to contain the result of the conversion.
-         */
-        int srcLength = static_cast<int>(src.length() + 1);
-        int dstLength = MultiByteToWideChar(CP_ACP, 0, src.data(), srcLength,
-            nullptr, 0);
-        if (dstLength <= 0) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::vector<WCHAR>();
-        }
-
-        /*
-         * Here we actually perform the conversion, after creating a buffer of
-         * the desired length inside an std::vector.
-         */
-        std::vector<WCHAR> dst(dstLength);
-        bool error = 0 == MultiByteToWideChar(CP_ACP, 0, src.data(), srcLength,
-            (LPWSTR) dst.data(), dstLength);
-        if (error) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::vector<WCHAR>();
-        }
-
-        return dst;
-    }
-
-    #endif
 
     /**
      * Encode a std::string to UTF-8.
