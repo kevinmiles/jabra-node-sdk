@@ -27,6 +27,7 @@
     "generatemeta": "ts-node src/script/generatemeta.ts",
     "manueltest1": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/manueltest/test1.ts",
     "manueltest2": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/manueltest/test2.ts",
+    "manueltest3": "node-gyp rebuild --debug && cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/manueltest/test3.ts",
     "example1a": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/example/example1a.js",
     "example1b": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/example/example1b.ts",
     "example2": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/example/example2.ts",
