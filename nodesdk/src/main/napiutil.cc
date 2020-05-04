@@ -101,8 +101,7 @@ namespace util {
         int dstLength = WideCharToMultiByte(CP_UTF8, 0x0,
             (LPWSTR) src.data(), srcLength, nullptr, 0, NULL, NULL);
         if (dstLength <= 0) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::string();
+            JabraException::LogAndThrow(__func__, getErrorMessage());
         }
 
         /*
@@ -115,8 +114,7 @@ namespace util {
             (LPWSTR) src.data(), srcLength, (LPSTR) dst.data(), dstLength,
             NULL, NULL);
         if (error) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::string();
+            JabraException::LogAndThrow(__func__, getErrorMessage());
         }
 
         return dst;
@@ -138,8 +136,7 @@ namespace util {
         int dstLength = MultiByteToWideChar(CP_ACP, 0, src.data(), srcLength,
             nullptr, 0);
         if (dstLength <= 0) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::vector<WCHAR>();
+            JabraException::LogAndThrow(__func__, getErrorMessage());
         }
 
         /*
@@ -150,8 +147,7 @@ namespace util {
         bool error = 0 == MultiByteToWideChar(CP_ACP, 0, src.data(), srcLength,
             (LPWSTR) dst.data(), dstLength);
         if (error) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::vector<WCHAR>();
+            JabraException::LogAndThrow(__func__, getErrorMessage());
         }
 
         return dst;
@@ -243,11 +239,12 @@ namespace util {
             return str;
         }
 
-        std::vector<WCHAR> widestr = toWideChar(str);
-        if (widestr.size() == 0) {
-            return std::string();
+        try {
+            return toMultiByte(toWideChar(str));
+        } catch (JabraException e) {
+            JabraException::LogAndThrow(__func__,
+                "Error while converting '" + str + "' to UTF-8");
         }
-        return toMultiByte(widestr);
 
         #endif
     }

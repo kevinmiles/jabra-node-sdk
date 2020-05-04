@@ -26,7 +26,13 @@ Napi::Value napi_GetDeviceImageThumbnailPath(const Napi::CallbackInfo& info) {
     if (char * result = Jabra_GetDeviceImageThumbnailPath(deviceId)) {
       std::string managedResult(result);
       Jabra_FreeString(result);
-      return util::toUtf8(managedResult);
+      try {
+        return util::toUtf8(managedResult);
+      } catch (util::JabraException e) {
+        util::JabraException::LogAndThrow(functionName,
+          "return cannot be converted to UTF-8: '" + managedResult + "'");
+        return std::string(); // Dummy return - avoid compiler warnings.
+      }
     } else {
       util::JabraException::LogAndThrow(functionName, "null returned");
       return std::string(); // Dummy return - avoid compiler warnings.
