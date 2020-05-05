@@ -1,9 +1,13 @@
 {
+    "env": {
+        "nodeGypCachePath": "${LIBJABRA_NODE_GYP_CACHE_PATH}",
+        "cppCompilerPath" : "${LIBJABRA_CPP_COMPILER_PATH}"
+    },
     "configurations": [
         {
             "name": "Win32",
             "includePath": [
-                "~/.node-gyp/11.12.0/include/node",
+                "${nodeGypCachePath}",
                 "${workspaceFolder}/node_modules/node-addon-api",
                 "${workspaceFolder}/includes",
                 "${workspaceFolder}/libjabra/headers",
@@ -15,7 +19,7 @@
                 "_UNICODE"
             ],
             "windowsSdkVersion": "10.0.17763.0",
-            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/VC/Tools/MSVC/14.16.27023/bin/Hostx64/x64/cl.exe",
+            "compilerPath": "${cppCompilerPath}",
             "cStandard": "c11",
             "cppStandard": "c++14",
             "intelliSenseMode": "msvc-x64"

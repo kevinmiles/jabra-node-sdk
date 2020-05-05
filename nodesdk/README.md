@@ -9,6 +9,8 @@ Jabra Node.js SDK
 - [Examples](#examples)
     - [Simple Example](#simple-example)
     - [Multiple device management](#multiple-device-management)
+- [Sequence Diagrams](#sequence-diagrams)
+- [Setup VSCode](#setup-vsCode)
 - [Bug report](https://github.com/gnaudio/jabra-node-sdk#bug-reports)
 - [Changelog](https://github.com/gnaudio/jabra-node-sdk/blob/master/CHANGELOG.md)
 - [License](https://github.com/gnaudio/jabra-node-sdk/blob/master/LICENSE.md)
@@ -201,3 +203,13 @@ These sequence diagrams shows typical use of the Node.js sdk:
 
 ![Sequence diagram](https://github.com/gnaudio/gnaudio.github.io/raw/master/jabra-node-sdk/docs/hold-resume-from-device.png)
 
+## Setup VSCode
+
+The project includes config-files for debugging typescript and C++ source files in [Visual Studio Code](https://code.visualstudio.com/) for Windows. To setup, install the C++ extension and compiler toolset as described in [this guide](https://code.visualstudio.com/docs/cpp/config-msvc), make sure all project [pre-requisites](#pre-requisite) are installed correctly, and set the following environment variables. 
+
+Environment Variable | Value | Description
+--- | --- | ---
+LIBJABRA_NODE_GYP_CACHE_PATH | eg. %appdata%\Local\node-gyp\Cache\12.16.3\include\node | Used by the C/C++ extension to resolve include paths
+LIBJABRA_CPP_COMPILER_PATH | eg. C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/bin/Hostx64/x64/cl.exe | Used by the C/C++ extension to infer the path to the C++ standard library header files
+
+To debug a C++ file, open a typescript file referencing the C++ file and start the debugger (Running the debugger on C++ files directly won't work). Make sure the "Run"-dropdown at the top of the debugging-sidebar is set to "Current TS File - native code only (windows)" 
