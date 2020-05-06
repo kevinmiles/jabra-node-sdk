@@ -82,7 +82,7 @@ Napi::Value napi_GetFirmwareFilePath(const Napi::CallbackInfo& info) {
         if (char * result = Jabra_GetFirmwareFilePath(deviceId, version.c_str())) {
           std::string managedResult(result);
           Jabra_FreeString(result);
-          return managedResult;
+          return util::toUtf8(managedResult);
         }
         throw util::JabraException(functionName, "Jabra_GetFirmwareFilePath yielded no result");
       },
