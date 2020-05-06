@@ -676,11 +676,14 @@ char * newCString(const Napi::Value& src);
 /**
  * Encode a std::string to UTF-8.
  *
- * @param[in]   str     The string to be encoded.
- * @param[in]   charset The encoding of str.
+ * @param[in]   str         The string to be encoded.
+ * @param[in]   callerName  The name of the caller function. Used only for
+ *                          logging purposes in case of errors.
+ * @param[in]   charset     The encoding of str.
  * @return  `str` encoded in UTF-8.
  */
-std::string toUtf8(const std::string& str, const std::string& charset = "");
+std::string toUtf8(const std::string& str, const char* const callerName,
+    const std::string& charset = "");
 
 } // namespace util
 

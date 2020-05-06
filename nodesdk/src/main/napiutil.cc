@@ -101,8 +101,7 @@ namespace util {
         int dstLength = WideCharToMultiByte(CP_UTF8, 0x0,
             (LPWSTR) src.data(), srcLength, nullptr, 0, NULL, NULL);
         if (dstLength <= 0) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::string();
+            JabraException::LogAndThrow(__func__, getErrorMessage());
         }
 
         /*
@@ -115,8 +114,7 @@ namespace util {
             (LPWSTR) src.data(), srcLength, (LPSTR) dst.data(), dstLength,
             NULL, NULL);
         if (error) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::string();
+            JabraException::LogAndThrow(__func__, getErrorMessage());
         }
 
         return dst;
@@ -138,8 +136,7 @@ namespace util {
         int dstLength = MultiByteToWideChar(CP_ACP, 0, src.data(), srcLength,
             nullptr, 0);
         if (dstLength <= 0) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::vector<WCHAR>();
+            JabraException::LogAndThrow(__func__, getErrorMessage());
         }
 
         /*
@@ -150,8 +147,7 @@ namespace util {
         bool error = 0 == MultiByteToWideChar(CP_ACP, 0, src.data(), srcLength,
             (LPWSTR) dst.data(), dstLength);
         if (error) {
-            LOG_ERROR_(LOGINSTANCE) << getErrorMessage();
-            return std::vector<WCHAR>();
+            JabraException::LogAndThrow(__func__, getErrorMessage());
         }
 
         return dst;
@@ -211,11 +207,14 @@ namespace util {
     /**
      * Encode a std::string to UTF-8.
      *
-     * @param[in]   str     The string to be encoded.
-     * @param[in]   charset The encoding of str.
+     * @param[in]   str         The string to be encoded.
+     * @param[in]   callerName  The name of the caller function. Used only for
+     *                          logging purposes in case of errors.
+     * @param[in]   charset     The encoding of str.
      * @return  `str` encoded in UTF-8.
      */
-    std::string toUtf8(const std::string& str, const std::string& charset) {
+    std::string toUtf8(const std::string& str, const char* const callerName,
+            const std::string& charset) {
         #ifndef WIN32
 
         // There's no need to do anything on non-Windows platforms.
@@ -243,11 +242,23 @@ namespace util {
             return str;
         }
 
-        std::vector<WCHAR> widestr = toWideChar(str);
-        if (widestr.size() == 0) {
-            return std::string();
+        try {
+            return toMultiByte(toWideChar(str));
+        } catch (const JabraException& e) {
+            LOG_ERROR_(LOGINSTANCE)
+                << "Error with the Windows API while converting a string to UTF-8: "
+                << e.getReason();
+            throw;
+        } catch (const std::exception& e) {
+            LOG_ERROR_(LOGINSTANCE)
+                << "Error while converting a string to UTF-8: "
+                << std::string(e.what());
+            throw;
+        } catch (...) {
+            LOG_ERROR_(LOGINSTANCE)
+                << "Unknown error while converting a string to UTF-8";
+            throw;
         }
-        return toMultiByte(widestr);
 
         #endif
     }
