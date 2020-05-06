@@ -209,7 +209,7 @@ The project includes config-files for debugging typescript and C++ source files 
 
 Environment Variable | Value | Description
 --- | --- | ---
-LIBJABRA_NODE_GYP_CACHE_PATH | eg. %appdata%\Local\node-gyp\Cache\12.16.3\include\node | Used by the C/C++ extension to resolve include paths
-LIBJABRA_CPP_COMPILER_PATH | eg. C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/bin/Hostx64/x64/cl.exe | Used by the C/C++ extension to infer the path to the C++ standard library header files
+LIBJABRA_WIN_NODE_GYP_CACHE_PATH | eg. %appdata%\Local\node-gyp\Cache\12.16.3\include\node | Used by the C/C++ extension to resolve include paths
+LIBJABRA_WIN_CPP_COMPILER_PATH | eg. C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/bin/Hostx64/x64/cl.exe | Used by the C/C++ extension to infer the path to the C++ standard library header files
 
 To debug a C++ file, open a typescript file referencing the C++ file and start the debugger (Running the debugger on C++ files directly won't work). Make sure the "Run"-dropdown at the top of the debugging-sidebar is set to "Current TS File - native code only (windows)" 
