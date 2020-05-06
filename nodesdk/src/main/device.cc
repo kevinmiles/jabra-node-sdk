@@ -10,13 +10,13 @@ Napi::Value napi_GetDeviceImagePath(const Napi::CallbackInfo& info) {
     if (char * result = Jabra_GetDeviceImagePath(deviceId)) {
       std::string managedResult(result);
       Jabra_FreeString(result);
-      return util::toUtf8(managedResult);
+      return util::toUtf8(managedResult, functionName);
     } else {
       util::JabraException::LogAndThrow(functionName, "null returned");
       return std::string(); // Dummy return - avoid compiler warnings.
     }
-  }, [](const Napi::Env& env, const std::string& cppResult) { 
-    return Napi::String::New(env, cppResult); 
+  }, [](const Napi::Env& env, const std::string& cppResult) {
+    return Napi::String::New(env, cppResult);
   });
 }
 
@@ -66,10 +66,10 @@ Napi::Value napi_SetHidWorkingState(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<void, void>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName, deviceId, state](){ 
-        Jabra_ReturnCode retv;                       
+      [functionName, deviceId, state](){
+        Jabra_ReturnCode retv;
         if ((retv = Jabra_SetHidWorkingState(deviceId, state)) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
@@ -159,10 +159,10 @@ Napi::Value napi_UploadRingtone(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<void, void>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName, deviceId, fileName](){ 
-        Jabra_ReturnCode retv;                       
+      [functionName, deviceId, fileName](){
+        Jabra_ReturnCode retv;
         if ((retv = Jabra_UploadRingtone(deviceId, fileName.c_str())) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
@@ -183,10 +183,10 @@ Napi::Value napi_UploadWavRingtone(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<void, void>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName, deviceId, fileName](){ 
-        Jabra_ReturnCode retv;                       
+      [functionName, deviceId, fileName](){
+        Jabra_ReturnCode retv;
         if ((retv = Jabra_UploadWavRingtone(deviceId, fileName.c_str())) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
@@ -207,10 +207,10 @@ Napi::Value napi_UploadImage(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<void, void>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName, deviceId, fileName](){ 
-        Jabra_ReturnCode retv;                       
+      [functionName, deviceId, fileName](){
+        Jabra_ReturnCode retv;
         if ((retv = Jabra_UploadImage(deviceId, fileName.c_str())) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
@@ -231,9 +231,9 @@ Napi::Value napi_GetNamedAsset(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<CNamedAsset*, Napi::Object>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName, deviceId, assetName](){ 
+      [functionName, deviceId, assetName](){
         Jabra_ReturnCode retv;
         CNamedAsset* asset = nullptr;
         if ((retv = Jabra_GetNamedAsset(deviceId, assetName.c_str(), &asset)) != Return_Ok) {
@@ -293,9 +293,9 @@ Napi::Value napi_GetSupportedButtonEvents(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[1].As<Napi::Function>();
 
     (new util::JAsyncWorker<ButtonEvent*, Napi::Object>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName, deviceId](){ 
+      [functionName, deviceId](){
         ButtonEvent* buttonEvent = nullptr;
         buttonEvent = Jabra_GetSupportedButtonEvents(deviceId);
         return buttonEvent;
@@ -304,7 +304,7 @@ Napi::Value napi_GetSupportedButtonEvents(const Napi::CallbackInfo& info) {
 
         Napi::Array jElements = Napi::Array::New(env);
 
-        if (buttonEvent != nullptr) { 
+        if (buttonEvent != nullptr) {
           for ( int i=0; i<buttonEvent->buttonEventCount; ++i) {
             ButtonEventInfo btnEventInfo = buttonEvent->buttonEventInfo[i];
             Napi::Object jElement = Napi::Object::New(env);
@@ -316,14 +316,14 @@ Napi::Value napi_GetSupportedButtonEvents(const Napi::CallbackInfo& info) {
               Napi::Object newElement = Napi::Object::New(env);
               newElement.Set(Napi::String::New(env, "key"), Napi::Number::New(env, btnEventTypeInfo.key));
               newElement.Set(Napi::String::New(env, "value"), Napi::String::New(env, btnEventTypeInfo.value ? btnEventTypeInfo.value : ""));
-              
+
               newElements.Set(j, newElement);
             }
             jElements.Set(i, jElement);
           }
         }
         return jElements;
-        
+
       },
       [](ButtonEvent* buttonEvent) {
         if (buttonEvent != nullptr) {
@@ -334,7 +334,7 @@ Napi::Value napi_GetSupportedButtonEvents(const Napi::CallbackInfo& info) {
   }
 
   return env.Undefined();
-  
+
 }
 
 Napi::Value napi_SetMute(const Napi::CallbackInfo& info) {
@@ -365,9 +365,9 @@ Napi::Value napi_IsFeatureSupported(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<bool, Napi::Boolean>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName, deviceId, feature](){ 
+      [functionName, deviceId, feature](){
         return Jabra_IsFeatureSupported(deviceId, feature);
       },
       [](const Napi::Env& env, const bool result) {
@@ -411,7 +411,7 @@ Napi::Value napi_SetEqualizerParameters(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
   if (util::verifyArguments(functionName, info, {util::NUMBER, util::ARRAY, util::FUNCTION})) {
-    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());   
+    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
     Napi::Array bands =info[1].As<Napi::Array>();
 
     const int nbands = bands.Length();
@@ -423,10 +423,10 @@ Napi::Value napi_SetEqualizerParameters(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<void, void>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName, deviceId, managedBands](){ 
-        Jabra_ReturnCode retv;       
+      [functionName, deviceId, managedBands](){
+        Jabra_ReturnCode retv;
         float * bands = const_cast<float*>(managedBands.data()); // Should be safe as SDK ought not to change data.
         const int nbands = managedBands.size();
         if ((retv = Jabra_SetEqualizerParameters(deviceId, bands, nbands)) != Return_Ok) {
@@ -449,11 +449,11 @@ Napi::Value napi_SetTimestamp(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<void, void>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName,deviceId,newTime](){ 
-        Jabra_ReturnCode retv;   
-        if ((retv = Jabra_SetTimestamp(deviceId, newTime)) != Return_Ok) {                    
+      [functionName,deviceId,newTime](){
+        Jabra_ReturnCode retv;
+        if ((retv = Jabra_SetTimestamp(deviceId, newTime)) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
       }
@@ -474,11 +474,11 @@ Napi::Value napi_PlayRingTone(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[3].As<Napi::Function>();
 
     (new util::JAsyncWorker<void, void>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName,deviceId,level,type](){ 
-        Jabra_ReturnCode retv;   
-        if ((retv = Jabra_PlayRingtone(deviceId,level,type)) != Return_Ok) {                    
+      [functionName,deviceId,level,type](){
+        Jabra_ReturnCode retv;
+        if ((retv = Jabra_PlayRingtone(deviceId,level,type)) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
       }
@@ -490,7 +490,7 @@ Napi::Value napi_PlayRingTone(const Napi::CallbackInfo& info) {
 
 Napi::Value napi_GetESN(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
-  return util::SimpleDeviceAsyncFunction<Napi::String, std::string>(functionName, info, 
+  return util::SimpleDeviceAsyncFunction<Napi::String, std::string>(functionName, info,
     [functionName](unsigned short deviceId) {
       char esn[64];
       Jabra_ReturnCode retv;
@@ -500,8 +500,8 @@ Napi::Value napi_GetESN(const Napi::CallbackInfo& info) {
         util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         return std::string(); // Dummy return - avoid compiler warnings.
       }
-    }, 
-    [](const Napi::Env& env, const std::string& cppResult) {  return Napi::String::New(env, cppResult); 
+    },
+    [](const Napi::Env& env, const std::string& cppResult) {  return Napi::String::New(env, cppResult);
     }
   );
 }
@@ -514,18 +514,18 @@ Napi::Value napi_GetTimestamp(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[1].As<Napi::Function>();
 
     (new util::JAsyncWorker<uint32_t, Napi::Number>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName, deviceId](){ 
-        Jabra_ReturnCode retv;  
+      [functionName, deviceId](){
+        Jabra_ReturnCode retv;
         uint32_t result;
         if ((retv = Jabra_GetTimestamp(deviceId, &result)) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
         return result;
       },
-      [](const Napi::Env& env, const uint32_t cppResult) {  
-        return Napi::Number::New(env, cppResult); 
+      [](const Napi::Env& env, const uint32_t cppResult) {
+        return Napi::Number::New(env, cppResult);
       }
     ))->Queue();
   }
@@ -535,11 +535,11 @@ Napi::Value napi_GetTimestamp(const Napi::CallbackInfo& info) {
 
 Napi::Value napi_GetAudioFileParametersForUpload(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
-  return util::SimpleDeviceAsyncFunction<Napi::Object, Jabra_AudioFileParams >(functionName, info, 
+  return util::SimpleDeviceAsyncFunction<Napi::Object, Jabra_AudioFileParams >(functionName, info,
     [functionName](unsigned short deviceId) {
       return Jabra_GetAudioFileParametersForUpload(deviceId);
     },
-    [](const Napi::Env& env, const Jabra_AudioFileParams& audioFileParams) { 
+    [](const Napi::Env& env, const Jabra_AudioFileParams& audioFileParams) {
       Napi::Object result = Napi::Object::New(env);
       result.Set(Napi::String::New(env, "audioFileType"), (Napi::Number::New(env, audioFileParams.audioFileType)));
       result.Set(Napi::String::New(env, "numChannels"), (Napi::Number::New(env, audioFileParams.numChannels)));
@@ -600,10 +600,10 @@ Napi::Value napi_SetWizardMode(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<void, void>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
-      [functionName, deviceId,modes](){ 
-        Jabra_ReturnCode retv;                       
+      [functionName, deviceId,modes](){
+        Jabra_ReturnCode retv;
         if ((retv = Jabra_SetWizardMode(deviceId,modes)) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
@@ -616,12 +616,12 @@ Napi::Value napi_SetWizardMode(const Napi::CallbackInfo& info) {
 
 /**
  * Convert a napi Button event object to a native sdk ButtonEvent object.
- * 
+ *
  * Nb. Use Custom_FreeButtonEvents to free memory allocated by this function.
  */
 static ButtonEvent *toButtonEventCType(const Napi::Array& src) {
     ButtonEvent * result = new ButtonEvent();
-  
+
     result->buttonEventCount = src.Length();
     result->buttonEventInfo = new ButtonEventInfo[src.Length()];
 
@@ -676,7 +676,7 @@ static void Custom_FreeButtonEvent(ButtonEvent* buttonEvent) {
         delete[] btnEventTypes;
       }
     }
-    
+
     delete[] btnEventInfos;
   }
 
@@ -699,7 +699,7 @@ Napi::Value doGetReleaseButtonFocus(const Napi::CallbackInfo& info, const char *
       javascriptResultCallback,
       [functionName, deviceId, rawButtonEvent, getOrRelease](){
         Jabra_ReturnCode retv;
-        if (getOrRelease == GetReleaseButtonFocusEnum::GET_FOCUS) { 
+        if (getOrRelease == GetReleaseButtonFocusEnum::GET_FOCUS) {
           retv = Jabra_GetButtonFocus(deviceId, rawButtonEvent);
         } else if (getOrRelease == GetReleaseButtonFocusEnum::RELEASE_FOCUS) {
           retv = Jabra_ReleaseButtonFocus(deviceId, rawButtonEvent);
@@ -738,7 +738,7 @@ Napi::Value napi_SetDatetime(const Napi::CallbackInfo& info) {
     const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
 
     Napi::Object dateTimeJsObj = info[1].As<Napi::Object>();
-  
+
     timedate_t dateTime;
     dateTime.sec = util::getObjInt32OrDefault(dateTimeJsObj, "sec", 0);
     dateTime.min = util::getObjInt32OrDefault(dateTimeJsObj, "min", 0);
@@ -746,15 +746,15 @@ Napi::Value napi_SetDatetime(const Napi::CallbackInfo& info) {
     dateTime.mday = util::getObjInt32OrDefault(dateTimeJsObj, "mday", 0);
     dateTime.mon = util::getObjInt32OrDefault(dateTimeJsObj, "mon", 0);
     dateTime.year = util::getObjInt32OrDefault(dateTimeJsObj, "year", 0);
-    dateTime.wday = util::getObjInt32OrDefault(dateTimeJsObj, "wday", 0);    
+    dateTime.wday = util::getObjInt32OrDefault(dateTimeJsObj, "wday", 0);
 
     Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
 
     (new util::JAsyncWorker<void, void>(
       functionName,
       javascriptResultCallback,
-      [functionName, deviceId, dateTime](){ 
-        Jabra_ReturnCode retv;                       
+      [functionName, deviceId, dateTime](){
+        Jabra_ReturnCode retv;
         if ((retv = Jabra_SetDateTime(deviceId, &dateTime)) != Return_Ok) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         }
@@ -774,7 +774,7 @@ Napi::Value napi_GetSupportedFeatures(const Napi::CallbackInfo& info) {
     Napi::Function javascriptResultCallback = info[1].As<Napi::Function>();
 
     (new util::JAsyncWorker<FeatureListCountPair, Napi::Array>(
-      functionName, 
+      functionName,
       javascriptResultCallback,
       [functionName, deviceId](){
         FeatureListCountPair flcPair;
@@ -785,14 +785,14 @@ Napi::Value napi_GetSupportedFeatures(const Napi::CallbackInfo& info) {
 
         Napi::Array jElements = Napi::Array::New(env);
 
-        if (flcPair.featureList != nullptr) { 
+        if (flcPair.featureList != nullptr) {
           for (unsigned int i=0; i<flcPair.featureCount; ++i) {
             Napi::Number feature = Napi::Number::New(env, (uint32_t)flcPair.featureList[i]);
             jElements.Set(i, feature);
           }
         }
 
-        return jElements;        
+        return jElements;
       },
       [](const FeatureListCountPair& flcPair) {
         if (flcPair.featureList != nullptr) {
@@ -819,7 +819,7 @@ Napi::Value napi_GetEqualizerParameters(const Napi::CallbackInfo& info) {
       javascriptResultCallback,
       [functionName, deviceId, maxNbands](){
         Jabra_ReturnCode retv;
-        
+
         EqualizerBandsListCountPair pair;
         pair.bands = new Jabra_EqualizerBand[maxNbands > 0 ? maxNbands : 1];
         pair.bandsCount = maxNbands;
@@ -838,7 +838,7 @@ Napi::Value napi_GetEqualizerParameters(const Napi::CallbackInfo& info) {
           newElement.Set(Napi::String::New(env, "maxGain"), Napi::Number::New(env, src.max_gain));
           newElement.Set(Napi::String::New(env, "centerFrequency"), Napi::Number::New(env, src.centerFrequency));
           newElement.Set(Napi::String::New(env, "currentGain"), Napi::Number::New(env, src.currentGain));
-               
+
           result.Set(i, newElement);
         }
 
