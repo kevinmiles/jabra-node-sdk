@@ -1207,23 +1207,30 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
         });
     }
 
-    getRemoteMMIFocusAsync(type: enumRemoteMmiType, input: enumRemoteMmiInput, priority: enumRemoteMmiPriority) : Promise<void> {
-        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getRemoteMMIFocusAsync.name, "called with", this.deviceID);
-        return util.promisify(sdkIntegration.GetRemoteMMIFocus)(this.deviceID, type, input, priority).then((result) => {
-            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getRemoteMMIFocusAsync.name, "returned");
+    getRemoteMmiFocusAsync(type: enumRemoteMmiType, input: enumRemoteMmiInput, priority: enumRemoteMmiPriority) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getRemoteMmiFocusAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.GetRemoteMmiFocus)(this.deviceID, type, input, priority).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getRemoteMmiFocusAsync.name, "returned");
             return result;
         });
     }
 
     releaseRemoteMmiFocusAsync(type: enumRemoteMmiType) : Promise<void> {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.releaseRemoteMmiFocusAsync.name, "called with", this.deviceID);
-  
         return util.promisify(sdkIntegration.ReleaseRemoteMmiFocus)(this.deviceID, type).then((result) => {
             _JabraNativeAddonLog(AddonLogSeverity.verbose, this.releaseRemoteMmiFocusAsync.name, "returned");
             return result;
         });
     }    
 
+    isRemoteMmiInFocusaAsync(type: enumRemoteMmiType) : Promise<boolean> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isRemoteMmiInFocusaAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.IsRemoteMmiInFocus)(this.deviceID, type).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isRemoteMmiInFocusaAsync.name, "returned");
+            return result;
+        });
+    }  
+        
    /**
    * Get meta information about methods, properties etc. that can be used 
    * for reflective usage of this class.

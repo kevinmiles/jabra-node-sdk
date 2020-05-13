@@ -852,7 +852,7 @@ Napi::Value napi_GetEqualizerParameters(const Napi::CallbackInfo& info) {
   return env.Undefined();
 }
 
-Napi::Value napi_GetRemoteMMIFocus(const Napi::CallbackInfo& info) {
+Napi::Value napi_GetRemoteMmiFocus(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   Napi::Env env = info.Env();
   bool argsOk = util::verifyArguments(functionName, info, {util::NUMBER, util::NUMBER, util::NUMBER, util::NUMBER, util::FUNCTION});
@@ -900,6 +900,38 @@ Napi::Value napi_ReleaseRemoteMmiFocus(const Napi::CallbackInfo& info) {
           util::JabraReturnCodeException::LogAndThrow(functionName, retv);
         } 
       }
+    ))->Queue();         
+  }
+
+  return env.Undefined();
+}
+
+Napi::Value napi_IsRemoteMmiInFocus(const Napi::CallbackInfo& info) {
+  const char * const functionName = __func__;
+  Napi::Env env = info.Env();
+  bool argsOk = util::verifyArguments(functionName, info, {util::NUMBER, util::NUMBER, util::FUNCTION});
+
+  if (argsOk) {
+    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
+    const RemoteMmiType type = (RemoteMmiType)(info[1].As<Napi::Number>().Int32Value());  
+    Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();  
+
+    (new util::JAsyncWorker<bool, Napi::Boolean>(
+      functionName, 
+      javascriptResultCallback,
+      [functionName, deviceId, type](){ 
+        bool isInFocus;
+
+        Jabra_ReturnCode retv = Jabra_IsRemoteMmiInFocus(deviceId, type, &isInFocus);     
+
+        if (retv != Return_Ok) {
+          util::JabraReturnCodeException::LogAndThrow(functionName, retv);
+        } 
+
+        return isInFocus;
+      }, [](const Napi::Env& env, bool isInFocus){
+        return Napi::Boolean::New(env, isInFocus);
+      }     
     ))->Queue();         
   }
 

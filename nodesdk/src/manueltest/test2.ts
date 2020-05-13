@@ -22,13 +22,17 @@ import {
         jabra.on('attach', async (device: DeviceType) => {
             console.log(device.deviceName);
             
-            await device.getRemoteMMIFocusAsync(
+            await device.getRemoteMmiFocusAsync(
                 enumRemoteMmiType.MMI_TYPE_MFB, 
                 enumRemoteMmiInput.MMI_ACTION_NONE, 
                 enumRemoteMmiPriority.MMI_PRIORITY_HIGH
             ).catch(err => console.log(err));
         
-            await device.releaseRemoteMmiFocusAsync(enumRemoteMmiType.MMI_TYPE_DOT3).catch(err => console.log(err));                      
+            await device.releaseRemoteMmiFocusAsync(enumRemoteMmiType.MMI_TYPE_MFB).catch(err => console.log(err));  
+          
+            let isInFocus = await device.isRemoteMmiInFocusaAsync(enumRemoteMmiType.MMI_TYPE_MFB).catch(err => console.log(err));
+            console.log('isInFocus', isInFocus)
+        
         });
 
         jabra.on('detach', (device: DeviceType) => {
