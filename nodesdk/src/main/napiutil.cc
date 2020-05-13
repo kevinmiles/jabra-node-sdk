@@ -182,9 +182,9 @@ namespace util {
 
 
     /**
-     * Create a C-string from a std:string
+     * Create a C-string from a std:string 
      */
-    char * newCString(const std::string& src) {
+    char * newCString(const std::string& src) {      
         char * cpy = new char[src.length() + 1];
         strncpy(cpy, src.c_str(), src.length());
         cpy[src.length()] = 0;
