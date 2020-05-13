@@ -302,6 +302,3 @@ export enum enumRemoteMmiPriority {
   MMI_PRIORITY_LOW     = 0x01,
   MMI_PRIORITY_HIGH    = 0x02
 };
-
-
-

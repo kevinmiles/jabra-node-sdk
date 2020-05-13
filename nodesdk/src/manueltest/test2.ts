@@ -1,5 +1,7 @@
-import { createJabraApplication, DeviceType, JabraType, jabraEnums, 
-         _getJabraApiMetaSync, _JabraNativeAddonLog, AddonLogSeverity } from '../main/index';
+import {
+    createJabraApplication, DeviceType, JabraType, jabraEnums,
+    _getJabraApiMetaSync, _JabraNativeAddonLog, AddonLogSeverity, enumRemoteMmiType, enumRemoteMmiInput, enumRemoteMmiPriority
+} from '../main/index';
 
 (async () => {
     try {
@@ -17,42 +19,14 @@ import { createJabraApplication, DeviceType, JabraType, jabraEnums,
             console.log('get sdk version failed with error code : ' + err.code || "undefined"); 
         });
 
-        jabra.on('attach', (device: DeviceType) => {
-            console.log("Device attached with device " + JSON.stringify(device));
+        jabra.on('attach', async (device: DeviceType) => {
+            console.log(device.deviceName);
 
-            device.on('onDevLogEvent', (event) => {
-                console.log("Devlog event is '" + JSON.stringify(event, null, 3) + "'");
-            });
-
-            device.on("onGNPBtnEvent", (event) => {
-                console.log("GNPBtnEvent is " + JSON.stringify(event, null, 3));
-            });
-
-            device.getButtonFocusAsync([
-
-                {
-                
-                buttonTypeKey: 1,
-                
-                buttonTypeValue: "Volume up",
-                
-                buttonEventType: [
-                
-                {
-                
-                key: 0,
-                
-                value: "Tap"
-                
-                }
-                
-                ]
-                
-                }
-                
-                ]).catch((err) => {
-                    console.log("getButtonFocusAsync failed with: " + err);
-                });
+            await device.getRemoteMMIFocusAsync(
+                enumRemoteMmiType.MMI_TYPE_MUTE, 
+                enumRemoteMmiInput.MMI_ACTION_DOWN, 
+                enumRemoteMmiPriority.MMI_PRIORITY_LOW
+            ).catch(err => console.log(err));            
         });
 
         jabra.on('detach', (device: DeviceType) => {
