@@ -851,3 +851,21 @@ Napi::Value napi_GetEqualizerParameters(const Napi::CallbackInfo& info) {
 
   return env.Undefined();
 }
+
+Napi::Value napi_GetRemoteMMIFocus(const Napi::CallbackInfo& info) {
+  const char * const functionName = __func__;
+
+  return util::SimpleDeviceAsyncFunction<Napi::Value, Jabra_ReturnCode>(functionName, info, [](unsigned short deviceId) {
+    Jabra_ReturnCode retv;
+    RemoteMmiType type = RemoteMmiType::MMI_TYPE_MUTE;
+    RemoteMmiInput input = RemoteMmiInput::MMI_ACTION_PRESS;
+    RemoteMmiPriority prio = RemoteMmiPriority::MMI_PRIORITY_LOW;
+
+    retv = Jabra_GetRemoteMmiFocus(deviceId, type, input, prio);
+    
+    return retv;
+  }, [](const Napi::Env& env, Jabra_ReturnCode retv) {  
+    
+    return env.Undefined();
+  });
+}

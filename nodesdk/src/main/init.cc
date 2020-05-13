@@ -113,6 +113,9 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   EXPORTS_SET(GetEqualizerParameters)
   EXPORTS_SET(SetDatetime) 
 
+  // Remote MMI
+  EXPORTS_SET(GetRemoteMMIFocus)
+
   // Battery
   EXPORTS_SET(GetBatteryStatus)
   EXPORTS_SET(IsBatteryStatusSupported)

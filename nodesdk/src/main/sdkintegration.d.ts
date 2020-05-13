@@ -7,7 +7,8 @@
 import { ConfigParamsCloud, GenericConfigParams, enumHidState, AudioFileFormatEnum, DeviceSettings, DeviceInfo, PairedListInfo, 
          NamedAsset, AddonLogSeverity, JabraError } from './core-types';
 import { enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, 
-         enumUploadEventStatus, enumBTPairedListType } from './jabra-enums';
+         enumUploadEventStatus, enumBTPairedListType, enumRemoteMmiType, 
+         enumRemoteMmiInput, enumRemoteMmiPriority } from './jabra-enums';
 
 /** 
  * Declares all natively implemented n-api functions that call into the Jabra C SDK.
@@ -211,4 +212,6 @@ export declare interface SdkIntegration {
 
     GetButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>, callback: (error: JabraError, result: void) => void): void;
     ReleaseButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>, callback: (error: JabraError, result: void) => void): void;
+
+    GetRemoteMMIFocus(deviceId: number, type: enumRemoteMmiType, input: enumRemoteMmiInput, priority: enumRemoteMmiPriority, callback: (error: JabraError, result: void) => void): void;
 }

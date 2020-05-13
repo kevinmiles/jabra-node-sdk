@@ -28,7 +28,8 @@ import { DeviceInfo, RCCStatus, ConfigInfo, ConfigParamsCloud, DeviceCataloguePa
 import { enumAPIReturnCode, enumDeviceErrorStatus, enumDeviceBtnType, enumDeviceConnectionType,
     enumSettingDataType, enumSettingCtrlType, enumSettingLoadMode, enumFirmwareEventStatus,
     enumFirmwareEventType, enumBTPairedListType, enumUploadEventStatus, audioFileFormat,
-    enumDeviceFeature, enumHidState, enumWizardMode, enumSecureConnectionMode, enumLogging } from './jabra-enums';
+    enumDeviceFeature, enumHidState, enumWizardMode, enumSecureConnectionMode, enumLogging,
+    enumRemoteMmiType, enumRemoteMmiInput, enumRemoteMmiPriority } from './jabra-enums';
 import * as _jabraEnums from './jabra-enums';
 
 import { MetaApi, ClassEntry, _getJabraApiMetaSync } from './meta';
@@ -1203,6 +1204,16 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.enableFirmwareLockAsync.name, "called with", this.deviceID, enable); 
         return util.promisify(sdkIntegration.EnableFirmwareLock)(this.deviceID, enable).then(() => {
             _JabraNativeAddonLog(AddonLogSeverity.verbose, this.enableFirmwareLockAsync.name, "returned");
+        });
+    }
+
+    getRemoteMMIFocusAsync(type: enumRemoteMmiType, input: enumRemoteMmiInput, priority: enumRemoteMmiPriority) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getRemoteMMIFocusAsync.name, "called with", this.deviceID);
+        
+        return util.promisify(sdkIntegration.GetRemoteMMIFocus)(this.deviceID, type, input, priority).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getRemoteMMIFocusAsync.name, "returned");
+       
+            return result;
         });
     }
 
