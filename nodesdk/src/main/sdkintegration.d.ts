@@ -213,5 +213,6 @@ export declare interface SdkIntegration {
     GetButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>, callback: (error: JabraError, result: void) => void): void;
     ReleaseButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>, callback: (error: JabraError, result: void) => void): void;
 
-    GetRemoteMMIFocus(deviceId: number, type: enumRemoteMmiType, input: enumRemoteMmiInput, priority: enumRemoteMmiPriority, callback: (error: JabraError, result: void) => void): void;
+    GetRemoteMMIFocus(deviceId: number, type: enumRemoteMmiType, input: enumRemoteMmiInput, priority: enumRemoteMmiPriority, callback: (error: JabraError, result: void) => void): void;    
+    ReleaseRemoteMmiFocus(deviceId: number, type: enumRemoteMmiType, callback: (error: JabraError, result: void) => void): void;
 }

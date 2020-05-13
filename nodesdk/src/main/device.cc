@@ -879,3 +879,29 @@ Napi::Value napi_GetRemoteMMIFocus(const Napi::CallbackInfo& info) {
 
   return env.Undefined();
 }
+
+Napi::Value napi_ReleaseRemoteMmiFocus(const Napi::CallbackInfo& info) {
+  const char * const functionName = __func__;
+  Napi::Env env = info.Env();
+  bool argsOk = util::verifyArguments(functionName, info, {util::NUMBER, util::NUMBER, util::FUNCTION});
+
+  if (argsOk) {
+    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
+    const RemoteMmiType type = (RemoteMmiType)(info[1].As<Napi::Number>().Int32Value());  
+    Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();  
+
+    (new util::JAsyncWorker<void, void>(
+      functionName, 
+      javascriptResultCallback,
+      [functionName, deviceId, type](){ 
+        Jabra_ReturnCode retv = Jabra_ReleaseRemoteMmiFocus(deviceId, type);     
+
+        if (retv != Return_Ok) {
+          util::JabraReturnCodeException::LogAndThrow(functionName, retv);
+        } 
+      }
+    ))->Queue();         
+  }
+
+  return env.Undefined();
+}

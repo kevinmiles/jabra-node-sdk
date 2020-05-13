@@ -21,12 +21,14 @@ import {
 
         jabra.on('attach', async (device: DeviceType) => {
             console.log(device.deviceName);
-
+            
             await device.getRemoteMMIFocusAsync(
-                enumRemoteMmiType.MMI_TYPE_MUTE, 
-                enumRemoteMmiInput.MMI_ACTION_DOWN, 
-                enumRemoteMmiPriority.MMI_PRIORITY_LOW
-            ).catch(err => console.log(err));            
+                enumRemoteMmiType.MMI_TYPE_MFB, 
+                enumRemoteMmiInput.MMI_ACTION_NONE, 
+                enumRemoteMmiPriority.MMI_PRIORITY_HIGH
+            ).catch(err => console.log(err));
+        
+            await device.releaseRemoteMmiFocusAsync(enumRemoteMmiType.MMI_TYPE_DOT3).catch(err => console.log(err));                      
         });
 
         jabra.on('detach', (device: DeviceType) => {
@@ -38,5 +40,3 @@ import {
         console.log('get exception error code : ' + err.code || "undefined"); 
     }
 })();
-
-

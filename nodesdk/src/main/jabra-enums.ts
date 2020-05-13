@@ -254,9 +254,8 @@ export enum enumSecureConnectionMode {
 }
 
 /**
- * Enum related to remoteMmi
+ * Enum for types of remote MMI 
  */
-
 export enum enumRemoteMmiType {
   MMI_TYPE_MFB       = 0,
   MMI_TYPE_VOLUP     = 1,
@@ -286,6 +285,9 @@ export enum enumRemoteMmiType {
   MMI_TYPE_LED_MUTE = SEPERATOR_FOR_MMI_TYPE + 2
 };
 
+/**
+ * Enum for Remote MMI input, used to identify supported input actions
+ */
 export enum enumRemoteMmiInput {
   MMI_ACTION_NONE          = 0x00,
   MMI_ACTION_UP            = 0x01,
@@ -297,8 +299,22 @@ export enum enumRemoteMmiInput {
   MMI_ACTION_X_LONG_PRESS  = 0x40
 };
 
+/**
+ * Enum for remote MMI priorities
+ */
 export enum enumRemoteMmiPriority {
+  /**
+   * Used for remote MMIs that does not support priority.
+   */
   MMI_PRIORITY_NONE    = 0x00,
+  /**
+   * Get remote MMI focus if device doesn't use it or no function is assigned
+   * to the button.
+   */
   MMI_PRIORITY_LOW     = 0x01,
+  /**
+   * Get remote MMI focus unconditionally, this can remove important
+   * functionality from the device.
+   */
   MMI_PRIORITY_HIGH    = 0x02
 };
