@@ -35,8 +35,8 @@ import {
                 
                 let audioActionOutput = { 
                     red: 0, 
-                    green: 0,
-                    blue: 0, 
+                    green: 1,
+                    blue: 1, 
                     sequence: enumRemoteMmiSequence.MMI_LED_SEQUENCE_FAST 
                 }
 

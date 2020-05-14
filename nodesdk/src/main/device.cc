@@ -953,7 +953,7 @@ Napi::Value napi_SetRemoteMmiAction(const Napi::CallbackInfo& info) {
     actionOutput.red = util::getObjInt32OrDefault(actionOutputArgs, "red", 0);
     actionOutput.green = util::getObjInt32OrDefault(actionOutputArgs, "green", 0);
     actionOutput.blue = util::getObjInt32OrDefault(actionOutputArgs, "blue", 0);
-    actionOutput.sequence = RemoteMmiSequence::MMI_LED_SEQUENCE_SLOW;   
+    actionOutput.sequence = util::getObjEnumValueOrDefault<RemoteMmiSequence>(actionOutputArgs, "sequence", RemoteMmiSequence::MMI_LED_SEQUENCE_OFF);   
 
     (new util::JAsyncWorker<void, void>(
       functionName, 
