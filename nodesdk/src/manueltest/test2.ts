@@ -1,6 +1,7 @@
 import {
     createJabraApplication, DeviceType, JabraType, jabraEnums,
-    _getJabraApiMetaSync, _JabraNativeAddonLog, AddonLogSeverity, enumRemoteMmiType, enumRemoteMmiInput, enumRemoteMmiPriority
+    _getJabraApiMetaSync, _JabraNativeAddonLog, AddonLogSeverity, 
+    enumRemoteMmiType, enumRemoteMmiInput, enumRemoteMmiPriority, enumRemoteMmiSequence
 } from '../main/index';
 
 (async () => {
@@ -20,19 +21,29 @@ import {
         });
 
         jabra.on('attach', async (device: DeviceType) => {
-            console.log(device.deviceName);
+            console.log(device.deviceID);
             
-            await device.getRemoteMmiFocusAsync(
-                enumRemoteMmiType.MMI_TYPE_MFB, 
-                enumRemoteMmiInput.MMI_ACTION_NONE, 
-                enumRemoteMmiPriority.MMI_PRIORITY_HIGH
-            ).catch(err => console.log(err));
-        
-            await device.releaseRemoteMmiFocusAsync(enumRemoteMmiType.MMI_TYPE_MFB).catch(err => console.log(err));  
-          
-            let isInFocus = await device.isRemoteMmiInFocusaAsync(enumRemoteMmiType.MMI_TYPE_MFB).catch(err => console.log(err));
-            console.log('isInFocus', isInFocus)
-        
+            if (device.deviceID === 0) {
+                await device.getRemoteMmiFocusAsync(
+                    enumRemoteMmiType.MMI_TYPE_MFB, 
+                    enumRemoteMmiInput.MMI_ACTION_NONE, 
+                    enumRemoteMmiPriority.MMI_PRIORITY_HIGH
+                ).catch(err => console.log(err));
+                        
+                let isInFocus = await device.isRemoteMmiInFocusaAsync(enumRemoteMmiType.MMI_TYPE_MFB).catch(err => console.log(err));
+                console.log('isInFocus', isInFocus)
+                
+                let audioActionOutput = { 
+                    red: 0, 
+                    green: 0,
+                    blue: 0, 
+                    sequence: enumRemoteMmiSequence.MMI_LED_SEQUENCE_FAST 
+                }
+
+                await device.setRemoteMmiActionAsync(enumRemoteMmiType.MMI_TYPE_MFB, audioActionOutput).catch(err => console.log(err));
+                
+                await device.releaseRemoteMmiFocusAsync(enumRemoteMmiType.MMI_TYPE_MFB).catch(err => console.log(err));  
+            }
         });
 
         jabra.on('detach', (device: DeviceType) => {

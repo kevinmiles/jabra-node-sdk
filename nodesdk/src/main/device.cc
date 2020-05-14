@@ -937,3 +937,36 @@ Napi::Value napi_IsRemoteMmiInFocus(const Napi::CallbackInfo& info) {
 
   return env.Undefined();
 }
+
+Napi::Value napi_SetRemoteMmiAction(const Napi::CallbackInfo& info) {
+  const char * const functionName = __func__;
+  Napi::Env env = info.Env();
+  bool argsOk = util::verifyArguments(functionName, info, {util::NUMBER, util::NUMBER, util::OBJECT, util::FUNCTION});
+
+  if (argsOk) {
+    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
+    const RemoteMmiType type = (RemoteMmiType)(info[1].As<Napi::Number>().Int32Value());  
+    Napi::Object actionOutputArgs = info[2].As<Napi::Object>();
+    Napi::Function javascriptResultCallback = info[3].As<Napi::Function>();  
+
+    RemoteMmiActionOutput actionOutput;
+    actionOutput.red = util::getObjInt32OrDefault(actionOutputArgs, "red", 0);
+    actionOutput.green = util::getObjInt32OrDefault(actionOutputArgs, "green", 0);
+    actionOutput.blue = util::getObjInt32OrDefault(actionOutputArgs, "blue", 0);
+    actionOutput.sequence = RemoteMmiSequence::MMI_LED_SEQUENCE_SLOW;   
+
+    (new util::JAsyncWorker<void, void>(
+      functionName, 
+      javascriptResultCallback,
+      [functionName, deviceId, type, actionOutput](){         
+        Jabra_ReturnCode retv = Jabra_SetRemoteMmiAction(deviceId, type, actionOutput);     
+
+        if (retv != Return_Ok) {
+          util::JabraReturnCodeException::LogAndThrow(functionName, retv);
+        } 
+      }     
+    ))->Queue();         
+  }
+
+  return env.Undefined();
+}

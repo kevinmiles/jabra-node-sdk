@@ -318,3 +318,13 @@ export enum enumRemoteMmiPriority {
    */
   MMI_PRIORITY_HIGH    = 0x02
 };
+
+/**
+ * Enum for remote MMI light sequence
+ */
+export enum enumRemoteMmiSequence {
+  MMI_LED_SEQUENCE_OFF     = 0x01,
+  MMI_LED_SEQUENCE_ON      = 0x02,
+  MMI_LED_SEQUENCE_SLOW    = 0x04,
+  MMI_LED_SEQUENCE_FAST    = 0x08
+};

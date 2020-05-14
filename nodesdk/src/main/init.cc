@@ -117,6 +117,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   EXPORTS_SET(GetRemoteMmiFocus)
   EXPORTS_SET(ReleaseRemoteMmiFocus)
   EXPORTS_SET(IsRemoteMmiInFocus)
+  EXPORTS_SET(SetRemoteMmiAction)
 
   // Battery
   EXPORTS_SET(GetBatteryStatus)

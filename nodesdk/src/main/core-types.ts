@@ -3,7 +3,7 @@
  * and the internal sdk integration.
  */
 
-import { enumDeviceConnectionType, enumSettingCtrlType, enumSettingDataType, enumAPIReturnCode, enumBTPairedListType } from './jabra-enums';
+import { enumDeviceConnectionType, enumSettingCtrlType, enumSettingDataType, enumAPIReturnCode, enumBTPairedListType, enumRemoteMmiSequence } from './jabra-enums';
 
 /**
  * The type of error returned from rejected Jabra API promises.
@@ -212,3 +212,15 @@ export interface DevLogData {
     "Bad_Mic_detect Flag"?: string;
     "ID?": string;
   }
+
+/**
+ * Action output interface for Remote Mmi. 
+ */  
+
+export interface RemoteMmiActionOutput {
+    red: number;
+    green: number;
+    blue: number;
+    sequence: enumRemoteMmiSequence;
+}
+  

@@ -55,3 +55,4 @@ Napi::Value napi_GetEqualizerParameters(const Napi::CallbackInfo& info);
 Napi::Value napi_GetRemoteMmiFocus(const Napi::CallbackInfo& info);
 Napi::Value napi_ReleaseRemoteMmiFocus(const Napi::CallbackInfo& info);
 Napi::Value napi_IsRemoteMmiInFocus(const Napi::CallbackInfo& info);
+Napi::Value napi_SetRemoteMmiAction(const Napi::CallbackInfo& info);
