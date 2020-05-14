@@ -47,6 +47,8 @@ let stressInterval: NodeJS.Timeout | undefined = undefined;
 // The user args for a method. Normally this is the same as declared in the meta
 // but in some cases the test app will fillout (some of) the values.
 const expectedUserArgs: { [name: string]: (method: MethodEntry) => ParameterEntry[] } = {
+  on: (method: MethodEntry) => [ method.parameters[0] ],
+  off: (method: MethodEntry) => [ method.parameters[0] ],
   __default__: (method: MethodEntry) => method.parameters
 };
 
@@ -54,6 +56,17 @@ const expectedUserArgs: { [name: string]: (method: MethodEntry) => ParameterEntr
 // complex values or have default values should be explicitly handled here:
 // Nb. must match expectedUserArgs.
 const commandArgs: { [name: string]: (method: MethodEntry) => any[] } = {
+  on: (method: MethodEntry) => [
+    convertParam(txtParam1.value), 
+    ((...args: any[]) => {      
+      addEventMessage(convertParam(txtParam1.value), ...args);
+    }) ],
+  off: (method: MethodEntry) => [  
+    convertParam(txtParam1.value), 
+    ((...args: any[]) => {      
+      addEventMessage(convertParam(txtParam1.value), ...args);
+    })
+  ],
   __default__: (method: MethodEntry) => [ convertParam(txtParam1.value, method.parameters.length>0 ? method.parameters[0] : undefined),
                                           convertParam(txtParam2.value, method.parameters.length>1 ? method.parameters[1] : undefined),
                                           convertParam(txtParam3.value, method.parameters.length>2 ? method.parameters[2] : undefined),
