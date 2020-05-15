@@ -10,7 +10,7 @@ Napi::Value napi_GetDeviceImagePath(const Napi::CallbackInfo& info) {
     if (char * result = Jabra_GetDeviceImagePath(deviceId)) {
       std::string managedResult(result);
       Jabra_FreeString(result);
-      return managedResult;
+      return util::toUtf8(managedResult, functionName);
     } else {
       util::JabraException::LogAndThrow(functionName, "null returned");
       return std::string(); // Dummy return - avoid compiler warnings.
@@ -26,7 +26,7 @@ Napi::Value napi_GetDeviceImageThumbnailPath(const Napi::CallbackInfo& info) {
     if (char * result = Jabra_GetDeviceImageThumbnailPath(deviceId)) {
       std::string managedResult(result);
       Jabra_FreeString(result);
-      return managedResult;
+      return util::toUtf8(managedResult, functionName);
     } else {
       util::JabraException::LogAndThrow(functionName, "null returned");
       return std::string(); // Dummy return - avoid compiler warnings.

@@ -1,9 +1,20 @@
 #include "napiutil.h"
 
+// OS-specific macros
+#if (defined(_WIN32) || defined(__WIN32__)) && !defined(WIN32)
+#define WIN32
+#endif
+
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+#endif
+
 namespace util {
     static inline std::string toString(FormalParameterType type) {
         switch (type) {
-            case VOID: return "void"; break;
+            case _VOID: return "void"; break;
             case BOOLEAN: return "boolean"; break;
             case NUMBER: return "number"; break;
             // BIGINT: return "bigint"; break;
@@ -26,7 +37,7 @@ namespace util {
 
     static inline bool verifyValueType(const Napi::Value& value, FormalParameterType type) {
         switch (type) {
-            case VOID: return value.IsNull() || value.IsUndefined(); break;
+            case _VOID: return value.IsNull() || value.IsUndefined(); break;
             case BOOLEAN: return value.IsBoolean(); break;
             case NUMBER: return value.IsNumber(); break;
             // BIGINT: return value.IsBigInt(); break;
@@ -45,6 +56,104 @@ namespace util {
             default: throw std::runtime_error(std::string("Unknown enum type value " + std::to_string(type)));
         }
     }
+    
+    #ifdef WIN32
+    /**
+     * Return the error message for the latest error.
+     *
+     * @return  The Windows-formatted error message for the laters error.
+     */
+    static std::string getErrorMessage() {
+        /*
+         * Shortly, this function calls FormatMessage with GetLastError() and
+         * a bunch of other parameters to get a dynamically allocated error
+         * message, which is copied into a std::string and then deallocated.
+         */
+
+        DWORD flags = FORMAT_MESSAGE_ALLOCATE_BUFFER
+            | FORMAT_MESSAGE_FROM_SYSTEM
+            | FORMAT_MESSAGE_IGNORE_INSERTS;
+        DWORD lang = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
+        LPTSTR msg = nullptr;
+
+        FormatMessage(flags, NULL, GetLastError(), lang, (LPTSTR) &msg, 0,
+            nullptr);
+
+        std::string result = msg;
+        LocalFree(msg);
+
+        return result;
+    }
+
+    /**
+     * Converts a wide string to a UTF-8 multi-byte string.
+     *
+     * @param   src     The wide string to be converted. Must not be empty.
+     * @return  `src` converted to a UTF-8 multi-byte string.
+     */
+    static std::string toMultiByte(const std::vector<WCHAR>& src) {
+        /*
+         * First we call WideCharToMultiByte with 0 as the char string buffer
+         * length (sixth parameter). This returns the length the buffer should
+         * have to contain the result of the conversion.
+         */
+        int srcLength = static_cast<int>(src.size());
+        int dstLength = WideCharToMultiByte(CP_UTF8, 0x0,
+            (LPWSTR) src.data(), srcLength, nullptr, 0, NULL, NULL);
+        if (dstLength <= 0) {
+            JabraException::LogAndThrow(__func__, getErrorMessage());
+        }
+
+        /*
+         * Here we actually perform the conversion, after creating a buffer of
+         * the desired length inside an std::string. The string is filled with
+         * null terminators since the constructor needs a char.
+         */
+        std::string dst(dstLength, '\0');
+        bool error = 0 == WideCharToMultiByte(CP_UTF8, 0x0,
+            (LPWSTR) src.data(), srcLength, (LPSTR) dst.data(), dstLength,
+            NULL, NULL);
+        if (error) {
+            JabraException::LogAndThrow(__func__, getErrorMessage());
+        }
+
+        return dst;
+    }
+
+    /**
+     * Converts a string to a UTF-16 wide string.
+     *
+     * @param   src     The string to be converted. Must not be empty.
+     * @return  `src` converted to a UTF-16 wide string.
+     */
+    static std::vector<WCHAR> toWideChar(const std::string& src) {
+        /*
+         * First we call MultiByteToWideChar with 0 as the wide string buffer
+         * length (last parameter). This returns the length the buffer should
+         * have to contain the result of the conversion.
+         */
+        int srcLength = static_cast<int>(src.length() + 1);
+        int dstLength = MultiByteToWideChar(CP_ACP, 0, src.data(), srcLength,
+            nullptr, 0);
+        if (dstLength <= 0) {
+            JabraException::LogAndThrow(__func__, getErrorMessage());
+        }
+
+        /*
+         * Here we actually perform the conversion, after creating a buffer of
+         * the desired length inside an std::vector.
+         */
+        std::vector<WCHAR> dst(dstLength);
+        bool error = 0 == MultiByteToWideChar(CP_ACP, 0, src.data(), srcLength,
+            (LPWSTR) dst.data(), dstLength);
+        if (error) {
+            JabraException::LogAndThrow(__func__, getErrorMessage());
+        }
+
+        return dst;
+    }
+
+    #endif
 
     bool verifyArguments(const char * const functionName, const Napi::CallbackInfo& info, std::initializer_list<FormalParameterType> expectedArgumentTypes) {
         const Napi::Env env = info.Env();
@@ -88,10 +197,69 @@ namespace util {
      */
     char * newCString(const Napi::Value& src) {
         if (src.IsString()) {
-        Napi::String strSrc = src.As<Napi::String>();
-        return newCString((std::string)strSrc);
+            Napi::String strSrc = src.As<Napi::String>();
+            return newCString((std::string)strSrc);
         } else {
-        return nullptr;
+            return nullptr;
         }
+    }
+
+    /**
+     * Encode a std::string to UTF-8.
+     *
+     * @param[in]   str         The string to be encoded.
+     * @param[in]   callerName  The name of the caller function. Used only for
+     *                          logging purposes in case of errors.
+     * @param[in]   charset     The encoding of str.
+     * @return  `str` encoded in UTF-8.
+     */
+    std::string toUtf8(const std::string& str, const char* const callerName,
+            const std::string& charset) {
+        #ifndef WIN32
+
+        // There's no need to do anything on non-Windows platforms.
+        return str;
+
+        #else
+
+        /*
+         * This function uses Windows APIs to convert a string to UTF-8.
+         *
+         * It calls MultiByteToWideChar to actually perform the conversion.
+         * However, this has the side-effect of tuning the string to a wide
+         * string. To solve this, we just call WideCharToMultiByte to turn the
+         * wide string back to a multi-byte string.
+         *
+         * The second argument (charset) is not used right now, but it's kept
+         * for future extensions.
+         */
+
+        /*
+         * This serves the double purpose of excluding some corner cases later
+         * and avoiding many unnecessary computations.
+         */
+        if (str.length() == 0) {
+            return str;
+        }
+
+        try {
+            return toMultiByte(toWideChar(str));
+        } catch (const JabraException& e) {
+            LOG_ERROR_(LOGINSTANCE)
+                << "Error with the Windows API while converting a string to UTF-8: "
+                << e.getReason();
+            throw;
+        } catch (const std::exception& e) {
+            LOG_ERROR_(LOGINSTANCE)
+                << "Error while converting a string to UTF-8: "
+                << std::string(e.what());
+            throw;
+        } catch (...) {
+            LOG_ERROR_(LOGINSTANCE)
+                << "Unknown error while converting a string to UTF-8";
+            throw;
+        }
+
+        #endif
     }
 }

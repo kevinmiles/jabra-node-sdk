@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <thread>
+#include <vector>
 
 // Node lib headers:
 #include <napi.h>
@@ -148,7 +149,7 @@ class JabraException : public std::runtime_error
 */
 enum FormalParameterType
 {
-    VOID,
+    _VOID, // Prefixed with "_" to avoid clash with Windows.h macro.
     BOOLEAN,
     NUMBER,
     // BIGINT,
@@ -668,9 +669,21 @@ T JSyncWrapper(const char * const callerFunctionName, const Napi::CallbackInfo& 
 char * newCString(const std::string& src);
 
 /**
-* Create a C-string suitable for storing in a settings object from a napi string/null object.
-**/
+ * Create a C-string suitable for storing in a settings object from a napi string/null object.
+ **/
 char * newCString(const Napi::Value& src);
+
+/**
+ * Encode a std::string to UTF-8.
+ *
+ * @param[in]   str         The string to be encoded.
+ * @param[in]   callerName  The name of the caller function. Used only for
+ *                          logging purposes in case of errors.
+ * @param[in]   charset     The encoding of str.
+ * @return  `str` encoded in UTF-8.
+ */
+std::string toUtf8(const std::string& str, const char* const callerName,
+    const std::string& charset = "");
 
 } // namespace util
 
