@@ -219,6 +219,19 @@ export class JabraType implements MetaApi {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
                     _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onBatteryStatusUpdate callback", err)
                 }
+            }, (deviceId, type, input) => {
+                try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onRemoteMmiEvent", (() => `onRemoteMmiEvent event received from native sdk with type=${type}, input=${input}`));
+                    let device = this.deviceTypes.get(deviceId);
+                    if (device) {
+                        device._eventEmitter.emit('onRemoteMmiEvent', type, input);
+                    } else {
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "onRemoteMmiEvent callback", "Could not lookup device with id " + deviceId);
+                    }
+                } catch (err) {
+                    // Log but do not propagate js errors into native caller (or node process will be aborted):
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onRemoteMmiEvent callback", err)
+                }
             }, (deviceId, type, status, dwnFirmPercentage) => {
                 try {
                     _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::downloadFirmwareProgress", (() => `downloadFirmwareProgress event received from native sdk with type=${type}, status=${status}, dwnFirmPercentage=${dwnFirmPercentage}`));
