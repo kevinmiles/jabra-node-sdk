@@ -45,7 +45,7 @@ export namespace DeviceTypeCallbacks {
     export type onGNPBtnEvent = (btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void;
     export type onDevLogEvent = (data: DevLogData) => void;
     export type onBatteryStatusUpdate = (levelInPercent: number, isCharging: boolean, isBatteryLow: boolean) => void;
-    export type onRemoteMmiEvent = (type: number, input: number) => void;
+    export type onRemoteMmiEvent = (type: enumRemoteMmiType, input: enumRemoteMmiInput) => void;
     export type onUploadProgress = (status: enumUploadEventStatus, levelInPercent: number) => void;
 }
 

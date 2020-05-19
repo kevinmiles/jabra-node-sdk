@@ -37,7 +37,7 @@ export declare interface SdkIntegration {
                buttonInDataTranslated: (deviceID: number, translatedInData: enumDeviceBtnType, buttonInData: bool) => void,
                devLogCallback: (deviceId: number, json: string) => void,
                batteryStatusCallback: (deviceId: number, levelInPercent: number, isCharging: boolean, isBatteryLow: boolean) => void,
-               onRemoteMmiEvent: (deviceId: number, type: number, input: number) => void,
+               onRemoteMmiEvent: (deviceId: number, type: enumRemoteMmiType, input: enumRemoteMmiInput) => void,
                downloadFirmwareProgressCallback: (deviceId: number, type: enumFirmwareEventType, status: enumFirmwareEventStatus, dwnFirmPercentage: number) => void,
                uploadProgressCallback: (deviceId: number, status: enumUploadEventStatus, percentage: number) => void,
                registerPairingListCallback: (deviceId: number, pairedListInfo: PairedListInfo) => void,
