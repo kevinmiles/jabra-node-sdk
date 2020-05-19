@@ -21,16 +21,15 @@ import {
         });
 
         jabra.on('attach', async (device: DeviceType) => {
-            console.log(device.deviceID);
-
-            device.on('onRemoteMmiEvent', (type, input) => {
-                console.log('onRemoteMmiEvent: ', type, input);
-            });     
-
-            if (device.deviceID === 0) {
+            if (device.deviceName === "Jabra Engage 50") {
+                device.on('onRemoteMmiEvent', async (type, input) => {
+                    console.log('onRemoteMmiEvent: ', type, input);
+                    await device.releaseRemoteMmiFocusAsync(enumRemoteMmiType.MMI_TYPE_DOT3).catch(err => console.log(err)); 
+                });     
+          
                 await device.getRemoteMmiFocusAsync(
                     enumRemoteMmiType.MMI_TYPE_DOT3, 
-                    enumRemoteMmiInput.MMI_ACTION_NONE, 
+                    255, 
                     enumRemoteMmiPriority.MMI_PRIORITY_HIGH
                 ).catch(err => console.log(err));
                         
@@ -45,7 +44,6 @@ import {
                 }
 
                 await device.setRemoteMmiActionAsync(enumRemoteMmiType.MMI_TYPE_DOT3, audioActionOutput).catch(err => console.log(err));              
-                // await device.releaseRemoteMmiFocusAsync(enumRemoteMmiType.MMI_TYPE_DOT3).catch(err => console.log(err)); 
             }        
         });
 
