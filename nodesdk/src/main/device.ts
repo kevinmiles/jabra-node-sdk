@@ -1,5 +1,5 @@
 import { SdkIntegration } from "./sdkintegration";
-import { AddonLogSeverity, DeviceTiming, DevLogData, AudioFileFormatEnum } from "./core-types";
+import { AddonLogSeverity, DeviceTiming, DevLogData, AudioFileFormatEnum, RemoteMmiActionOutput } from "./core-types";
 import { isNodeJs } from './util';
 import { _JabraNativeAddonLog } from './logger';
 
@@ -28,7 +28,8 @@ import { DeviceInfo, RCCStatus, ConfigInfo, ConfigParamsCloud, DeviceCataloguePa
 import { enumAPIReturnCode, enumDeviceErrorStatus, enumDeviceBtnType, enumDeviceConnectionType,
     enumSettingDataType, enumSettingCtrlType, enumSettingLoadMode, enumFirmwareEventStatus,
     enumFirmwareEventType, enumBTPairedListType, enumUploadEventStatus, audioFileFormat,
-    enumDeviceFeature, enumHidState, enumWizardMode, enumSecureConnectionMode, enumLogging } from './jabra-enums';
+    enumDeviceFeature, enumHidState, enumWizardMode, enumSecureConnectionMode, enumLogging,
+    enumRemoteMmiType, enumRemoteMmiInput, enumRemoteMmiPriority } from './jabra-enums';
 import * as _jabraEnums from './jabra-enums';
 
 import { MetaApi, ClassEntry, _getJabraApiMetaSync } from './meta';
@@ -44,12 +45,13 @@ export namespace DeviceTypeCallbacks {
     export type onGNPBtnEvent = (btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void;
     export type onDevLogEvent = (data: DevLogData) => void;
     export type onBatteryStatusUpdate = (levelInPercent: number, isCharging: boolean, isBatteryLow: boolean) => void;
+    export type onRemoteMmiEvent = (type: enumRemoteMmiType, input: enumRemoteMmiInput) => void;
     export type onUploadProgress = (status: enumUploadEventStatus, levelInPercent: number) => void;
 }
 
-export type DeviceTypeEvents = 'btnPress' | 'busyLightChange' | 'downloadFirmwareProgress' | 'onBTParingListChange' | 'onGNPBtnEvent' | 'onDevLogEvent' | 'onBatteryStatusUpdate' | 'onUploadProgress';
+export type DeviceTypeEvents = 'btnPress' | 'busyLightChange' | 'downloadFirmwareProgress' | 'onBTParingListChange' | 'onGNPBtnEvent' | 'onDevLogEvent' | 'onBatteryStatusUpdate' | 'onRemoteMmiEvent' | 'onUploadProgress';
 
-export const DeviceEventsList : DeviceTypeEvents[] = ['btnPress', 'busyLightChange', 'downloadFirmwareProgress', 'onBTParingListChange', 'onGNPBtnEvent', 'onDevLogEvent', 'onBatteryStatusUpdate', 'onUploadProgress'];
+export const DeviceEventsList : DeviceTypeEvents[] = ['btnPress', 'busyLightChange', 'downloadFirmwareProgress', 'onBTParingListChange', 'onGNPBtnEvent', 'onDevLogEvent', 'onBatteryStatusUpdate', 'onRemoteMmiEvent', 'onUploadProgress'];
 
 /** 
  * Represents a concrete Jabra device and the operations that can be done on it.   
@@ -1206,6 +1208,70 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
         });
     }
 
+    /**
+     * Gets the focus of the remote MMI specified. Once a remote MMI has
+     * focus, the normal functionality of the MMI (button/LED) is suppressed until
+     * #releaseRemoteMmiFocusAsync is called.
+     * If only the LED output MMI functionality is required, action can be
+     * specified as MMI_ACTION_NONE.
+     * @param {enumRemoteMmiType} type Type of remote MMI to get focus of.
+     * @param {enumRemoteMmiInput} input Action to get focus of, acts as a filter/mask for the
+     * actions on the RemoteMmiCallback callback
+     * @param {enumRemoteMmiPriority} priority Priority of focus.
+     * @returns {Promise<void, JabraError>} - Resolve `void` if successful otherwise Reject with `error`.
+    */
+    getRemoteMmiFocusAsync(type: enumRemoteMmiType, input: enumRemoteMmiInput, priority: enumRemoteMmiPriority) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getRemoteMmiFocusAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.GetRemoteMmiFocus)(this.deviceID, type, input, priority).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getRemoteMmiFocusAsync.name, "returned");
+            return result;
+        });
+    }
+
+    /**
+     * Releases the focus of the remote MMI specified. Note that focus on
+     * all actions are removed.
+     * @param {enumRemoteMmiType} type Type of remote MMI to release focus of.
+     * @returns {Promise<void, JabraError>} - Resolve `void` if successful otherwise Reject with `error`.
+    */    
+    releaseRemoteMmiFocusAsync(type: enumRemoteMmiType) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.releaseRemoteMmiFocusAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.ReleaseRemoteMmiFocus)(this.deviceID, type).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.releaseRemoteMmiFocusAsync.name, "returned");
+            return result;
+        });
+    }    
+
+    /**
+     * Gets the status of the remote MMI focus.
+     * @param {enumRemoteMmiType} type Type of remote MMI to get focus status of.
+     * @returns {Promise<boolean, JabraError>} returns true if in focus, false if not. 
+    */    
+    isRemoteMmiInFocusaAsync(type: enumRemoteMmiType) : Promise<boolean> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isRemoteMmiInFocusaAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.IsRemoteMmiInFocus)(this.deviceID, type).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isRemoteMmiInFocusaAsync.name, "returned");
+            return result;
+        });
+    }  
+    
+    /**
+     * Sets an output action on the remote MMI. Note that
+     * getRemoteMmiFocusAsync must be called once for the enumRemoteMmiType in
+     * question prior to setting the output action, else JabraError is
+     * returned.
+     * @param {enumRemoteMmiType} type type Type of remote MMI to set action of.
+     * @param {RemoteMmiActionOutput} outputAction Output LED action to set.
+     * @returns {Promise<boolean, JabraError>} returns true if in focus, false if not. 
+    */    
+    setRemoteMmiActionAsync(type: enumRemoteMmiType, actionOutput: RemoteMmiActionOutput ) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setRemoteMmiActionAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.SetRemoteMmiAction)(this.deviceID, type, actionOutput).then((result) => {
+            _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setRemoteMmiActionAsync.name, "returned");
+            return result;
+        });
+    }      
+        
    /**
    * Get meta information about methods, properties etc. that can be used 
    * for reflective usage of this class.
@@ -1272,7 +1338,14 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
    */
    on(event: 'onBatteryStatusUpdate', listener: DeviceTypeCallbacks.onBatteryStatusUpdate): this;
-      
+  
+   /**
+    * Add event handler for remoteMmi events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
+   on(event: 'onRemoteMmiEvent', listener: DeviceTypeCallbacks.onRemoteMmiEvent): this;
+
    /**
    * Add event handler for onUploadProgress device events.
    * 
@@ -1287,7 +1360,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      */
    on(event: DeviceTypeEvents,
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
-                DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onUploadProgress): this {
+                DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onRemoteMmiEvent | DeviceTypeCallbacks.onUploadProgress): this {
 
       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.on.name, "called with", this.deviceID, event, "<listener>"); 
 
@@ -1348,6 +1421,13 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    off(event: 'onBatteryStatusUpdate', listener: DeviceTypeCallbacks.onBatteryStatusUpdate): this;
    
    /**
+   * Remove event handler for previosly setup onRemoteMmiEvent device events.
+   * 
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
+    off(event: 'onRemoteMmiEvent', listener: DeviceTypeCallbacks.onRemoteMmiEvent): this;
+
+   /**
    * Remove event handler for previosly setup onUploadProgress device events.
    * 
    * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
@@ -1361,7 +1441,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      */
    off(event: DeviceTypeEvents,
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
-                DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onUploadProgress): this {
+                DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onRemoteMmiEvent | DeviceTypeCallbacks.onUploadProgress): this {
 
 
       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.off.name, "called with", this.deviceID, event, "<listener>"); 

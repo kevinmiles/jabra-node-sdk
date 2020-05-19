@@ -23,6 +23,7 @@ class StateJabraInitialize {
   ThreadSafeCallback *buttonInDataTranslatedCallback;
   ThreadSafeCallback *devLogCallback;
   ThreadSafeCallback *batteryStatusCallback;
+  ThreadSafeCallback *remoteMmiCallback;
   ThreadSafeCallback *downloadFirmwareProgressCallback;
   ThreadSafeCallback *uploadProgressCallback;
   ThreadSafeCallback *registerPairingListCallback;
@@ -53,6 +54,7 @@ class StateJabraInitialize {
                            buttonInDataTranslatedCallback(nullptr),
                            devLogCallback(nullptr),
                            batteryStatusCallback(nullptr),
+                           remoteMmiCallback(nullptr),
                            downloadFirmwareProgressCallback(nullptr),
                            uploadProgressCallback(nullptr),
                            registerPairingListCallback(nullptr),
@@ -68,6 +70,7 @@ class StateJabraInitialize {
            ThreadSafeCallback* _buttonInDataTranslatedCallback,
            ThreadSafeCallback* _devLogCallback,
            ThreadSafeCallback* _batteryStatusCallback,
+           ThreadSafeCallback* _remoteMmiCallback,
            ThreadSafeCallback* _downloadFirmwareProgressCallback,
            ThreadSafeCallback* _uploadProgressCallback,
            ThreadSafeCallback* _registerPairingListCallback,
@@ -88,6 +91,7 @@ class StateJabraInitialize {
       buttonInDataTranslatedCallback = _buttonInDataTranslatedCallback;
       devLogCallback = _devLogCallback;
       batteryStatusCallback = _batteryStatusCallback;
+      remoteMmiCallback = _remoteMmiCallback;
       downloadFirmwareProgressCallback = _downloadFirmwareProgressCallback;
       uploadProgressCallback = _uploadProgressCallback;
       registerPairingListCallback = _registerPairingListCallback;
@@ -140,6 +144,10 @@ class StateJabraInitialize {
     return batteryStatusCallback;
   }
 
+  ThreadSafeCallback * getRemoteMmiCallback () {
+    return remoteMmiCallback;
+  }
+
   ThreadSafeCallback * getDownloadFirmwareProgressCallback() {
     return downloadFirmwareProgressCallback;
   }
@@ -188,6 +196,7 @@ class StateJabraInitialize {
     releaseCallback(buttonInDataTranslatedCallback);
     releaseCallback(devLogCallback);
     releaseCallback(batteryStatusCallback);
+    releaseCallback(remoteMmiCallback);
     releaseCallback(downloadFirmwareProgressCallback);
     releaseCallback(uploadProgressCallback);
     releaseCallback(registerPairingListCallback);
@@ -241,7 +250,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
       util::FUNCTION, util::FUNCTION, util::FUNCTION, 
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
-      util::FUNCTION, util::FUNCTION,
+      util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::OBJECT })) {
 
     int argNr = 0;
@@ -254,6 +263,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
     auto buttonInDataTranslatedCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto devLogCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto batteryStatusCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
+    auto remoteMmiCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto downloadFirmwareProgressCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto uploadProgressCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto registerPairingListCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
@@ -277,6 +287,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                                buttonInDataTranslatedCallback,
                                devLogCallback,
                                batteryStatusCallback,
+                               remoteMmiCallback,
                                downloadFirmwareProgressCallback,
                                uploadProgressCallback,
                                registerPairingListCallback,
@@ -612,6 +623,26 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 const std::string errorMsg = "BatteryStatusUpdate callback failed failed with unknown exception";
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
+            });  
+           
+            Jabra_RegisterRemoteMmiCallback([] (unsigned short deviceID, RemoteMmiType type, RemoteMmiInput action){
+              try {
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterRemoteMmiCallback callback got " << type << " " << action;
+
+                auto remoteMmiCallback = state_Jabra_Initialize.getRemoteMmiCallback();
+
+                if (remoteMmiCallback) {
+                  remoteMmiCallback->call([deviceID, type, action](Napi::Env env, std::vector<napi_value>& args) {
+                    args = { Napi::Number::New(env, deviceID), Napi::Number::New(env, type), Napi::Number::New(env, action)};
+                  });
+                }                
+              } catch (const std::exception &e) {
+                const std::string errorMsg = "RegisterRemoteMmiCallback callback failed: " + std::string(e.what());
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
+              } catch (...) {
+                const std::string errorMsg = "RegisterRemoteMmiCallback callback failed failed with unknown exception";
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
+              }             
             });
 
             Jabra_RegisterUploadProgress([] (unsigned short deviceID, Jabra_UploadEventStatus status, unsigned short percentage) {

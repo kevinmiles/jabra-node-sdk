@@ -1,5 +1,8 @@
-import { createJabraApplication, DeviceType, JabraType, jabraEnums, 
-         _getJabraApiMetaSync, _JabraNativeAddonLog, AddonLogSeverity } from '../main/index';
+import {
+    createJabraApplication, DeviceType, JabraType, jabraEnums,
+    _getJabraApiMetaSync, _JabraNativeAddonLog, AddonLogSeverity, 
+    enumRemoteMmiType, enumRemoteMmiInput, enumRemoteMmiPriority, enumRemoteMmiSequence
+} from '../main/index';
 
 (async () => {
     try {
@@ -17,42 +20,31 @@ import { createJabraApplication, DeviceType, JabraType, jabraEnums,
             console.log('get sdk version failed with error code : ' + err.code || "undefined"); 
         });
 
-        jabra.on('attach', (device: DeviceType) => {
-            console.log("Device attached with device " + JSON.stringify(device));
-
-            device.on('onDevLogEvent', (event) => {
-                console.log("Devlog event is '" + JSON.stringify(event, null, 3) + "'");
-            });
-
-            device.on("onGNPBtnEvent", (event) => {
-                console.log("GNPBtnEvent is " + JSON.stringify(event, null, 3));
-            });
-
-            device.getButtonFocusAsync([
-
-                {
+        jabra.on('attach', async (device: DeviceType) => {
+            if (device.deviceName === "Jabra Engage 50") {
+                device.on('onRemoteMmiEvent', async (type, input) => {
+                    console.log('onRemoteMmiEvent: ', type, input);
+                    await device.releaseRemoteMmiFocusAsync(enumRemoteMmiType.MMI_TYPE_DOT3).catch(err => console.log(err)); 
+                });     
+          
+                await device.getRemoteMmiFocusAsync(
+                    enumRemoteMmiType.MMI_TYPE_DOT3, 
+                    255, 
+                    enumRemoteMmiPriority.MMI_PRIORITY_HIGH
+                ).catch(err => console.log(err));
+                        
+                let isInFocus = await device.isRemoteMmiInFocusaAsync(enumRemoteMmiType.MMI_TYPE_DOT3).catch(err => console.log(err));
+                console.log('isInFocus', isInFocus)
                 
-                buttonTypeKey: 1,
-                
-                buttonTypeValue: "Volume up",
-                
-                buttonEventType: [
-                
-                {
-                
-                key: 0,
-                
-                value: "Tap"
-                
+                let audioActionOutput = { 
+                    red: 0, 
+                    green: 0,
+                    blue: 100, 
+                    sequence: enumRemoteMmiSequence.MMI_LED_SEQUENCE_FAST 
                 }
-                
-                ]
-                
-                }
-                
-                ]).catch((err) => {
-                    console.log("getButtonFocusAsync failed with: " + err);
-                });
+
+                await device.setRemoteMmiActionAsync(enumRemoteMmiType.MMI_TYPE_DOT3, audioActionOutput).catch(err => console.log(err));              
+            }        
         });
 
         jabra.on('detach', (device: DeviceType) => {
@@ -64,5 +56,3 @@ import { createJabraApplication, DeviceType, JabraType, jabraEnums,
         console.log('get exception error code : ' + err.code || "undefined"); 
     }
 })();
-
-

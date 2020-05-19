@@ -253,4 +253,78 @@ export enum enumSecureConnectionMode {
   SC_RESTRICTED_MODE
 }
 
+/**
+ * Enum for types of remote MMI 
+ */
+export enum enumRemoteMmiType {
+  MMI_TYPE_MFB       = 0,
+  MMI_TYPE_VOLUP     = 1,
+  MMI_TYPE_VOLDOWN   = 2,
+  MMI_TYPE_VCB       = 3,
+  MMI_TYPE_APP       = 4,
+  MMI_TYPE_TR_FORW   = 5,
+  MMI_TYPE_TR_BACK   = 6,
+  MMI_TYPE_PLAY      = 7,
+  MMI_TYPE_MUTE      = 8,
+  MMI_TYPE_HOOK_OFF  = 9,
+  MMI_TYPE_HOOK_ON   = 10,
+  MMI_TYPE_BLUETOOTH = 11,
+  MMI_TYPE_JABRA     = 12,
+  MMI_TYPE_BATTERY   = 13,
+  MMI_TYPE_PROG      = 14,
+  MMI_TYPE_LINK      = 15,
+  MMI_TYPE_ANC       = 16,
+  MMI_TYPE_LISTEN_IN = 17,
+  MMI_TYPE_DOT3      = 18,
+  MMI_TYPE_DOT4      = 19,
+  MMI_TYPE_MEDIA     = 20,
+  SEPERATOR_FOR_MMI_TYPE = 128, /* not to be used */
+  MMI_TYPE_BUSYLIGHT = SEPERATOR_FOR_MMI_TYPE,
+  MMI_TYPE_LED_BUSYLIGHT = SEPERATOR_FOR_MMI_TYPE,
+  MMI_TYPE_LED_MULTIFUNCTIONAL = SEPERATOR_FOR_MMI_TYPE + 1,
+  MMI_TYPE_LED_MUTE = SEPERATOR_FOR_MMI_TYPE + 2
+};
 
+/**
+ * Enum for Remote MMI input, used to identify supported input actions
+ */
+export enum enumRemoteMmiInput {
+  MMI_ACTION_NONE          = 0x00,
+  MMI_ACTION_UP            = 0x01,
+  MMI_ACTION_DOWN          = 0x02,
+  MMI_ACTION_TAP           = 0x04,
+  MMI_ACTION_DOUBLE_TAP    = 0x08,
+  MMI_ACTION_PRESS         = 0x10,
+  MMI_ACTION_LONG_PRESS    = 0x20,
+  MMI_ACTION_X_LONG_PRESS  = 0x40
+};
+
+/**
+ * Enum for remote MMI priorities
+ */
+export enum enumRemoteMmiPriority {
+  /**
+   * Used for remote MMIs that does not support priority.
+   */
+  MMI_PRIORITY_NONE    = 0x00,
+  /**
+   * Get remote MMI focus if device doesn't use it or no function is assigned
+   * to the button.
+   */
+  MMI_PRIORITY_LOW     = 0x01,
+  /**
+   * Get remote MMI focus unconditionally, this can remove important
+   * functionality from the device.
+   */
+  MMI_PRIORITY_HIGH    = 0x02
+};
+
+/**
+ * Enum for remote MMI light sequence
+ */
+export enum enumRemoteMmiSequence {
+  MMI_LED_SEQUENCE_OFF     = 0x01,
+  MMI_LED_SEQUENCE_ON      = 0x02,
+  MMI_LED_SEQUENCE_SLOW    = 0x04,
+  MMI_LED_SEQUENCE_FAST    = 0x08
+};

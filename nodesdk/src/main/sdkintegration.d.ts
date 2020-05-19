@@ -5,9 +5,10 @@
  */
 
 import { ConfigParamsCloud, GenericConfigParams, enumHidState, AudioFileFormatEnum, DeviceSettings, DeviceInfo, PairedListInfo, 
-         NamedAsset, AddonLogSeverity, JabraError } from './core-types';
+         NamedAsset, AddonLogSeverity, JabraError, RemoteMmiActionOutput } from './core-types';
 import { enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, 
-         enumUploadEventStatus, enumBTPairedListType } from './jabra-enums';
+         enumUploadEventStatus, enumBTPairedListType, enumRemoteMmiType, 
+         enumRemoteMmiInput, enumRemoteMmiPriority, enumRemoteMmiSequence } from './jabra-enums';
 
 /** 
  * Declares all natively implemented n-api functions that call into the Jabra C SDK.
@@ -36,6 +37,7 @@ export declare interface SdkIntegration {
                buttonInDataTranslated: (deviceID: number, translatedInData: enumDeviceBtnType, buttonInData: bool) => void,
                devLogCallback: (deviceId: number, json: string) => void,
                batteryStatusCallback: (deviceId: number, levelInPercent: number, isCharging: boolean, isBatteryLow: boolean) => void,
+               onRemoteMmiEvent: (deviceId: number, type: enumRemoteMmiType, input: enumRemoteMmiInput) => void,
                downloadFirmwareProgressCallback: (deviceId: number, type: enumFirmwareEventType, status: enumFirmwareEventStatus, dwnFirmPercentage: number) => void,
                uploadProgressCallback: (deviceId: number, status: enumUploadEventStatus, percentage: number) => void,
                registerPairingListCallback: (deviceId: number, pairedListInfo: PairedListInfo) => void,
@@ -211,4 +213,9 @@ export declare interface SdkIntegration {
 
     GetButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>, callback: (error: JabraError, result: void) => void): void;
     ReleaseButtonFocus(deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>, callback: (error: JabraError, result: void) => void): void;
+
+    GetRemoteMmiFocus(deviceId: number, type: enumRemoteMmiType, input: enumRemoteMmiInput, priority: enumRemoteMmiPriority, callback: (error: JabraError, result: void) => void): void;    
+    ReleaseRemoteMmiFocus(deviceId: number, type: enumRemoteMmiType, callback: (error: JabraError, result: void) => void): void;
+    IsRemoteMmiInFocus(deviceId: number, type: enumRemoteMmiType, callback: (error: JabraError, result: boolean) => void): void;
+    SetRemoteMmiAction(deviceId: number, type: enumRemoteMmiType, actionOuput: RemoteMmiActionOutput, callback: (error: JabraError, result: void) => void): void;
 }
