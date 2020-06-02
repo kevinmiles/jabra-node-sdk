@@ -89,6 +89,7 @@ namespace util {
      * Converts a wide string to a UTF-8 multi-byte string.
      *
      * @param   src     The wide string to be converted. Must not be empty.
+     *                  The last element must be a null-terminator.
      * @return  `src` converted to a UTF-8 multi-byte string.
      */
     static std::string toMultiByte(const std::vector<WCHAR>& src) {
@@ -106,10 +107,13 @@ namespace util {
 
         /*
          * Here we actually perform the conversion, after creating a buffer of
-         * the desired length inside an std::string. The string is filled with
-         * null terminators since the constructor needs a char.
+         * the desired length inside an std::vector.
+         *
+         * We can't use and std::string to hold the buffer, because writing to
+         * its .data() member directly violates encapsulation (basically, it
+         * messes up with the null-terminator).
          */
-        std::string dst(dstLength, '\0');
+        std::vector<char> dst(dstLength);
         bool error = 0 == WideCharToMultiByte(CP_UTF8, 0x0,
             (LPWSTR) src.data(), srcLength, (LPSTR) dst.data(), dstLength,
             NULL, NULL);
@@ -117,20 +121,35 @@ namespace util {
             JabraException::LogAndThrow(__func__, getErrorMessage());
         }
 
-        return dst;
+        /*
+         * An std::string is being created from the C string filled by
+         * WideCharToMultiByte. We use dst.data() instead of the more idiomatic
+         * C++ dst.begin() and dst.end() because that would add the
+         * null-terminator would as an extra character at the end of the
+         * std::string.
+         */
+        return std::string(dst.data());
     }
 
     /**
      * Converts a string to a UTF-16 wide string.
      *
      * @param   src     The string to be converted. Must not be empty.
-     * @return  `src` converted to a UTF-16 wide string.
+     * @return  `src` converted to a UTF-16 wide string, including the
+     *          null-terminator as the last element.
      */
     static std::vector<WCHAR> toWideChar(const std::string& src) {
         /*
          * First we call MultiByteToWideChar with 0 as the wide string buffer
          * length (last parameter). This returns the length the buffer should
          * have to contain the result of the conversion.
+         *
+         * `src.length() + 1` accounts for the null-terminator, which is
+         * included by .data() since C++11.
+         *
+         * `srcLength` is necessary as a std::string can contain null-terminators
+         * before the last character. This makes -1 not an option, since `src`'s
+         * content doesn't necessarily end at the first null-terminator.
          */
         int srcLength = static_cast<int>(src.length() + 1);
         int dstLength = MultiByteToWideChar(CP_ACP, 0, src.data(), srcLength,
