@@ -34,6 +34,10 @@ V3.0.0 production version is code-wise identical to v3.0.0-beta1. If you already
 - Fixed character encoding bug where special characters in Windows username would cause wrong file paths
 - Upgraded embedded native "C" sdk to v1.8.7.11
 
+### v3.1.0-beta.4
+- New fix for character encoding bug where special characters in Windows username would cause wrong file paths
+- Fixed links in readme.
+
 ### v3.0.0 - (2019-2-28)
 - Upgraded embedded native "C" sdk to v1.8.3.10 which fixes the following:
   - Sometimes, core library functions could cause 100% CPU load on Windows clients.
