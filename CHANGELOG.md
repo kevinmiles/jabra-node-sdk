@@ -3,42 +3,29 @@ All notable changes to this project will be documented in this file
 
 ### General
 
-Latest v3.0.0 release is an interim production release for node.js on Windows that specifically targets an issue where code in the Jabra core libraries can cause the client app to incurr a 100% CPU load, making the application inoperable.
+Latest version 3.1.0 is a production release for all supported platforms: Windows, Mac and Linux.
 
-This release changes the underlying core library from an older v1.7.9 to the latest production release 1.8.3.
+This release includes miscellaneous bugfixes, feature wrappers, update to the underlying C-library and general improvements that results in faster operation and much improved stability.
 
-In addition to fixing the CPU-load issue, the latest version of the core library also includes a large number of bug-fixes and general improvements that results in faster operation and much improved stability.
-
-Please note that even though the node.js wrapper layer in v3.0.0 is almost identical to one in v2.0.0, the upgrade of the core library from v1.7 to v1.8 may mean that you can experience the need for minor changes to your application logic.
-
-V3.0.0 production version is code-wise identical to v3.0.0-beta1. If you already have integrated the v3.0.0-beta1, you should not experience any need for changes.
+V3.1.0 production version is code-wise identical to v3.1.0-beta4. If you already have integrated the v3.1.0-beta4, you should not experience any need for changes.
 
 --------------------------------
 
-### v3.1.0-beta.1
-- Upgraded embedded native "C" sdk to v1.8.7.2.
+### v3.1.0 (2020-06-16)
+- Upgraded embedded native "C" sdk to v1.8.7.11
 - Added various new APIs for above "C" sdk, incl. reboot, locking etc.
 - Added support for detecting non-Jabra devices (new optional argument to createJabraApplication).
 - Updated related electron helper JabraApiServerFactory.create method arguments (optional package but breaking change if used).
-
-### v3.1.0-beta.2
-- Upgraded embedded native "C" sdk to v1.8.7.10.
 - Updated 3rd party dependencies to latest versions, incl. security fixes.
 - It is no longer necessary/advised to set GN_HID protocol to get 
   all call control events! Call control applications that upgrade should remove
   explicit setting of the protocol.
-
-### v3.1.0-beta.3
 - Added support for RemoteMmi
-  - Updated electron-renderer-helper to support RemoteMmi events
+- Updated electron-renderer-helper to support RemoteMmi events
 - Fixed character encoding bug where special characters in Windows username would cause wrong file paths
-- Upgraded embedded native "C" sdk to v1.8.7.11
-
-### v3.1.0-beta.4
-- New fix for character encoding bug where special characters in Windows username would cause wrong file paths
 - Fixed links in readme.
 
-### v3.0.0 - (2019-2-28)
+### v3.0.0 - (2020-2-28)
 - Upgraded embedded native "C" sdk to v1.8.3.10 which fixes the following:
   - Sometimes, core library functions could cause 100% CPU load on Windows clients.
   - Inserting or removing chorded headsets sometime could cause host application to crash

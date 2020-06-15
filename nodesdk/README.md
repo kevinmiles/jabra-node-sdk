@@ -18,13 +18,9 @@ Jabra Node.js SDK
 
 ## Versions
 
-Latest STABLE Windows(!) release is [v3.0.0 distributed on npmjs.com](https://www.npmjs.com/package/@gnaudio/jabra-node-sdk/v/3.0.0) (see [changelog](https://github.com/gnaudio/jabra-node-sdk/blob/master/CHANGELOG.md) for changes and notable defects). 
+Latest **STABLE** release is **v3.1.0** [distributed on npmjs.com](https://www.npmjs.com/package/@gnaudio/jabra-node-sdk/v/3.1.0) (see [changelog](https://github.com/gnaudio/jabra-node-sdk/blob/master/CHANGELOG.md) for changes and notable defects). 
 
-Exceptionally, this v3.0.0 release is aimed only at Windows in order to fix a 100% CPU utilisation issue. Mac and Linux core library versions do not suffer from this issue. We therefore recommend that you for production use stay on v2.0.0 for those platforms, until the next general relase is made for all platforms. See changelog for details.
-
-Latest STABLE cross platform release is [v2.0.0 distributed on npmjs.com](https://www.npmjs.com/package/@gnaudio/jabra-node-sdk/v/2.0.0) (see [changelog](https://github.com/gnaudio/jabra-node-sdk/blob/master/CHANGELOG.md) for changes and notable defects). 
-
-In addition, BETA versions may be available on npmjs with a version name ending with "-beta.X" specifier. For such BETA versions,the following applies:
+In addition, **BETA** versions may be available on npmjs with a version name ending with "-beta.X" specifier. For such BETA versions,the following applies:
 
     > Disclaimer for Alpha and Beta Software Release
 
