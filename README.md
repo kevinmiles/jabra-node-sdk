@@ -2,7 +2,7 @@
 
 This is the monorepo for the new Jabra [Node.js](https://nodejs.org) SDK (a [native jabra SDK](https://developer.jabra.com/site/global/sdks/overview/index.gsp) wrapper) and related helpers, demos and tests.
 
-This new Jabra Node.js SDK is based on [N-API](https://nodejs.org/api/n-api.html) and is thus Application Binary Interface (ABI) stable across versions of Node.js. It is also maintained as a core part of Node.js and known to work more easily with Electron (https://electronjs.org/), including the latest version, version 6.
+This new Jabra Node.js SDK is based on [N-API](https://nodejs.org/api/n-api.html) and is thus Application Binary Interface (ABI) stable across versions of Node.js. It is also maintained as a core part of Node.js and known to work more easily with Electron (https://electronjs.org/) across versions. 
 
 For more information, refer to the [individual README files](#Project-Contents) in each project folder linked below or the common references at the bottom of this page.
 
