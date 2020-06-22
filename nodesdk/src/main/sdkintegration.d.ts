@@ -5,7 +5,7 @@
  */
 
 import { ConfigParamsCloud, GenericConfigParams, enumHidState, AudioFileFormatEnum, DeviceSettings, DeviceInfo, PairedListInfo, 
-         NamedAsset, AddonLogSeverity, JabraError, RemoteMmiActionOutput } from './core-types';
+         NamedAsset, AddonLogSeverity, JabraError, RemoteMmiActionOutput, DectInfo } from './core-types';
 import { enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, 
          enumUploadEventStatus, enumBTPairedListType, enumRemoteMmiType, 
          enumRemoteMmiInput, enumRemoteMmiPriority, enumRemoteMmiSequence } from './jabra-enums';
@@ -42,6 +42,7 @@ export declare interface SdkIntegration {
                uploadProgressCallback: (deviceId: number, status: enumUploadEventStatus, percentage: number) => void,
                registerPairingListCallback: (deviceId: number, pairedListInfo: PairedListInfo) => void,
                onGNPBtnEventCallback: (deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void,
+               dectInfoCallback: (deviceID: number, dectInfo: DectInfo) => void,
                configParams: ConfigParamsCloud & GenericConfigParams) : void;
 
     /**

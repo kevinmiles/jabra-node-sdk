@@ -223,4 +223,26 @@ export interface RemoteMmiActionOutput {
     blue: number;
     sequence: enumRemoteMmiSequence;
 }
-  
+
+/** Dect information about density and error counts */
+
+export interface DectInfo {
+    rawData :Uint8Array;
+}
+
+export interface DectInfoDensity extends DectInfo {
+    sumMeasuredRSSI :number;		/* This is the sum of RSSI measured for all slots. */
+    maximumReferenceRSSI :number;   /* This is the maximum RSSI expected to be measured from 1 slot. */
+    numberMeasuredSlots :number;    /* Number of slots measured in current communication mode. */
+    dataAgeSeconds :number;		    /* Time since measurement was taken. */
+}
+
+export interface DectInfoErrorCount extends DectInfo {
+    syncErrors :number;		/* Number of errors in SYNC field.*/
+    aErrors :number;		/* Number of errors in A field.*/
+    xErrors :number;		/* Number of errors in X field.*/
+    zErrors :number;		/* Number of errors in Z field.*/
+    hubSyncErrors :number;	/* Number of errors in HUB Sync field.*/
+    hubAErrors :number;		/* Number of errors in HUB A field.*/
+    handoversCount :number; /* Handover count.*/
+}
