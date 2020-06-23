@@ -259,7 +259,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
-      util::OBJECT })) {
+      util::FUNCTION, util::OBJECT })) {
 
     int argNr = 0;
 

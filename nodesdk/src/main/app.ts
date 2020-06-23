@@ -284,6 +284,19 @@ export class JabraType implements MetaApi {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
                     _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onGNPBtnEventChange callback", err)
                 }
+            }, (deviceId, dectInfo) => {
+                try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onDectInfoEvent", (() => `onDectInfoEvent event received from native sdk with dectInfo=${dectInfo}`));
+                    let device = this.deviceTypes.get(deviceId);
+                    if (device) {
+                        device._eventEmitter.emit('dectInfoEvent', dectInfo);
+                    } else {
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "onDectInfoEvent callback", "Could not lookup device with id " + deviceId);
+                    }
+                } catch (err) {
+                    // Log but do not propagate js errors into native caller (or node process will be aborted):
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onDectInfoEvent callback", err);
+                }
             },
             configParams);  
         });
@@ -527,8 +540,3 @@ export class JabraType implements MetaApi {
         return this;
     }
 }
-
-
-
-
-

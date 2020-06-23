@@ -23,7 +23,8 @@ if (isNodeJs()) {
 } 
 
 import { DeviceInfo, RCCStatus, ConfigInfo, ConfigParamsCloud, DeviceCatalogueParams,
-    FirmwareInfoType, SettingType, DeviceSettings, PairedListInfo, NamedAsset } from './core-types';
+    FirmwareInfoType, SettingType, DeviceSettings, PairedListInfo, NamedAsset,
+    DectInfo } from './core-types';
 
 import { enumAPIReturnCode, enumDeviceErrorStatus, enumDeviceBtnType, enumDeviceConnectionType,
     enumSettingDataType, enumSettingCtrlType, enumSettingLoadMode, enumFirmwareEventStatus,
@@ -47,11 +48,12 @@ export namespace DeviceTypeCallbacks {
     export type onBatteryStatusUpdate = (levelInPercent: number, isCharging: boolean, isBatteryLow: boolean) => void;
     export type onRemoteMmiEvent = (type: enumRemoteMmiType, input: enumRemoteMmiInput) => void;
     export type onUploadProgress = (status: enumUploadEventStatus, levelInPercent: number) => void;
+    export type onDectInfoEvent = (dectInfo: DectInfo) => void;
 }
 
-export type DeviceTypeEvents = 'btnPress' | 'busyLightChange' | 'downloadFirmwareProgress' | 'onBTParingListChange' | 'onGNPBtnEvent' | 'onDevLogEvent' | 'onBatteryStatusUpdate' | 'onRemoteMmiEvent' | 'onUploadProgress';
+export type DeviceTypeEvents = 'btnPress' | 'busyLightChange' | 'downloadFirmwareProgress' | 'onBTParingListChange' | 'onGNPBtnEvent' | 'onDevLogEvent' | 'onBatteryStatusUpdate' | 'onRemoteMmiEvent' | 'onUploadProgress' | 'onDectInfoEvent';
 
-export const DeviceEventsList : DeviceTypeEvents[] = ['btnPress', 'busyLightChange', 'downloadFirmwareProgress', 'onBTParingListChange', 'onGNPBtnEvent', 'onDevLogEvent', 'onBatteryStatusUpdate', 'onRemoteMmiEvent', 'onUploadProgress'];
+export const DeviceEventsList : DeviceTypeEvents[] = ['btnPress', 'busyLightChange', 'downloadFirmwareProgress', 'onBTParingListChange', 'onGNPBtnEvent', 'onDevLogEvent', 'onBatteryStatusUpdate', 'onRemoteMmiEvent', 'onUploadProgress', 'onDectInfoEvent'];
 
 /** 
  * Represents a concrete Jabra device and the operations that can be done on it.   
@@ -1353,6 +1355,13 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    */
    on(event: 'onUploadProgress', listener: DeviceTypeCallbacks.onUploadProgress): this;
 
+   /**
+   * Add event handler for onDectInfo device events.
+   *
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
+   on(event: 'onDectInfoEvent', listener: DeviceTypeCallbacks.onDectInfoEvent): this;
+
     /**
      * Add event handler for one of the different device events.
      * 
@@ -1360,7 +1369,8 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      */
    on(event: DeviceTypeEvents,
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
-                DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onRemoteMmiEvent | DeviceTypeCallbacks.onUploadProgress): this {
+                DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onRemoteMmiEvent |
+                DeviceTypeCallbacks.onUploadProgress | DeviceTypeCallbacks.onDectInfoEvent): this {
 
       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.on.name, "called with", this.deviceID, event, "<listener>"); 
 
@@ -1434,6 +1444,13 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    */
    off(event: 'onUploadProgress', listener: DeviceTypeCallbacks.onUploadProgress): this;
 
+   /**
+   * Remove event handler for previosly setup onDectInfo device events.
+   *
+   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+   */
+   off(event: 'onDectInfoEvent', listener: DeviceTypeCallbacks.onDectInfoEvent): this;
+
     /**
      * Remove previosly setup event handler for device events.
      * 
@@ -1441,7 +1458,8 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      */
    off(event: DeviceTypeEvents,
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
-                DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onRemoteMmiEvent | DeviceTypeCallbacks.onUploadProgress): this {
+                DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onRemoteMmiEvent |
+                DeviceTypeCallbacks.onUploadProgress | DeviceTypeCallbacks.onDectInfoEvent): this {
 
 
       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.off.name, "called with", this.deviceID, event, "<listener>"); 
