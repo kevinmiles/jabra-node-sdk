@@ -704,6 +704,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                     switch (dectInfoStack.DectType) {
                       case DectDensity: {
                         const Jabra_DectInfoDensity& dectDensity = dectInfoStack.DectDensity;
+                        dectInfoNapi.Set(Napi::String::New(env, "kind"), Napi::String::New(env, "density"));
                         dectInfoNapi.Set(Napi::String::New(env, "sumMeasuredRSSI"), Napi::Number::New(env, dectDensity.SumMeasuredRSSI));
                         dectInfoNapi.Set(Napi::String::New(env, "maximumReferenceRSSI"), Napi::Number::New(env, dectDensity.MaximumReferenceRSSI));
                         dectInfoNapi.Set(Napi::String::New(env, "numberMeasuredSlots"), Napi::Number::New(env, dectDensity.NumberMeasuredSlots));
@@ -713,6 +714,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
 
                       case DectErrorCount: {
                         const Jabra_DectErrorCount& dectError = dectInfoStack.DectErrorCount;
+                        dectInfoNapi.Set(Napi::String::New(env, "kind"), Napi::String::New(env, "errorCount"));
                         dectInfoNapi.Set(Napi::String::New(env, "syncErrors"), Napi::Number::New(env, dectError.syncErrors));
                         dectInfoNapi.Set(Napi::String::New(env, "aErrors"), Napi::Number::New(env, dectError.aErrors));
                         dectInfoNapi.Set(Napi::String::New(env, "xErrors"), Napi::Number::New(env, dectError.xErrors));
