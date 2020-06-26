@@ -2,8 +2,11 @@ import { createJabraApplication, JabraError, JabraType, DectInfo } from '../main
 
 (async () => {
     let jabra = await createJabraApplication('A7tSsfD42VenLagL2mM6i2f0VafP/842cbuPCnC+uE8=');
+    console.log('Jabra app created');
 
     jabra.on('attach', device => {
+        console.log(`Device attached: ${device.deviceName}`);
+
         device.on('onDectInfoEvent', dectInfo => {
             let kind :DectInfo.Kind = dectInfo.kind;
             console.log(`DectInfo received of kind: ${kind}`);

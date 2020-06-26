@@ -289,7 +289,7 @@ export class JabraType implements MetaApi {
                     _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onDectInfoEvent", (() => `onDectInfoEvent event received from native sdk with dectInfo=${dectInfo}`));
                     let device = this.deviceTypes.get(deviceId);
                     if (device) {
-                        device._eventEmitter.emit('dectInfoEvent', dectInfo);
+                        device._eventEmitter.emit('onDectInfoEvent', dectInfo);
                     } else {
                         _JabraNativeAddonLog(AddonLogSeverity.error, "onDectInfoEvent callback", "Could not lookup device with id " + deviceId);
                     }
