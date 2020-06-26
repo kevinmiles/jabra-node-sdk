@@ -1,22 +1,36 @@
-import { createJabraApplication, JabraError } from '../main/index';
+import { createJabraApplication, JabraError, JabraType, DectInfo } from '../main/index';
 
 (async () => {
     let jabra = await createJabraApplication('A7tSsfD42VenLagL2mM6i2f0VafP/842cbuPCnC+uE8=');
+    console.log('Jabra app created');
 
-    await jabra.scanForDevicesDoneAsync(); // Wait for all pre-attached devices to be scanned.
+    jabra.on('attach', device => {
+        console.log(`Device attached: ${device.deviceName}`);
 
-    const deviceInstanceList = jabra.getAttachedDevices(); //returns the list of devices
-    if (deviceInstanceList.length<2) {
-        throw new Error("Please make sure 2 jabra devices are attached");
-    }
+        device.on('onDectInfoEvent', dectInfo => {
+            let kind :DectInfo.Kind = dectInfo.kind;
+            console.log(`DectInfo received of kind: ${kind}`);
+            console.log(`This is the raw data: ${dectInfo.rawData.toString()}`)
+            switch (dectInfo.kind) {
+                case 'density':
+                    console.log('This is the rest:');
+                    console.log(`\tsumMeasuredRSSI: ${dectInfo.sumMeasuredRSSI}`);
+                    console.log(`\tmaximumReferenceRSSI: ${dectInfo.maximumReferenceRSSI}`);
+                    console.log(`\tnumberMeasuredSlots: ${dectInfo.numberMeasuredSlots}`);
+                    console.log(`\tdataAgeSeconds: ${dectInfo.dataAgeSeconds}`);
+                    break;
 
-    const firstDevice = deviceInstanceList[0]
-    await firstDevice.ringAsync();
-
-    const secondDevice = deviceInstanceList[1];
-    await secondDevice.ringAsync();
-
-    // Disponse jabra sdk to enable node process to shutdown.
-    await jabra.disposeAsync();
+                case 'errorCount':
+                    console.log('This is the rest:');
+                    console.log(`\tsyncErrors: ${dectInfo.syncErrors}`);
+                    console.log(`\taErrors: ${dectInfo.aErrors}`);
+                    console.log(`\txErrors: ${dectInfo.xErrors}`);
+                    console.log(`\tzErrors: ${dectInfo.zErrors}`);
+                    console.log(`\thubSyncErrors: ${dectInfo.hubSyncErrors}`);
+                    console.log(`\thubAErrors: ${dectInfo.hubAErrors}`);
+                    console.log(`\thandoversCount: ${dectInfo.handoversCount}`);
+                    break;
+            }
+        })
+    });
 })();
-

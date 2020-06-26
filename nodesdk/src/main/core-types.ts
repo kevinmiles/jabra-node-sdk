@@ -223,4 +223,53 @@ export interface RemoteMmiActionOutput {
     blue: number;
     sequence: enumRemoteMmiSequence;
 }
-  
+
+/** Dect information about density and error counts */
+
+/*
+    This type is intentionally not exported. It just collects the common
+    properties of all the DectInfo types. It's not meant to be used by the API
+    client, which should operate with the DectInfo algebraic data type itself.
+*/
+interface DectInfoCommon {
+    kind: DectInfo.Kind;
+    rawData :Uint8Array;
+}
+
+/*
+    The DectInfo union type describes an algebraic data type.
+
+    Polimorphism would work too, and would allow for shared properties to be
+    grouped in the supertype. However, polymorphism doesn't trigger TypeScript
+    type guards, which are immensely useful for the API client.
+
+    For this reason, common properties have still been grouped in the
+    DectInfoCommon interface, but such intreface has been kept private, as this
+    is by now an implementation detail.
+
+    More info on the TypeScript implementation of algebraic data types here:
+    https://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions
+*/
+export type DectInfo = DectInfoDensity | DectInfoErrorCount;
+export namespace DectInfo {
+    export type Kind = 'density' | 'errorCount';
+}
+
+export interface DectInfoDensity extends DectInfoCommon {
+    kind: 'density';
+    sumMeasuredRSSI :number;		/* This is the sum of RSSI measured for all slots. */
+    maximumReferenceRSSI :number;   /* This is the maximum RSSI expected to be measured from 1 slot. */
+    numberMeasuredSlots :number;    /* Number of slots measured in current communication mode. */
+    dataAgeSeconds :number;		    /* Time since measurement was taken. */
+}
+
+export interface DectInfoErrorCount extends DectInfoCommon {
+    kind: 'errorCount';
+    syncErrors :number;		/* Number of errors in SYNC field.*/
+    aErrors :number;		/* Number of errors in A field.*/
+    xErrors :number;		/* Number of errors in X field.*/
+    zErrors :number;		/* Number of errors in Z field.*/
+    hubSyncErrors :number;	/* Number of errors in HUB Sync field.*/
+    hubAErrors :number;		/* Number of errors in HUB A field.*/
+    handoversCount :number; /* Handover count.*/
+}

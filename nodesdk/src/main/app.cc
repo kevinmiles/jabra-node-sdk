@@ -28,6 +28,7 @@ class StateJabraInitialize {
   ThreadSafeCallback *uploadProgressCallback;
   ThreadSafeCallback *registerPairingListCallback;
   ThreadSafeCallback *gNPButtonEventCallBack;
+  ThreadSafeCallback *dectInfoCallback;
 
   std::string proxy;
   std::string baseUrl_capabilities;
@@ -59,6 +60,7 @@ class StateJabraInitialize {
                            uploadProgressCallback(nullptr),
                            registerPairingListCallback(nullptr),
                            gNPButtonEventCallBack(nullptr),
+                           dectInfoCallback(nullptr),
                            initializationStartedState(false) {}
 
   void set(const Napi::Env& _env,
@@ -75,6 +77,7 @@ class StateJabraInitialize {
            ThreadSafeCallback* _uploadProgressCallback,
            ThreadSafeCallback* _registerPairingListCallback,
            ThreadSafeCallback* _gNPButtonEventCallBack,
+           ThreadSafeCallback* _dectInfoCallback,
            const std::string& _proxy,
            const std::string& _baseUrl_capabilities,
            const std::string& _baseUrl_fw,
@@ -96,6 +99,7 @@ class StateJabraInitialize {
       uploadProgressCallback = _uploadProgressCallback;
       registerPairingListCallback = _registerPairingListCallback;
       gNPButtonEventCallBack = _gNPButtonEventCallBack;
+      dectInfoCallback = _dectInfoCallback;
 
       proxy = _proxy;
       baseUrl_capabilities = _baseUrl_capabilities;
@@ -164,6 +168,9 @@ class StateJabraInitialize {
     return gNPButtonEventCallBack;
   }
 
+  ThreadSafeCallback * getDectInfoCallBack() {
+    return dectInfoCallback;
+  }
 
   std::string& getProxy() {
     return proxy;
@@ -201,6 +208,7 @@ class StateJabraInitialize {
     releaseCallback(uploadProgressCallback);
     releaseCallback(registerPairingListCallback);
     releaseCallback(gNPButtonEventCallBack);
+    releaseCallback(dectInfoCallback);
  
     // Re-allow init again.
     initializationStartedState = false;
@@ -251,7 +259,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
-      util::OBJECT })) {
+      util::FUNCTION, util::OBJECT })) {
 
     int argNr = 0;
 
@@ -268,6 +276,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
     auto uploadProgressCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto registerPairingListCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto gNPButtonEventCallBack = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
+    auto dectInfoCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
 
     Napi::Object configParams = info[argNr++].As<Napi::Object>();
     
@@ -292,6 +301,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                                uploadProgressCallback,
                                registerPairingListCallback,
                                gNPButtonEventCallBack,
+                               dectInfoCallback,
                                proxy,
                                baseUrl_capabilities,
                                baseUrl_fw,
@@ -663,6 +673,69 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
                 const std::string errorMsg = "RegisterUploadProgress callback failed failed with unknown exception";
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
+              }
+            });
+
+            Jabra_RegisterDectInfoHandler([] (unsigned short deviceID, Jabra_DectInfo* dectInfo) {
+              try {
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterDectInfoHandler got " << dectInfo;
+
+                auto dectInfoCallback = state_Jabra_Initialize.getDectInfoCallBack();
+
+                if (dectInfoCallback) {
+                  /*
+                      Jabra_DectInfo is a C struct with a bunch of numbers
+                      and a statically allocate array. It's safe to copy it
+                      this way.
+                  */
+                  Jabra_DectInfo dectInfoStack = *dectInfo;
+                  Jabra_FreeDectInfoStr(dectInfo);
+
+                  dectInfoCallback->call([deviceID, dectInfoStack](Napi::Env env, std::vector<napi_value>& args) {
+                    Napi::Object dectInfoNapi = Napi::Object::New(env);
+
+                    Napi::Uint8Array rawData = Napi::Uint8Array::New(env, dectInfoStack.RawDataLen);
+                    for (unsigned int k = 0; k < dectInfoStack.RawDataLen; ++k) {
+                      rawData[k] = dectInfoStack.RawData[k];
+                    }
+                    dectInfoNapi.Set(Napi::String::New(env, "rawData"), rawData);
+
+                    switch (dectInfoStack.DectType) {
+                      case DectDensity: {
+                        const Jabra_DectInfoDensity& dectDensity = dectInfoStack.DectDensity;
+                        dectInfoNapi.Set(Napi::String::New(env, "kind"), Napi::String::New(env, "density"));
+                        dectInfoNapi.Set(Napi::String::New(env, "sumMeasuredRSSI"), Napi::Number::New(env, dectDensity.SumMeasuredRSSI));
+                        dectInfoNapi.Set(Napi::String::New(env, "maximumReferenceRSSI"), Napi::Number::New(env, dectDensity.MaximumReferenceRSSI));
+                        dectInfoNapi.Set(Napi::String::New(env, "numberMeasuredSlots"), Napi::Number::New(env, dectDensity.NumberMeasuredSlots));
+                        dectInfoNapi.Set(Napi::String::New(env, "dataAgeSeconds"), Napi::Number::New(env, dectDensity.DataAgeSeconds));
+                        break;
+                      }
+
+                      case DectErrorCount: {
+                        const Jabra_DectErrorCount& dectError = dectInfoStack.DectErrorCount;
+                        dectInfoNapi.Set(Napi::String::New(env, "kind"), Napi::String::New(env, "errorCount"));
+                        dectInfoNapi.Set(Napi::String::New(env, "syncErrors"), Napi::Number::New(env, dectError.syncErrors));
+                        dectInfoNapi.Set(Napi::String::New(env, "aErrors"), Napi::Number::New(env, dectError.aErrors));
+                        dectInfoNapi.Set(Napi::String::New(env, "xErrors"), Napi::Number::New(env, dectError.xErrors));
+                        dectInfoNapi.Set(Napi::String::New(env, "zErrors"), Napi::Number::New(env, dectError.zErrors));
+                        dectInfoNapi.Set(Napi::String::New(env, "hubSyncErrors"), Napi::Number::New(env, dectError.hubSyncErrors));
+                        dectInfoNapi.Set(Napi::String::New(env, "hubAErrors"), Napi::Number::New(env, dectError.hubAErrors));
+                        dectInfoNapi.Set(Napi::String::New(env, "handoversCount"), Napi::Number::New(env, dectError.handoversCount));
+                        break;
+                      }
+                    }
+
+                    args = { Napi::Number::New(env, deviceID), dectInfoNapi };
+                  });
+                }
+
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterDectInfoHandler callback handling finished";
+              } catch (const std::exception &e) {
+                const std::string errorMsg = "RegisterDectInfoHandler callback failed: " + std::string(e.what());
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
+              } catch (...) {
+                const std::string errorMsg = "RegisterDectInfoHandler callback failed failed with unknown exception";
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }
             });
