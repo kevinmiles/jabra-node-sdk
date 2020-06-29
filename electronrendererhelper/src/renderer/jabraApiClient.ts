@@ -5,7 +5,7 @@ type IpcRenderer = import('electron').IpcRenderer;
 import { ClassEntry, JabraType, DeviceInfo, 
          enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus, PairedListInfo, enumUploadEventStatus,
          JabraTypeEvents, DeviceTypeEvents, JabraEventsList, DeviceEventsList, DeviceType, MetaApi, MethodEntry, 
-         AddonLogSeverity, NativeAddonLogConfig, DeviceTiming, enumRemoteMmiType, enumRemoteMmiInput } from '@gnaudio/jabra-node-sdk';
+         AddonLogSeverity, NativeAddonLogConfig, DeviceTiming, enumRemoteMmiType, enumRemoteMmiInput, DectInfo } from '@gnaudio/jabra-node-sdk';
 import { getExecuteDeviceTypeApiMethodEventName, getDeviceTypeApiCallabackEventName, getJabraTypeApiCallabackEventName, 
          getExecuteJabraTypeApiMethodEventName, getExecuteJabraTypeApiMethodResponseEventName, 
          getExecuteDeviceTypeApiMethodResponseEventName, createApiClientInitEventName,
@@ -646,6 +646,22 @@ function createRemoteDeviceType(deviceInfo: DeviceInfo & DeviceTiming, deviceTyp
     ipcRenderer.on(getDeviceTypeApiCallabackEventName('onRemoteMmiEvent', deviceInfo.deviceID), (event, type: enumRemoteMmiType, input: enumRemoteMmiInput) => {
         emitEvent('onRemoteMmiEvent', type, input);
     });    
+
+    ipcRenderer.on(getDeviceTypeApiCallabackEventName('onDectInfoEvent', deviceInfo.deviceID), (event, dectInfo: DectInfo) => {
+        emitEvent('onDectInfoEvent', dectInfo);
+    });
+  
+    /*  
+    The above can most likely be replaced by looping over the DeviceEventsList like below. 
+    Would require testing all event types to make sure no edgecases are overlooked. 
+    Is left outcommented until that opportunity arises: 
+
+    DeviceEventsList.forEach((eventHandle) => {
+        ipcRenderer.on(getDeviceTypeApiCallabackEventName(eventHandle, deviceInfo.deviceID), (event, ...props) => {
+            emitEvent(eventHandle, ...props);
+        });    
+    })
+    */
 
     function shutdown() {
         JabraNativeAddonLog(ipcRenderer, AddonLogSeverity.verbose, "createRemoteDeviceType.shutdown", "device #" + deviceInfo.deviceID + " shutdown.");

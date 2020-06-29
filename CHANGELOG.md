@@ -11,6 +11,10 @@ V3.1.0 production version is code-wise identical to v3.1.0-beta4. If you already
 
 --------------------------------
 
+### v3.2.0-beta.1
+- Upgraded embedded native "C" sdk to v1.8.7.12
+- Added support for DectDensity
+
 ### v3.1.0 (2020-06-16)
 - Upgraded embedded native "C" sdk to v1.8.7.11
 - Added various new APIs for above "C" sdk, incl. reboot, locking etc.
