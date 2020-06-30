@@ -11,6 +11,11 @@ V3.1.0 production version is code-wise identical to v3.1.0-beta4. If you already
 
 --------------------------------
 
+### v3.2.0-beta.1
+- Added support for DectInfo events (DectDensity and DectErrorCount)
+  - Updated electron-renderer-helper to support DectInfo events
+- Upgraded embedded native "C" sdk to v1.8.7.12
+
 ### v3.1.0 (2020-06-16)
 - Upgraded embedded native "C" sdk to v1.8.7.11
 - Added various new APIs for above "C" sdk, incl. reboot, locking etc.
@@ -83,5 +88,3 @@ The device support is identical to the one for Windows SDK v1.8.3.10, but please
 - Beta public version for Winodws(SDK Version: 1.2.0.24) and Mac(SDK Version: 1.2.0.25)
 - Minor changes in type definition file
 - Removed package scoping
-
-
