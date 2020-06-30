@@ -1,6 +1,6 @@
 {
   "name": "@gnaudio/jabra-electron-renderer-helper",
-  "version": "2.0.0-beta.2",
+  "version": "2.0.0-beta.3",
   "description": "Makes jabra-node-sdk available for Electron's renderer process",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,7 +10,7 @@
     "browserify-preload": "browserify src/testapp/main/preload.ts -x electron -x process -p tsify --bare --debug -o dist/testapp/main/preload_bundle.js",
     "browserify-render": "browserify src/testapp/renderer/renderer.ts -x electron -p tsify --debug -o dist/testapp/renderer/bundle.js",
     "copyresources": "copyfiles -u 1 src/**/*.html dist",
-    "start": "cross-env LIBJABRA_TRACE_LEVEL=trace NODE_ENV=dev electron ./dist/testapp/main/main.js",
+    "start": "npm run build && cross-env LIBJABRA_TRACE_LEVEL=trace NODE_ENV=dev electron ./dist/testapp/main/main.js",
     "prepare": "npm run build",
     "test": "cross-env LIBJABRA_TRACE_LEVEL=trace NODE_ENV=test jest --runInBand --verbose",
     "clean": "rimraf dist"

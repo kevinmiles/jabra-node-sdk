@@ -48,6 +48,10 @@ createApiClient(window.electron.ipcRenderer).then((client) => {
                     console.log("Getting btnPress btnType = '" + JSON.stringify(btnType, null, 2) + "'");
                     console.log("Getting btnPress value = '" + JSON.stringify(value, null, 2) + "'");
                 });
+
+                device.on("onDectInfoEvent", (dectInfo) => {
+                    console.log("DectInfo:" , dectInfo);
+                });
             });
         
             client.on('detach', (device) => {
