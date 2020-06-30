@@ -11,6 +11,22 @@ trigger:
 stages:
 - stage: build
   jobs:
+  - job: linting
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+      fetchDepth: 3
+    - script: |
+        cd $(Build.SourcesDirectory)/nodesdk
+        npm install
+      displayName: Initialize
+    - script: |
+        cd $(Build.SourcesDirectory)/nodesdk
+        npx eslint 'src/**'
+      displayName: Run ESLint
+      continueOnError: true
+
   - job: linux
     pool:
       vmImage: 'ubuntu-latest'
