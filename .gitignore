@@ -166,5 +166,5 @@ build/
 !.vscode/c_cpp_properties.json
 
 # Davide's entries (dlaezza@jabra.com)
-nodesdk/.tool-versions
+.tool-versions
 nodesdk/.env
