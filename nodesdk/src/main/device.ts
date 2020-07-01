@@ -1141,7 +1141,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    */
    isEqualizerEnabledAsync(): Promise<boolean>  {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isEqualizerEnabledAsync.name, "called with", this.deviceID); 
-        return util.promisify(sdkIntegration.IsEqualizerSupported)(this.deviceID).then((result) => {
+        return util.promisify(sdkIntegration.IsEqualizerEnabled)(this.deviceID).then((result) => {
             _JabraNativeAddonLog(AddonLogSeverity.verbose, this.isEqualizerEnabledAsync.name, "returned with", result);
             return result;
         });
