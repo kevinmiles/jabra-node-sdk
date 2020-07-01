@@ -60,5 +60,8 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "*.inc": "cpp"
+    },
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#672a2a",
     }
 }

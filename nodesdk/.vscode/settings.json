@@ -85,5 +85,8 @@
     "typescript.tsdk": "node_modules\\typescript\\lib",
     "files.exclude": {
         "**/build": true,
+    },
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#536382",
     }
 }
