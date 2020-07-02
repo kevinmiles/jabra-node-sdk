@@ -23,7 +23,7 @@
     "build:dev": "node-gyp rebuild --debug && npm run tsc && npm run generatemeta",
     "build:release": "node-gyp rebuild && npm run tsc && npm run generatemeta",
     "tsc": "tsc",
-    "lint": "eslint src/**", 
+    "lint": "eslint src/**",
     "prepare": "npm run tsc && npm run doc && node dist/script/generatemeta.js",
     "generatemeta": "ts-node src/script/generatemeta.ts",
     "manualtest": "cross-env LIBJABRA_TRACE_LEVEL=trace ts-node src/manualtest/misc.ts",
