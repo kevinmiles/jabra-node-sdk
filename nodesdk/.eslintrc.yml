@@ -3,10 +3,13 @@ env:
   node: true
 extends:
   - google
+  - 'plugin:editorconfig/noconflict'
 parser: '@typescript-eslint/parser'
 parserOptions:
   ecmaVersion: 11
   sourceType: module
 plugins:
   - '@typescript-eslint'
-rules: {}
+  - editorconfig
+rules:
+  'editorconfig/editorconfig': error
