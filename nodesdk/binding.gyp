@@ -17,11 +17,13 @@
       }],
       ["OS=='linux' and target_arch=='ia32'", {
         "jabralibfolder": "libjabra/ubuntu/x32",
-        "jabralibfile": "libjabra.so.1.8.7.12"
+        "jabralibfileglob": "libjabra.so.*",
+        "jabralibfile": "<!(find '<(_jabralibfolder)' -type f -name '<(_jabralibfileglob)' -printf '%f')"
       }],
       ["OS=='linux' and target_arch=='x64'", {
         "jabralibfolder": "libjabra/ubuntu/x64",
-        "jabralibfile": "libjabra.so.1.8.7.12"
+        "jabralibfileglob": "libjabra.so.*",
+        "jabralibfile": "<!(find '<(_jabralibfolder)' -type f -name '<(_jabralibfileglob)' -printf '%f')"
       }],
       ["OS=='linux' and target_arch=='arm'", {
         "jabralibfolder": "TODO",
