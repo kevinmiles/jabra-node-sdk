@@ -12,7 +12,7 @@
         "jabraliblibrary": "libjabra.lib"
       }],
       ["OS=='mac'", {
-        "jabralibfolder": "../libjabra/mac/libjabra.dylib",
+        "jabralibfolder": "libjabra/mac",
         "jabralibfile": "libjabra.dylib"
       }],
       ["OS=='linux' and target_arch=='ia32'", {
@@ -98,7 +98,7 @@
           ],
         }],
         ['OS=="mac"', {
-         'libraries': [ '../libjabra/mac/libjabra.dylib' ],
+         'libraries': [ '../<(jabralibfolder)/<(jabralibfile)' ],
          'xcode_settings': {
            'ld_version_details': 'true',
            'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
@@ -118,7 +118,7 @@
          [
             {
               'destination': '<(PRODUCT_DIR)',
-              'files': ['<(module_root_dir)/libjabra/mac/libjabra.dylib']
+              'files': ['<(module_root_dir)/<(jabralibfolder)/<(jabralibfile)']
             }
          ],
          'postbuilds': [
