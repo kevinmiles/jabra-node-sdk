@@ -161,6 +161,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   // Python
   EXPORTS_SET(IsNewportRemoteManagementEnabled);
   EXPORTS_SET(EnableNewportRemoteManagement);
+  EXPORTS_SET(SetXpressUrl);
+  EXPORTS_SET(GetXpressUrl);
 
   try {
     configureLogging();
