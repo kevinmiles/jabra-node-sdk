@@ -2827,6 +2827,38 @@ typedef struct _ZoomLimits {
 LIBRARY_API Jabra_ReturnCode Jabra_GetZoomLimits(unsigned short deviceID, Jabra_ZoomLimits* limits);
 
 /**
+ * @brief       For a video device sets the current pan and tilt positions in arc second units.
+ * @param[in]   deviceID ID for the specific device
+ * @param[in]   pan the pan in the range [-180*3600; +180*3600].
+ * @param[in]   tilt the tilt in the range [-180*3600; +180*3600].
+ * @return      Device_Unknown if the deviceID specified is not known.
+ * @return      Not_Supported if the video feature is not supported.
+ * @return      Device_WriteFail if it failed to write to the device.
+ * @return      Return_Ok if successful.
+ *
+ * pan and tilt are given in arc seconds.  1 arc second is 1/3600 of a degree,
+ * so values will range from -648000(-180*3600) to 648000(180*3600). Positive
+ * values are clockwise from the origin.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_SetPanTilt(unsigned short deviceID, int32_t pan, uint32_t tilt);
+
+/**
+ * @brief       For a video device gets the current pan and tilt positions in arc second units.
+ * @param[in]   deviceID ID for the specific device
+ * @param[out]  pan pointer to an int32_t that will be filled with the current pan value.
+ * @param[out]  tilt pointer to an int32_t that will be filled with the current tilt value.
+ * @return      Device_Unknown if the deviceID specified is not known.
+ * @return      Not_Supported if the video feature is not supported.
+ * @return      Device_WriteFail if it failed to write to the device.
+ * @return      Return_Ok if successful.
+ *
+ * pan and tilt are given in arc seconds.  1 arc second is 1/3600 of a degree,
+ * so values will range from -648000(-180*3600) to 648000(180*3600). Positive
+ * values are clockwise from the origin.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetPanTilt(unsigned short deviceID, int32_t* pan, int32_t* tilt);
+
+/**
  * @brief Set Xpress URL using file transfer on Newport. Api is only supported on the newport platform
  * @param[in] deviceID ID for a specific device.
  *

@@ -1249,7 +1249,9 @@ Napi::Value napi_GetZoom(const Napi::CallbackInfo& info) {
             if (retCode != Jabra_ReturnCode::Return_Ok) {
                 util::JabraReturnCodeException::LogAndThrow(functionName,
                     retCode);
+                return zoom; // Dummy return - avoid compiler warnings.
             }
+
             return zoom;
         },
         Napi::Number::New
@@ -1310,6 +1312,66 @@ Napi::Value napi_GetZoomLimits(const Napi::CallbackInfo& info) {
             return jsLimits;
         }
     );
+}
+
+Napi::Value napi_GetPanTilt(const Napi::CallbackInfo& info) {
+    const char * const functionName = __func__;
+
+    return util::SimpleDeviceAsyncFunction<Napi::Object, std::pair<int32_t, int32_t>>(
+        functionName, info,
+        [functionName](unsigned short deviceId) {
+            std::pair<int32_t, int32_t> panTilt;
+
+            Jabra_ReturnCode retCode = Jabra_GetPanTilt(deviceId,
+                &panTilt.first, &panTilt.second);
+
+            if (retCode != Jabra_ReturnCode::Return_Ok) {
+                util::JabraReturnCodeException::LogAndThrow(functionName,
+                    retCode);
+                return panTilt; // Dummy return - avoid compiler warnings.
+            }
+
+            return panTilt;
+        },
+        [](const Napi::Env& env, const std::pair<int32_t, int32_t>& cPanTilt) {
+            Napi::Object jsPanTilt = Napi::Object::New(env);
+            jsPanTilt.Set("pan", cPanTilt.first);
+            jsPanTilt.Set("tilt", cPanTilt.second);
+            return jsPanTilt;
+        }
+    );
+}
+
+Napi::Value napi_SetPanTilt(const Napi::CallbackInfo& info) {
+    const char * const functionName = __func__;
+    Napi::Env env = info.Env();
+
+    if (!util::verifyArguments(functionName, info, {util::NUMBER, util::OBJECT, util::FUNCTION})) {
+        return env.Undefined();
+    }
+
+    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
+    Napi::Object jsPanTilt = info[1].As<Napi::Object>();
+    Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
+
+    int32_t pan = util::getObjInt32OrDefault(jsPanTilt, "pan", 0);
+    int32_t tilt = util::getObjInt32OrDefault(jsPanTilt, "tilt", 0);
+
+    (new util::JAsyncWorker<void, void>(
+        functionName,
+        javascriptResultCallback,
+        [functionName, deviceId, pan, tilt]() {
+            Jabra_ReturnCode retCode = Jabra_SetPanTilt(deviceId,
+                pan, tilt);
+
+            if (retCode != Jabra_ReturnCode::Return_Ok) {
+                util::JabraReturnCodeException::LogAndThrow(functionName,
+                    retCode);
+            }
+        }
+    ))->Queue();
+
+    return env.Undefined();
 }
 
 Napi::Value napi_StoreColorControlPreset(const Napi::CallbackInfo& info) {

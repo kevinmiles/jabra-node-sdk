@@ -281,13 +281,13 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
     return env.Null();
   }
 
-  if (util::verifyArguments(__func__, info, { util::STRING, 
-      util::FUNCTION, util::FUNCTION, util::FUNCTION, 
+  if (util::verifyArguments(__func__, info, { util::STRING,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
-      util::FUNCTION,  util::FUNCTION, util::FUNCTION, 
-      util::OBJECT })) {
+      util::FUNCTION, util::FUNCTION, util::FUNCTION,
+      util::FUNCTION, util::FUNCTION, util::FUNCTION,
+      util::FUNCTION, util::OBJECT })) {
 
     int argNr = 0;
 

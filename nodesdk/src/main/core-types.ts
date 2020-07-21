@@ -287,7 +287,7 @@ export interface WhiteboardPosition {
 }
 
 /**
- * This structure represent a device camera's zoom limits.
+ * This structure represents a device camera's zoom limits.
  */
 export interface ZoomLimits {
     /* The minimum value the zoom level can be set to. */
@@ -296,4 +296,12 @@ export interface ZoomLimits {
     max: number;
     /* The minimum amount that the value needs to change for it to have any effect. */
     stepSize: number;
+}
+
+/**
+ * This structure represents a device camera's pan an tilt values.
+ */
+export interface PanTilt {
+  pan: number,
+  tilt: number
 }
