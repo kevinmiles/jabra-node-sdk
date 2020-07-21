@@ -257,31 +257,31 @@ export namespace DectInfo {
 
 export interface DectInfoDensity extends DectInfoCommon {
     kind: 'density';
-    sumMeasuredRSSI :number;		/* This is the sum of RSSI measured for all slots. */
-    maximumReferenceRSSI :number;   /* This is the maximum RSSI expected to be measured from 1 slot. */
-    numberMeasuredSlots :number;    /* Number of slots measured in current communication mode. */
-    dataAgeSeconds :number;		    /* Time since measurement was taken. */
+    sumMeasuredRSSI: number;		/* This is the sum of RSSI measured for all slots. */
+    maximumReferenceRSSI: number;   /* This is the maximum RSSI expected to be measured from 1 slot. */
+    numberMeasuredSlots: number;    /* Number of slots measured in current communication mode. */
+    dataAgeSeconds: number;		    /* Time since measurement was taken. */
 }
 
 export interface DectInfoErrorCount extends DectInfoCommon {
     kind: 'errorCount';
-    syncErrors :number;		/* Number of errors in SYNC field.*/
-    aErrors :number;		/* Number of errors in A field.*/
-    xErrors :number;		/* Number of errors in X field.*/
-    zErrors :number;		/* Number of errors in Z field.*/
-    hubSyncErrors :number;	/* Number of errors in HUB Sync field.*/
-    hubAErrors :number;		/* Number of errors in HUB A field.*/
-    handoversCount :number; /* Handover count.*/
+    syncErrors: number;		/* Number of errors in SYNC field.*/
+    aErrors: number;		/* Number of errors in A field.*/
+    xErrors: number;		/* Number of errors in X field.*/
+    zErrors: number;		/* Number of errors in Z field.*/
+    hubSyncErrors: number;	/* Number of errors in HUB Sync field.*/
+    hubAErrors: number;		/* Number of errors in HUB A field.*/
+    handoversCount: number; /* Handover count.*/
 }
 
 export interface Point2D {
-    x :number;  /* X coordinate of the point */
-    y :number;  /* y coordinate of the point */
+    x: number;  /* X coordinate of the point */
+    y: number;  /* y coordinate of the point */
 }
 
 export interface WhiteboardPosition {
-    lowerLeftCorner :Point2D;   /* Lower-left corner of the whiteboard */
-    lowerRightCorner :Point2D;  /* Lower-right corner of the whiteboard */
-    upperRightCorner :Point2D;  /* Upper-right corner of the whiteboard */
-    upperLeftCorner :Point2D;   /* Upper-left corner of the whiteboard */
+    lowerLeftCorner: Point2D;   /* Lower-left corner of the whiteboard */
+    lowerRightCorner: Point2D;  /* Lower-right corner of the whiteboard */
+    upperRightCorner: Point2D;  /* Upper-right corner of the whiteboard */
+    upperLeftCorner: Point2D;   /* Upper-left corner of the whiteboard */
 }
