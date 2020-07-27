@@ -1,5 +1,6 @@
 import { SdkIntegration } from "./sdkintegration";
-import { AddonLogSeverity, DeviceTiming, DevLogData, AudioFileFormatEnum, RemoteMmiActionOutput } from "./core-types";
+import { AddonLogSeverity, DeviceTiming, DevLogData, AudioFileFormatEnum,
+  RemoteMmiActionOutput, WhiteboardPosition } from "./core-types";
 import { isNodeJs } from './util';
 import { _JabraNativeAddonLog } from './logger';
 
@@ -1325,6 +1326,35 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
       return util.promisify(sdkIntegration.GetXpressUrl)(this.deviceID).then((result) => {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setXpressUrlAsync.name, "returned");
         return result;
+      });
+    }
+
+    /**
+     * Returns the position of the provided whiteboard corners as coordinates.
+     * @param {number} whiteboardId - The whiteboard id number.
+     * @returns {Promise<number, JabraError>} - Resolves to the whiteboard
+     *    corners position on success, rejects with `JabraError` if an error
+     *    occurs.
+     */
+    getWhiteboardPositionAsync(whiteboardId: number) : Promise<WhiteboardPosition> {
+      _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getWhiteboardPositionAsync.name, "called with", this.deviceID);
+      return util.promisify(sdkIntegration.GetWhiteboardPosition)(this.deviceID, whiteboardId).then((result) => {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getWhiteboardPositionAsync.name, "returned");
+        return result;
+      });
+    }
+
+    /**
+     * Sets the position of the provided whiteboard corners.
+     * @param {number} whiteboardId - The whiteboard id number.
+     * @param {WhiteboardPosition} whiteboardPosition - The whiteboard corners.
+     * @returns {Promise<number, JabraError>} - Resolves to `void` on success,
+     *    rejects with `JabraError` on error.
+     */
+    setWhiteboardPositionAsync(whiteboardId: number, whiteboardPosition: WhiteboardPosition) : Promise<void> {
+      _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setWhiteboardPositionAsync.name, "called with", this.deviceID);
+      return util.promisify(sdkIntegration.SetWhiteboardPosition)(this.deviceID, whiteboardId, whiteboardPosition).then(() => {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setWhiteboardPositionAsync.name, "returned");
       });
     }
 
