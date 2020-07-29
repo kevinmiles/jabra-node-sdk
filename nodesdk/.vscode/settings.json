@@ -94,5 +94,7 @@
     },
     "workbench.colorCustomizations": {
         "titleBar.activeBackground": "#536382",
-    }
+    },
+    "editor.trimAutoWhitespace": false,
+    "files.trimTrailingWhitespace": false
 }
