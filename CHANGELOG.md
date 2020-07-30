@@ -11,7 +11,7 @@ V3.1.0 production version is code-wise identical to v3.1.0-beta4. If you already
 
 --------------------------------
 
-### Next beta
+### v3.3.0-beta.1 (2020-07-30)
 - Adding support for Newport-based devices. This includes:
   - Newport remote management.
     - Configuring the setting to be on or off and getting its current value.
