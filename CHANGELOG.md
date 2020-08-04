@@ -11,6 +11,9 @@ V3.1.0 production version is code-wise identical to v3.1.0-beta4. If you already
 
 --------------------------------
 
+### v3.3.0-beta.2 (2020-08-04)
+- Fixing runtime error on Mac
+
 ### v3.3.0-beta.1 (2020-07-30)
 - Adding support for Newport-based devices. This includes:
   - Newport remote management.
