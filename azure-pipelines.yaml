@@ -2,9 +2,8 @@
 
 trigger:
   branches:
-    include: 
-    - master
-    - azure-pipelines
+    include:
+    - '*'
     exclude:
       - refs/tags/*
 
@@ -109,3 +108,18 @@ stages:
         cd $(Build.SourcesDirectory)/nodesdk
         npm audit
       displayName: Npm audit
+
+  - job: testapp
+    displayName: Starting testapp
+    dependsOn: linux
+
+    steps:
+    - script: |
+        cd $(Build.SourcesDirectory)/testapp
+        npm install
+      displayName: Installing testapp dependencies
+
+    - script: |
+        cd $(Build.SourcesDirectory)/testapp
+        npm run start
+      displayName: Starting testapp
