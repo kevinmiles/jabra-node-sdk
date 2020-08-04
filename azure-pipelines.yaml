@@ -116,6 +116,16 @@ stages:
     steps:
     - script: |
         cd $(Build.SourcesDirectory)/testapp
+        # This produces a nodesdk tarball package and saves the filename into
+        # the variable
+        NODESDK_TARBALL="$(npm pack ../nodesdk 2>&1 \
+            | grep 'npm notice filename:' | cut -f 2 -d ':')"
+        cp "../nodesdk/$NODESDK_TARBALL" .
+        npm install --save "$NODESDK_TARBALL"
+      displayName: Making testapp depend on the current nodesdk
+
+    - script: |
+        cd $(Build.SourcesDirectory)/testapp
         npm install
       displayName: Installing testapp dependencies
 
