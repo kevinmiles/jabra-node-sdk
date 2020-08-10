@@ -140,7 +140,7 @@ stages:
 
     - script: |
         cd $(Build.SourcesDirectory)/testapp
-        timeout 5s xvfb-run -s '-screen 0 1024x768x24' npm run start
+        timeout 15s xvfb-run -s '-screen 0 1024x768x24' npm run start
       displayName: Starting testapp
 
   - job: mac
