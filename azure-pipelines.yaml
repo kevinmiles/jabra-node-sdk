@@ -139,6 +139,7 @@ stages:
       displayName: Installing testapp dependencies
 
     - script: |
+        set -x
         cd $(Build.SourcesDirectory)/testapp
         timeout 15s xvfb-run -s '-screen 0 1024x768x24' npm run start
       displayName: Starting testapp
@@ -168,6 +169,10 @@ stages:
       displayName: Installing testapp dependencies
 
     - script: |
+        set -x
         cd $(Build.SourcesDirectory)/testapp
-        timeout npm run start
+        npm run start &
+        sleep 15s
+        kill $!
+
       displayName: Starting testapp
