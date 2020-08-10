@@ -122,12 +122,14 @@ stages:
       displayName: Initializing environment
 
     - script: |
-        cd $(Build.SourcesDirectory)/testapp
+        cd $(Build.SourcesDirectory)/nodesdk
+        npm install
         # This produces a nodesdk tarball package and saves the filename into
         # the variable
-        NODESDK_TARBALL="$(npm pack ../nodesdk 2>&1 \
-            | grep 'npm notice filename:' | cut -f 2 -d ':')"
-        cp "../nodesdk/$NODESDK_TARBALL" .
+        NODESDK_TARBALL="$(npm pack . 2>&1 | grep 'npm notice filename:' \
+            | cut -f 2 -d ':' | xargs)"
+        cp "$NODESDK_TARBALL" $(Build.SourcesDirectory)/testapp
+        cd $(Build.SourcesDirectory)/testapp
         npm install --save "$NODESDK_TARBALL"
       displayName: Making testapp depend on the current nodesdk
 
@@ -138,7 +140,9 @@ stages:
 
     - script: |
         cd $(Build.SourcesDirectory)/testapp
-        xvfb-run -screen 0 1024x768x24 npm run start
+        xvfb-run '-screen 0 1024x768x24' npm run start &
+        sleep 5s
+        kill $!
       displayName: Starting testapp
 
   - job: mac
