@@ -140,7 +140,7 @@ stages:
 
     - script: |
         cd $(Build.SourcesDirectory)/testapp
-        xvfb-run '-screen 0 1024x768x24' npm run start &
+        xvfb-run -s '-screen 0 1024x768x24' npm run start &
         sleep 5s
         kill $!
       displayName: Starting testapp
