@@ -136,5 +136,5 @@ stages:
 
     - script: |
         cd $(Build.SourcesDirectory)/testapp
-        xfvb-run npm run start
+        xvfb-run npm run start
       displayName: Starting testapp
