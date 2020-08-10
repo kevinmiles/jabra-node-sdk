@@ -114,7 +114,6 @@ stages:
 
   - job: linux
     displayName: Starting testapp on Linux
-    dependsOn: linux
 
     steps:
     - script: |
@@ -144,7 +143,6 @@ stages:
 
   - job: mac
     displayName: Starting testapp on Linux
-    dependsOn: mac
 
     pool:
       vmImage: 'macos-latest'
