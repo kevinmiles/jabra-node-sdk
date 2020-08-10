@@ -119,7 +119,7 @@ stages:
         sudo apt-get install xfvb
       displayName: Initializing environment
 
-      - script: |
+    - script: |
         cd $(Build.SourcesDirectory)/testapp
         # This produces a nodesdk tarball package and saves the filename into
         # the variable
