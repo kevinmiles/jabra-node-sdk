@@ -109,8 +109,11 @@ stages:
         npm audit
       displayName: Npm audit
 
-  - job: testapp
-    displayName: Starting testapp
+- stage: testapp
+  jobs:
+
+  - job: linux
+    displayName: Starting testapp on Linux
     dependsOn: linux
 
     steps:
@@ -137,4 +140,32 @@ stages:
     - script: |
         cd $(Build.SourcesDirectory)/testapp
         xvfb-run npm run start
+      displayName: Starting testapp
+
+  - job: mac
+    displayName: Starting testapp on Linux
+    dependsOn: mac
+
+    pool:
+      vmImage: 'macos-latest'
+
+    steps:
+    - script: |
+        cd $(Build.SourcesDirectory)/testapp
+        # This produces a nodesdk tarball package and saves the filename into
+        # the variable
+        NODESDK_TARBALL="$(npm pack ../nodesdk 2>&1 \
+            | grep 'npm notice filename:' | cut -f 2 -d ':')"
+        cp "../nodesdk/$NODESDK_TARBALL" .
+        npm install --save "$NODESDK_TARBALL"
+      displayName: Making testapp depend on the current nodesdk
+
+    - script: |
+        cd $(Build.SourcesDirectory)/testapp
+        npm install
+      displayName: Installing testapp dependencies
+
+    - script: |
+        cd $(Build.SourcesDirectory)/testapp
+        npm run start
       displayName: Starting testapp
