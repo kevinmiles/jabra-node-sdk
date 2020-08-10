@@ -142,7 +142,7 @@ stages:
       displayName: Starting testapp
 
   - job: mac
-    displayName: Starting testapp on Linux
+    displayName: Starting testapp on Mac
 
     pool:
       vmImage: 'macos-latest'
@@ -165,5 +165,8 @@ stages:
 
     - script: |
         cd $(Build.SourcesDirectory)/testapp
-        npm run start
+        npm run start &
+        wait 5s
+        kill $!
+
       displayName: Starting testapp
