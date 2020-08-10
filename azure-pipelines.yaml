@@ -116,7 +116,7 @@ stages:
     steps:
     - script: |
         sudo apt-get update
-        sudo apt-get install xfvb
+        sudo apt-get install xvfb
       displayName: Initializing environment
 
     - script: |
