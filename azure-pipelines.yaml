@@ -13,11 +13,11 @@ stages:
   - job: linux
     pool:
       vmImage: 'ubuntu-latest'
-  
-    steps:  
+
+    steps:
     - checkout: self
       fetchDepth: 3
-  
+
     - script: |
         sudo apt-get update
         sudo apt-get install gcc
@@ -27,17 +27,17 @@ stages:
         cd $(Build.SourcesDirectory)/nodesdk
         npm install
       displayName: Initialize
-        
+
     - script: |
         cd $(Build.SourcesDirectory)/nodesdk
         npx node-gyp rebuild
       displayName: Build NAPI C++
-        
+
     - script: |
         cd $(Build.SourcesDirectory)/nodesdk
         npm run tsc
       displayName: Compiling TypeScript
-        
+
     - script: |
         cd $(Build.SourcesDirectory)/nodesdk
         npm run generatemeta
@@ -46,21 +46,21 @@ stages:
   - job: windows
     pool:
       vmImage: 'windows-latest'
-    
+
     steps:
     - checkout: self
       fetchDepth: 3
-    
+
     - script: |
         cd $(Build.SourcesDirectory)/nodesdk
         npm install
       displayName: Initialize
-        
+
     - script: |
         cd $(Build.SourcesDirectory)/nodesdk
         npx node-gyp rebuild
       displayName: Build NAPI C++
-        
+
     - script: |
         cd $(Build.SourcesDirectory)/nodesdk
         npm run tsc
@@ -78,17 +78,17 @@ stages:
     steps:
     - checkout: self
       fetchDepth: 3
-    
+
     - script: |
         cd $(Build.SourcesDirectory)/nodesdk
         npm install
       displayName: Initialize
-        
+
     - script: |
         cd $(Build.SourcesDirectory)/nodesdk
         npx node-gyp rebuild
       displayName: Build NAPI C++
-        
+
     - script: |
         cd $(Build.SourcesDirectory)/nodesdk
         npm run tsc
