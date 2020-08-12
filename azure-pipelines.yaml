@@ -170,7 +170,7 @@ stages:
         npm install
       displayName: Installing testapp dependencies
 
-    - script: |
+    - bash: |
         set -x
         cd $(Build.SourcesDirectory)/testapp
         npm run start &
