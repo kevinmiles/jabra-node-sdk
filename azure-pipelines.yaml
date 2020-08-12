@@ -142,6 +142,8 @@ stages:
         set -x
         cd $(Build.SourcesDirectory)/testapp
         timeout 25s xvfb-run -s '-screen 0 1024x768x24' npm run start
+        # 124 is the default exit code for the timeout command
+        [ "$?" == 124 ] && exit 0
       displayName: Starting testapp
 
   - job: mac
