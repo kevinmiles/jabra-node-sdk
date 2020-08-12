@@ -174,7 +174,6 @@ stages:
         set -x
         cd $(Build.SourcesDirectory)/testapp
         npm run start &
-        sleep 15s
-        kill $!
+        echo $!
 
       displayName: Starting testapp
