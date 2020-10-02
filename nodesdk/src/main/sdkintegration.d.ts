@@ -43,6 +43,7 @@ export declare interface SdkIntegration {
                registerPairingListCallback: (deviceId: number, pairedListInfo: PairedListInfo) => void,
                onGNPBtnEventCallback: (deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void,
                dectInfoCallback: (deviceId: number, dectInfo: DectInfo) => void,
+               diagnosticLogCallback: () => void,
                configParams: ConfigParamsCloud & GenericConfigParams) : void;
 
     /**

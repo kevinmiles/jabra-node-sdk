@@ -1051,6 +1051,53 @@ Napi::Value napi_GetXpressUrl(const Napi::CallbackInfo& info) {
         });
 }
 
+Napi::Value napi_GetDiagnosticLogFile(const Napi::CallbackInfo& info) {
+    const char * const functionName = __func__;
+    Napi::Env env = info.Env();
+
+    if (util::verifyArguments(functionName, info, {util::NUMBER, util::STRING, util::FUNCTION})) {
+        const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
+        const std::string filename = info[1].As<Napi::String>();
+        Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
+
+        (new util::JAsyncWorker<void, void>(
+            functionName,
+            javascriptResultCallback,
+            [functionName, deviceId, filename](){
+                Jabra_ReturnCode retCode = Jabra_GetDiagnosticLogFile(deviceId, filename.c_str());
+                if (retCode != Return_Ok) {
+                    util::JabraReturnCodeException::LogAndThrow(functionName, retCode);
+                }
+            }
+        ))->Queue();
+  }
+
+  return env.Undefined();
+}
+
+Napi::Value napi_TriggerDiagnosticLogGeneration(const Napi::CallbackInfo& info) {
+    const char * const functionName = __func__;
+    Napi::Env env = info.Env();
+
+    if (util::verifyArguments(functionName, info, {util::NUMBER, util::FUNCTION})) {
+        const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
+        Napi::Function javascriptResultCallback = info[1].As<Napi::Function>();
+
+        (new util::JAsyncWorker<void, void>(
+            functionName,
+            javascriptResultCallback,
+            [functionName, deviceId](){
+                Jabra_ReturnCode retCode = Jabra_TriggerDiagnosticLogGeneration(deviceId, NULL);
+                if (retCode != Return_Ok) {
+                    util::JabraReturnCodeException::LogAndThrow(functionName, retCode);
+                }
+            }
+        ))->Queue();
+  }
+
+  return env.Undefined();
+}
+
 Napi::Value napi_GetWhiteboardPosition(const Napi::CallbackInfo& info) {
     const char * const functionName = __func__;
     Napi::Env env = info.Env();
