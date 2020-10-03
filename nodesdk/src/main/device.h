@@ -63,7 +63,7 @@ Napi::Value napi_SetXpressUrl(const Napi::CallbackInfo& info);
 Napi::Value napi_GetXpressUrl(const Napi::CallbackInfo& info);
 
 Napi::Value napi_TriggerDiagnosticLogGeneration(const Napi::CallbackInfo& info);
-Napi::Value napi_Jabra_GetDiagnosticLogFile(const Napi::CallbackInfo& info);
+Napi::Value napi_GetDiagnosticLogFile(const Napi::CallbackInfo& info);
 
 Napi::Value napi_GetWhiteboardPosition(const Napi::CallbackInfo& info);
 Napi::Value napi_SetWhiteboardPosition(const Napi::CallbackInfo& info);

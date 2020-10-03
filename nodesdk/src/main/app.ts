@@ -297,7 +297,7 @@ export class JabraType implements MetaApi {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
                     _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onDectInfoEvent callback", err);
                 }
-            }, () => {
+            }, (deviceId) => {
                 try {
                     _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onDiagnosticLogEvent", (() => `onDiagnosticLogEvent event received from native sdk`));
                 } catch (err) {

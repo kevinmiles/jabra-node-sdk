@@ -43,7 +43,7 @@ export declare interface SdkIntegration {
                registerPairingListCallback: (deviceId: number, pairedListInfo: PairedListInfo) => void,
                onGNPBtnEventCallback: (deviceId: number, btnEvents: Array<{ buttonTypeKey: number, buttonTypeValue: string, buttonEventType: Array<{ key: number, value: string }> }>) => void,
                dectInfoCallback: (deviceId: number, dectInfo: DectInfo) => void,
-               diagnosticLogCallback: () => void,
+               diagnosticLogCallback: (deviceId: number) => void,
                configParams: ConfigParamsCloud & GenericConfigParams) : void;
 
     /**
@@ -226,6 +226,9 @@ export declare interface SdkIntegration {
     SetXpressUrl(deviceId: number, url: string, callback: (error: JabraError, result: void) => void): void;
     GetXpressUrl(deviceId: number, callback: (error: JabraError, result: string) => void): void;
 
+    GetDiagnosticLogFile(deviceId: number, filename: string, callback: (error: JabraError, result: void) => void): void;
+    TriggerDiagnosticLogGeneration(deviceId: number, callback: (error: JabraError, result: number) => void): void;
+    
     GetWhiteboardPosition(deviceId: number, whiteboardId: number, callback: (error: JabraError, result: WhiteboardPosition) => void): void;
     SetWhiteboardPosition(deviceId: number, whiteboardId: number, whiteboardPosition: WhiteboardPosition, callback: (error: JabraError, result: void) => void): void;
 

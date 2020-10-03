@@ -22,6 +22,7 @@ class StateJabraInitialize {
   ThreadSafeCallback *deAttachedCallback;
   ThreadSafeCallback *buttonInDataTranslatedCallback;
   ThreadSafeCallback *devLogCallback;
+  ThreadSafeCallback *diagLogCallback;
   ThreadSafeCallback *batteryStatusCallback;
   ThreadSafeCallback *remoteMmiCallback;
   ThreadSafeCallback *downloadFirmwareProgressCallback;
@@ -29,7 +30,6 @@ class StateJabraInitialize {
   ThreadSafeCallback *registerPairingListCallback;
   ThreadSafeCallback *gNPButtonEventCallBack;
   ThreadSafeCallback *dectInfoCallback;
-  ThreadSafeCallback *diagnosticLogCallback;
 
   std::string proxy;
   std::string baseUrl_capabilities;
@@ -55,6 +55,7 @@ class StateJabraInitialize {
                            deAttachedCallback(nullptr),
                            buttonInDataTranslatedCallback(nullptr),
                            devLogCallback(nullptr),
+                           diagLogCallback(nullptr),
                            batteryStatusCallback(nullptr),
                            remoteMmiCallback(nullptr),
                            downloadFirmwareProgressCallback(nullptr),
@@ -62,7 +63,6 @@ class StateJabraInitialize {
                            registerPairingListCallback(nullptr),
                            gNPButtonEventCallBack(nullptr),
                            dectInfoCallback(nullptr),
-                           diagnosticLogCallback(nullptr),
                            initializationStartedState(false) {}
 
   void set(const Napi::Env& _env,
@@ -73,6 +73,7 @@ class StateJabraInitialize {
            ThreadSafeCallback* _deAttachedCallback,
            ThreadSafeCallback* _buttonInDataTranslatedCallback,
            ThreadSafeCallback* _devLogCallback,
+           ThreadSafeCallback* _diagLogCallback,
            ThreadSafeCallback* _batteryStatusCallback,
            ThreadSafeCallback* _remoteMmiCallback,
            ThreadSafeCallback* _downloadFirmwareProgressCallback,
@@ -80,7 +81,6 @@ class StateJabraInitialize {
            ThreadSafeCallback* _registerPairingListCallback,
            ThreadSafeCallback* _gNPButtonEventCallBack,
            ThreadSafeCallback* _dectInfoCallback,
-           ThreadSafeCallback* _diagnosticLogCallback,
            const std::string& _proxy,
            const std::string& _baseUrl_capabilities,
            const std::string& _baseUrl_fw,
@@ -96,6 +96,7 @@ class StateJabraInitialize {
       deAttachedCallback = _deAttachedCallback;
       buttonInDataTranslatedCallback = _buttonInDataTranslatedCallback;
       devLogCallback = _devLogCallback;
+      diagLogCallback = _diagLogCallback;
       batteryStatusCallback = _batteryStatusCallback;
       remoteMmiCallback = _remoteMmiCallback;
       downloadFirmwareProgressCallback = _downloadFirmwareProgressCallback;
@@ -103,7 +104,6 @@ class StateJabraInitialize {
       registerPairingListCallback = _registerPairingListCallback;
       gNPButtonEventCallBack = _gNPButtonEventCallBack;
       dectInfoCallback = _dectInfoCallback;
-      diagnosticLogCallback = _diagnosticLogCallback;
 
       proxy = _proxy;
       baseUrl_capabilities = _baseUrl_capabilities;
@@ -148,6 +148,10 @@ class StateJabraInitialize {
     return devLogCallback;
   }
 
+  ThreadSafeCallback * getDiagnosticLogCallback() {
+    return diagLogCallback;
+  }
+
   ThreadSafeCallback * getBatteryStatusCallback() {
     return batteryStatusCallback;
   }
@@ -174,10 +178,6 @@ class StateJabraInitialize {
 
   ThreadSafeCallback * getDectInfoCallBack() {
     return dectInfoCallback;
-  }
-
-  ThreadSafeCallback * getDiagnosticLogCallback() {
-    return diagnosticLogCallback;
   }
 
   std::string& getProxy() {
@@ -210,6 +210,7 @@ class StateJabraInitialize {
     releaseCallback(deAttachedCallback);
     releaseCallback(buttonInDataTranslatedCallback);
     releaseCallback(devLogCallback);
+    releaseCallback(diagLogCallback);
     releaseCallback(batteryStatusCallback);
     releaseCallback(remoteMmiCallback);
     releaseCallback(downloadFirmwareProgressCallback);
@@ -217,7 +218,6 @@ class StateJabraInitialize {
     releaseCallback(registerPairingListCallback);
     releaseCallback(gNPButtonEventCallBack);
     releaseCallback(dectInfoCallback);
-    releaseCallback(diagnosticLogCallback);
  
     // Re-allow init again.
     initializationStartedState = false;
@@ -268,7 +268,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
-      util::FUNCTION, util::FUNCTION, util::OBJECT })) {
+      util::FUNCTION,  util::FUNCTION, util::OBJECT })) {
 
     int argNr = 0;
 
@@ -279,6 +279,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
     auto deAttachedCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto buttonInDataTranslatedCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto devLogCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
+    auto diagLogCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto batteryStatusCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto remoteMmiCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto downloadFirmwareProgressCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
@@ -286,7 +287,6 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
     auto registerPairingListCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto gNPButtonEventCallBack = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto dectInfoCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
-    auto diagnosticLogCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
 
     Napi::Object configParams = info[argNr++].As<Napi::Object>();
     
@@ -305,6 +305,7 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                                deAttachedCallback,
                                buttonInDataTranslatedCallback,
                                devLogCallback,
+                               diagLogCallback,
                                batteryStatusCallback,
                                remoteMmiCallback,
                                downloadFirmwareProgressCallback,
@@ -312,7 +313,6 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                                registerPairingListCallback,
                                gNPButtonEventCallBack,
                                dectInfoCallback,
-                               diagnosticLogCallback,
                                proxy,
                                baseUrl_capabilities,
                                baseUrl_fw,
@@ -479,20 +479,21 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
               }              
             });
 
-            Jabra_RegisterDiagnosticLogCallback([]() {
+            Jabra_RegisterDiagnosticLogCallback([](const unsigned short deviceID) {
               try {
                 LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterDiagnosticLogCallback callback";
                 auto diagnosticLogCallback = state_Jabra_Initialize.getDiagnosticLogCallback();
-
                 if (diagnosticLogCallback) {
-                  diagnosticLogCallback->call();
+                  diagnosticLogCallback->call([deviceID](Napi::Env env, std::vector<napi_value>& args) {
+                      args = { Napi::Number::New(env, deviceID) };
+                  });
                 }
-                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterDiagnosticLogCallback callback handling finished";
+                LOG_VERBOSE_(LOGINSTANCE) << "diagLogCallback callback handling finished";
               } catch (const std::exception &e) {
-                const std::string errorMsg = "diagnosticLogCallback callback failed: " + std::string(e.what());
+                const std::string errorMsg = "diagLogCallback callback failed: " + std::string(e.what());
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
               } catch (...) {
-                const std::string errorMsg = "diagnosticLogCallback callback failed failed with unknown exception";
+                const std::string errorMsg = "diagLogCallback callback failed failed with unknown exception";
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }              
             });

@@ -50,12 +50,12 @@ export namespace DeviceTypeCallbacks {
     export type onRemoteMmiEvent = (type: enumRemoteMmiType, input: enumRemoteMmiInput) => void;
     export type onUploadProgress = (status: enumUploadEventStatus, levelInPercent: number) => void;
     export type onDectInfoEvent = (dectInfo: DectInfo) => void;
-    export type onDiagnosticLogEvent = () => void;
+    export type onDiagLogEvent = () => void;
 }
 
-export type DeviceTypeEvents = 'btnPress' | 'busyLightChange' | 'downloadFirmwareProgress' | 'onBTParingListChange' | 'onGNPBtnEvent' | 'onDevLogEvent' | 'onBatteryStatusUpdate' | 'onRemoteMmiEvent' | 'onUploadProgress' | 'onDectInfoEvent' | 'onDiagnosticLogEvent';
+export type DeviceTypeEvents = 'btnPress' | 'busyLightChange' | 'downloadFirmwareProgress' | 'onBTParingListChange' | 'onGNPBtnEvent' | 'onDevLogEvent' | 'onBatteryStatusUpdate' | 'onRemoteMmiEvent' | 'onUploadProgress' | 'onDectInfoEvent' | 'onDiagLogEvent';
 
-export const DeviceEventsList : DeviceTypeEvents[] = ['btnPress', 'busyLightChange', 'downloadFirmwareProgress', 'onBTParingListChange', 'onGNPBtnEvent', 'onDevLogEvent', 'onBatteryStatusUpdate', 'onRemoteMmiEvent', 'onUploadProgress', 'onDectInfoEvent', 'onDiagnosticLogEvent'];
+export const DeviceEventsList : DeviceTypeEvents[] = ['btnPress', 'busyLightChange', 'downloadFirmwareProgress', 'onBTParingListChange', 'onGNPBtnEvent', 'onDevLogEvent', 'onBatteryStatusUpdate', 'onRemoteMmiEvent', 'onUploadProgress', 'onDectInfoEvent','onDiagLogEvent'];
 
 /** 
  * Represents a concrete Jabra device and the operations that can be done on it.   
@@ -1331,6 +1331,31 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     }
 
     /**
+     * Gets the Diagnostic log file on Newport/Python
+     * @param {string} filename - Destination filename on local file system
+     * @returns {Promise<void, JabraError>} - Resolves to `void` on success,
+     *   rejects with `JabraError` if an error occurs.
+     */
+    getDiagnosticLogFileAsync(filename: string) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getDiagnosticLogFileAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.GetDiagnosticLogFile)(this.deviceID, filename).then(() => {
+          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getDiagnosticLogFileAsync.name, "returned");
+      });
+    }
+
+    /**
+     * Triggers the generation of the diagnostic log file on Newport/Python
+     * @returns {Promise<void, JabraError>} - Resolves to `void` on success,
+     *   rejects with `JabraError` if an error occurs.
+     */
+    triggerDiagnosticLogGenerationAsync() : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.triggerDiagnosticLogGenerationAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.TriggerDiagnosticLogGeneration)(this.deviceID).then(() => {
+          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.triggerDiagnosticLogGenerationAsync.name, "returned");
+      });
+    }
+
+    /**
      * Returns the position of the provided whiteboard corners as coordinates.
      * @param {number} whiteboardId - The whiteboard id number.
      * @returns {Promise<number, JabraError>} - Resolves to the whiteboard
@@ -1485,15 +1510,15 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
    */
    on(event: 'onDectInfoEvent', listener: DeviceTypeCallbacks.onDectInfoEvent): this;
-
+   
    /**
-   * Add event handler for onDiagnosticLog events.
+   * Add event handler for onDiagLogEvent device events.
    *
    * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
    */
-   on(event: 'onDiagnosticLogEvent', listener: DeviceTypeCallbacks.onDiagnosticLogEvent): this;
-
-    /**
+  on(event: 'onDiagLogEvent', listener: DeviceTypeCallbacks.onDiagLogEvent): this;
+  
+   /**
      * Add event handler for one of the different device events.
      * 
      * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
@@ -1501,7 +1526,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    on(event: DeviceTypeEvents,
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
                 DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onRemoteMmiEvent |
-                DeviceTypeCallbacks.onUploadProgress | DeviceTypeCallbacks.onDectInfoEvent | DeviceTypeCallbacks.onDiagnosticLogEvent): this {
+                DeviceTypeCallbacks.onUploadProgress | DeviceTypeCallbacks.onDectInfoEvent | DeviceTypeCallbacks.onDiagLogEvent): this {
 
       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.on.name, "called with", this.deviceID, event, "<listener>"); 
 
@@ -1581,14 +1606,14 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
    */
    off(event: 'onDectInfoEvent', listener: DeviceTypeCallbacks.onDectInfoEvent): this;
-
+  
    /**
-   * Remove event handler for previosly setup onDiagnosticLog device events.
+   * Remove event handler for previosly setup onDiagLogEvent device events.
    *
    * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
    */
-   off(event: 'onDiagnosticLogEvent', listener: DeviceTypeCallbacks.onDiagnosticLogEvent): this;
-  
+   off(event: 'onDiagLogEvent', listener: DeviceTypeCallbacks.onDiagLogEvent): this;
+   
     /**
      * Remove previosly setup event handler for device events.
      * 
@@ -1597,7 +1622,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    off(event: DeviceTypeEvents,
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
                 DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onRemoteMmiEvent |
-                DeviceTypeCallbacks.onUploadProgress | DeviceTypeCallbacks.onDectInfoEvent | DeviceTypeCallbacks.onDiagnosticLogEvent): this {
+                DeviceTypeCallbacks.onUploadProgress | DeviceTypeCallbacks.onDectInfoEvent | DeviceTypeCallbacks.onDiagLogEvent): this {
 
 
       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.off.name, "called with", this.deviceID, event, "<listener>"); 

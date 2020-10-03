@@ -1077,25 +1077,17 @@ Napi::Value napi_GetDiagnosticLogFile(const Napi::CallbackInfo& info) {
 
 Napi::Value napi_TriggerDiagnosticLogGeneration(const Napi::CallbackInfo& info) {
     const char * const functionName = __func__;
-    Napi::Env env = info.Env();
-
-    if (util::verifyArguments(functionName, info, {util::NUMBER, util::FUNCTION})) {
-        const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
-        Napi::Function javascriptResultCallback = info[1].As<Napi::Function>();
-
-        (new util::JAsyncWorker<void, void>(
-            functionName,
-            javascriptResultCallback,
-            [functionName, deviceId](){
-                Jabra_ReturnCode retCode = Jabra_TriggerDiagnosticLogGeneration(deviceId, NULL);
-                if (retCode != Return_Ok) {
-                    util::JabraReturnCodeException::LogAndThrow(functionName, retCode);
-                }
+    return util::SimpleDeviceAsyncFunction<Napi::Boolean, bool>(functionName, info,
+        [functionName](unsigned short deviceId) {
+            Jabra_ReturnCode retCode = Jabra_TriggerDiagnosticLogGeneration(deviceId);
+            if (retCode != Return_Ok) {
+                util::JabraReturnCodeException::LogAndThrow(functionName, retCode);
+                return false;
             }
-        ))->Queue();
-  }
-
-  return env.Undefined();
+            return true;
+        },
+        Napi::Boolean::New
+    );
 }
 
 Napi::Value napi_GetWhiteboardPosition(const Napi::CallbackInfo& info) {

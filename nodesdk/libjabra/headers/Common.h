@@ -245,7 +245,7 @@ typedef struct _FirmwareInfo {
   /** Version of firmware. */
   char *version;
   /** Size of firmware file in KB/MB. */
-  char * fileSize;
+  char *fileSize;
   /** Release date of firmware. */
   char *releaseDate;
   /** Firmware stage. */
@@ -334,8 +334,16 @@ typedef enum _DeviceFeature {
   UIConfigurableButtons = 1026,
   ManualBusyLight = 1027,
   Whiteboard = 1028,
-  Video = 1029
+  Video = 1029,
+  AmbienceModes = 1030
 } DeviceFeature;
+
+/** Represents a preset slot on the device.*/
+typedef enum _PTZPreset {
+    PTZPreset1 = 0,
+    PTZPreset2,
+    PTZPreset3
+} Jabra_PTZPreset;
 
 /** This enum represents actions/parameters required to update firmware in a given device. */
 typedef enum _DeviceFWURequirement {
@@ -704,6 +712,13 @@ typedef struct _HeadDetectionStatus{
     bool rightOn; /** true: right earcup is on head (false: off) */
 } HeadDetectionStatus;
 
+/** The values BusyLightStatus can be set to. */
+typedef enum _BusyLightValue {
+    BUSYLIGHT_ON,       /** Busy */
+    BUSYLIGHT_OFF,      /** Not busy */
+    BUSYLIGHT_TOGGLE    /** Busy if current is not busy, not busy if current is busy */
+} BusyLightValue;
+
 /** Listener for JackStatus events */
 typedef void (*JackConnectorStatusListener)(unsigned short deviceID, const JackStatus status);
 
@@ -712,6 +727,9 @@ typedef void (*HeadDetectionStatusListener)(unsigned short deviceID, const HeadD
 
 /** Listener for link connection status events */
 typedef void (*LinkConnectionStatusListener)(unsigned short deviceID, const LinkConnectStatus status);
+
+/** Listener for Manual Busylight change events */
+typedef void (*BusylightChangeListener)(unsigned short deviceID, bool isOn);
 
 /****************************************************************************/
 /*                           EXPORTED FUNCTIONS                             */
@@ -1441,6 +1459,28 @@ LIBRARY_API const char* Jabra_GetErrorString(Jabra_ErrorStatus errStatus);
  */
 LIBRARY_API const char* Jabra_GetReturnCodeString(Jabra_ReturnCode code);
 
+/** Get lock for a particular device.
+ *  @param[in] : deviceID: id for a device
+ *  @return    : Return_Ok if success.
+				 Device_Unknown if deviceID is wrong.
+				 Device_Lock if acquired by some other process.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetLock(unsigned short deviceID);
+
+/** Release the lock for a particular device.
+ *  @param[in] : deviceID: id for a device
+ *  @return    : Return_Ok if success.
+				 Device_Unknown if deviceID is wrong.
+				 Device_NotLock if acquired by some other process.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_ReleaseLock(unsigned short deviceID);
+
+/** Check if the device is locked or not.
+ *  @param[in] : deviceID: id for a device.
+ *  @return    : true if device is locked.
+ */
+LIBRARY_API bool Jabra_IsLocked(unsigned short deviceID);
+
 /**
  * @brief Checks if busylight is supported by the device.
  * @param[in] deviceID ID for a device.
@@ -1485,6 +1525,56 @@ LIBRARY_API Jabra_ReturnCode Jabra_SetBusylightStatus(unsigned short deviceID, b
  * @see Jabra_SetBusylightStatus
  */
 LIBRARY_API void Jabra_RegisterBusylightEvent(void(*BusylightFunc)(unsigned short deviceID, bool busylightValue));
+
+/**
+ * @brief Checks if manual busylight is supported by the device.
+ * @param[in] deviceID ID for a device.
+ * @return True if manual busylight is supported, false otheriwse.
+ * @see Jabra_GetManualBusylightStatus
+ * @see Jabra_SetManualBusylightStatus
+ * @see Jabra_RegisterManualBusylightEvent
+ */
+LIBRARY_API bool Jabra_IsManualBusylightSupported(unsigned short deviceID);
+
+/**
+ * @brief Checks the status of busylight.
+ * @param[in] deviceID ID for a device.
+ * @return True if busylight is on, false if busylight is off or if it is not
+ * supported.
+ * @see Jabra_IsManualBusylightSupported
+ * @see Jabra_SetManualBusylightStatus
+ * @see Jabra_RegisterManualBusylightEvent
+ */
+LIBRARY_API bool Jabra_GetManualBusylightStatus(unsigned short deviceID);
+
+/**
+ * @brief Change the manual busylight status.
+ * @param[in] deviceID ID for a device.
+ * @param[in] value to set manual busylight to.
+ * @return Return_Ok if success.
+ * @return Device_Unknown if the deviceID specified is not known.
+ * @return Not_Supported if the functionality is not supported.
+ * @return Device_WriteFail on errors while communicating with the device.
+ * @see Jabra_IsManualBusylightSupported
+ * @see Jabra_GetManualBusylightStatus
+ * @see Jabra_RegisterManualBusylightEvent
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_SetManualBusylightStatus(unsigned short deviceID, BusyLightValue value);
+
+/**
+ * @brief Registration for busylight change event.
+ * @param[in] listener Callback method. Invoked when busylight change event
+ *                     are received from the device. Set to nullptr to
+ *                     unregister.
+ * @return Return_Ok if success.
+ * @return Device_Unknown if the deviceID specified is not known.
+ * @return Not_Supported if the functionality is not supported.
+ * @return Device_WriteFail on errors while communicating with the device.
+ * @see Jabra_IsManualBusylightSupported
+ * @see Jabra_GetManualBusylightStatus
+ * @see Jabra_SetManualBusylightStatus
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_RegisterManualBusylightEvent(unsigned short deviceID, BusylightChangeListener listener);
 
 /**
  * @brief Is left earbud status supported.
@@ -2619,6 +2709,18 @@ typedef struct _DectInfo {
 LIBRARY_API void Jabra_RegisterDectInfoHandler(void(*DectInfoFunc)(unsigned short deviceID, Jabra_DectInfo *dectInfo));
 
 /**
+ * @brief Registration for Xpress url changed.
+ * @param[in] xpressUrlChanged Callback method, called the Xpress url is changed
+ */
+LIBRARY_API void Jabra_RegisterXpressUrlCallback(void(*xpressUrlChanged)(unsigned short));
+
+/**
+ * @brief Registration for Xpress url changed.
+ * @param[in] xpressUrlChanged Callback method, called the Xpress url is changed
+ */
+LIBRARY_API void Jabra_xpressConnectionStatus(void(*xpressConnectionStatus)(unsigned short, bool));
+
+/**
  * Frees the #Jabra_DectInfo
  * @param[in] dectInfo #Jabra_DectInfo structure to be freed.
  */
@@ -2639,12 +2741,15 @@ typedef struct _WhiteboardPosition {
 } Jabra_WhiteboardPosition;
 
 /**
- * @brief       For a video device that supports whiteboard, sets the positions in pixels of a whiteboard's corners.
+ * @brief       For a video device that supports whiteboard, sets the positions in pixels of a whiteboard's corners. 
  * @param[in]   deviceID ID for the specific device
  * @param[in]   whiteboardNumber    The whiteboard 'index'. Currently only one whiteboard supported,
                                     so this should be 0.
  * @param[in]   *whiteboardPosition Pointer to a structure containing the X and Y coordinates for each corner in
-                                    pixels. Bounds are TBD and they will be different for each corner. Cannot be null.
+                                    pixels. The coordinates must be valid, which means that they should
+                                    meet these conditions: lowerLeftCornerX < lowerRightCornerX,
+                                    upperLeftCornerX < upperRightCornerX, upperLeftCornerY < lowerLeftCornerY
+                                    and upperRightCornerY < lowerRightCornerY. Bounds are TBD. Cannot be null.
  * @return      Device_Unknown if the deviceID specified is not known.
  * @return      Not_Supported if the whiteboard feature is not supported.
  * @return      Return_ParameterFail if whiteboardPosition is a null pointer.
@@ -2654,20 +2759,19 @@ typedef struct _WhiteboardPosition {
 LIBRARY_API Jabra_ReturnCode Jabra_SetWhiteboardPosition(unsigned short deviceID, uint8_t whiteboardNumber, const Jabra_WhiteboardPosition* whiteboardPosition);
 
 /**
- * @brief       or a video device that supports whiteboard, gets the positions in pixels of a whiteboard's corners.
+ * @brief       For a video device that supports whiteboard, gets the positions in pixels of a whiteboard's corners.
  * @param[in]   deviceID ID for the specific device
  * @param[in]   whiteboardNumber    The whiteboard 'index' for multiple whiteboards support. Currently only
                                     one whiteboard is supported, so this should be 0.
  * @param[out]  *whiteboardPosition Pointer to a structure that will be filled with the X and Y
-                                    coordinates for each corner in pixels. Bounds are TBD and
-                                    they will be different for each corner. Cannot be null.
+                                    coordinates for each corner in pixels. Bounds are TBD. Cannot be null.
  * @return      Device_Unknown if the deviceID specified is not known.
  * @return      Not_Supported if the whiteboard feature is not supported.
  * @return      Return_ParameterFail if whiteboardPosition is a null pointer.
  * @return      Device_ReadFails if it failed to read from the device.
  * @return      Return_Ok if successful.
  */
-LIBRARY_API Jabra_ReturnCode Jabra_GetWhiteboardPosition(unsigned short deviceID, uint8_t whiteboardNumber, Jabra_WhiteboardPosition* whiteboardPosition); // or return Jabra_ReturnCode and struct as out param
+LIBRARY_API Jabra_ReturnCode Jabra_GetWhiteboardPosition(unsigned short deviceID, uint8_t whiteboardNumber, Jabra_WhiteboardPosition* whiteboardPosition);
 
 /**
  * @brief       For a video device, sets the zoom level.
@@ -2760,5 +2864,403 @@ LIBRARY_API Jabra_ReturnCode Jabra_SetXpressUrl(unsigned short deviceID, const c
  * @return Not_Supported if not supported
   */
 LIBRARY_API Jabra_ReturnCode Jabra_GetXpressUrl(unsigned short deviceID, char* url, int size);
+
+/**
+ * @brief Set the password for provisioning
+ * @param[in] deviceID ID for a specific device.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_SetPasswordProvisioning(unsigned short deviceID, const char* password);
+/**
+ * @brief Get the password for provisioning
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] Char Pointer to a buffer location where the password string
+ * is written. Must be allocated by the caller.
+ * @param[in] count Maximum number of characters to copy to buffer. Max limit 2 KB.
+ * @param[out] password read from device.
+ * @return Return_Ok if successful.
+ * @return Device_Unknown if the deviceID specified is not known.
+ * @return Not_Supported if the functionality is not supported.
+ * @return Return_Ok if success.
+ * @return Device_Unknown if the deviceID specified is not known.
+ * @return Not_Supported if not supported
+  */
+LIBRARY_API Jabra_ReturnCode Jabra_GetPasswordProvisioning(unsigned short deviceID, char* password, int size);
+
+/**
+ * @brief Notify the app doing the xpress url configuration (Jabra_SetXpressUrl) about the result
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] isConnected  true connection ti the backend is established, false is not established to the backend
+ * @return Return_Ok if successful.
+ * @return Device_Unknown if the deviceID specified is not known.
+ * @return Not_Supported if the functionality is not supported.
+  */
+LIBRARY_API Jabra_ReturnCode Jabra_NotifyXpressConnectionStatus(unsigned short deviceID, bool isConnected);
+/**
+ * @brief To store a PTZ (Pan, Tilt and Zoom) preset to the designated slot on the device.
+ *
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] presetSlot    A predefined Jabra_PTZPreset slot for PTZ preset.
+ *
+ * @return  Return_Ok if success
+ * @return  Device_Unknown if the deviceID specified is not known.
+ * @return  Not_Supported if preset is not supported.
+ * @return  Device_WriteFail on errors while communicating with the device.
+*/
+LIBRARY_API Jabra_ReturnCode Jabra_StorePTZPreset(unsigned short deviceID,Jabra_PTZPreset presetSlot);
+
+/**
+ * @brief To apply the PTZ preset from the designated slot on the device.
+ *
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] presetSlot    A predefined Jabra_PTZPreset slot for PTZ preset.
+ *
+ * @return  Return_Ok if success
+ * @return  Device_Unknown if the deviceID specified is not known.
+ * @return  Not_Supported if preset is not supported.
+ * @return  Device_WriteFail on errors while communicating with the device.
+*/
+LIBRARY_API Jabra_ReturnCode Jabra_ApplyPTZPreset(unsigned short deviceID,Jabra_PTZPreset presetSlot);
+
+/**
+ * @brief       Enum describing the possible ambience modes
+ */
+typedef enum _Jabra_AmbienceMode {
+  OFF,         /* No hearthrough or noise cancellation activared */
+  HEARTHROUGH, /* Hearthrough - the user will get audio from their 
+                  surroundings in the headset */
+  ANC          /* Active Noise Cancellation*/
+} Jabra_AmbienceMode;
+
+/**
+ * @brief       Enum describing extended settings for the ambience modes.
+ */
+typedef enum _Jabra_AmbienceModeSetting {
+  MIX,  /* When enabled, the user will get a mixture of the ambience mode selected
+           and the audio stream (e.g. music playing in the phone). When disabled,
+           the user will get only ambience audio (e.g. if listening to music, the music
+           will be paused. */
+  PERSONALIZATION_COMPLETE /* When enabled, it signals that the personalization
+                              for the ambience mode has already been carried out,
+                              and there is no need to repeat it. */
+} Jabra_AmbienceModeSetting;
+
+/**
+ * @brief       This enum represent the fact that something related to ambience
+ *              mode changed on the device. It does not convey any information
+ *              about the new value after the change.
+ */
+typedef enum _Jabra_AmbienceModeChangeEvent {
+    MODE,
+    ANC_LEVEL,
+    HEARTHROUGH_LEVEL,
+    ANC_SETTINGS,
+    HEARTHROUGH_SETTINGS,
+    ANC_BALANCE
+} Jabra_AmbienceModeChangeEvent;
+
+/** Listener for Ambience mode change events */
+typedef void (*AmbienceModeChangeListener)(unsigned short deviceID, Jabra_AmbienceModeChangeEvent event);
+
+/**
+ * @brief       For a device supporting ambience modes, get the current mode.
+ * @param[in]   deviceID              ID for the specific device
+ * @param[out]  ambienceMode          The current mode.
+ * @return      Device_Unknown        If the deviceID specified is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Return_ParameterFail  If ambienceMode is a null pointer.
+ * @return      Device_ReadFails      If it failed to read from the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetAmbienceMode(unsigned short deviceID, Jabra_AmbienceMode* ambienceMode);
+
+/**
+ * @brief       For a device supporting ambience modes, set the mode.
+ * @param[in]   deviceID              ID for the specific device
+ * @param[in]   ambienceMode          The mode to be set.
+ * @return      Device_Unknown        If the deviceID specified is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Device_WriteFail      If it failed to write to the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_SetAmbienceMode(unsigned short deviceID, Jabra_AmbienceMode ambienceMode);
+
+/**
+ * @brief       Returns which ambience modes are supported by the device.
+ * @param[in]       deviceID    ID for the specific device.
+ * @param[out]      modes       Pre-allocated array where the supported modes will be written.
+ * @param[inout]    length      The length of the input array. After the API call, it will
+ *                              contain the actual size of the returned array (i.e. the
+ *                              number of valid elements). This means that it's set to 0 on
+ *                              errors, unless it's an invalid pointer.
+ * @return      Device_Unknown          If the deviceID specified is not known.
+ * @return      Not_Supported           If this feature is not supported.
+ * @return      Device_ReadFails        If any error occurs while communicating with the device.
+ * @return      Return_ParameterFail    If any input is invalid. In particular, if any of the
+ *                                      pointer is null, or if the pre-allocated array is too
+ *                                      short to fit the result.
+ * @return      Return_Ok               If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetSupportedAmbienceModes(unsigned short deviceID, Jabra_AmbienceMode* modes, size_t* length);
+
+/**
+ * For a device supporting ambience modes, get the minimum supported level for a given mode.
+ * E.g. if it returns 5, the possible levels are 0,1,2,3,4 and 5 where 0 is the maximum.
+ *
+ * @brief       For a device supporting ambience modes, get the supported levels for a given mode.
+ * @param[in]   deviceID              ID for the specific device
+ * @param[in]   ambienceMode          The mode of which we want to know the number of levels.
+ * @param[out]  levels                The levels available for the given mode.
+ * @return      Device_Unknown        If the deviceID specified is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Return_ParameterFail  If levels is a null pointer, or if the mode
+ *                                    doesn't support levels (e.g. OFF).
+ * @return      Device_ReadFails      If it failed to read from the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetSupportedAmbienceModeLevels(unsigned short deviceID, Jabra_AmbienceMode ambienceMode, uint8_t* levels);
+
+/**
+ * @brief       For a device supporting ambience modes, get current level for a given mode.
+ * @param[in]   deviceID              ID for the specific device
+ * @param[in]   ambienceMode          The mode of which we want to know the level of.
+ * @param[out]  level                 The current level for the given mode, where 0 is the maximum and
+ *                                    the minimum is what {@link Jabra_GetSupportedAmbienceModeLevels}
+ *                                    returns. E.g. if it is 5, 5-0 are the levels we can get.
+ * @return      Device_Unknown        If the deviceID specified is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Return_ParameterFail  If level is a null pointer, or if the mode
+ *                                    doesn't support levels (e.g. OFF).
+ * @return      Device_ReadFails      If it failed to read from the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetAmbienceModeLevel(unsigned short deviceID, Jabra_AmbienceMode ambienceMode, uint8_t* level);
+
+/**
+ * @brief       For a device supporting ambience modes, set the level for a given mode.
+ * @param[in]   deviceID              ID for the specific device
+ * @param[in]   ambienceMode          The mode of which we want to set the level of.
+ * @param[in]   level                 The new level for the given mode, where 0 is the maximum and
+ *                                    the minimum is what {@link Jabra_GetSupportedAmbienceModeLevels}
+ *                                    returns. E.g. if it is 5, 5-0 are the levels we can set.
+ * @return      Device_Unknown        If the specified deviceID is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Return_ParameterFail  If the mode doesn't support levels (e.g. OFF).
+ * @return      Device_WriteFail      If it failed to write to the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_SetAmbienceModeLevel(unsigned short deviceID, Jabra_AmbienceMode ambienceMode, uint8_t level);
+
+/**
+ * For a device supporting ambience modes, get the minimum/maximum supported
+ * value for left-right balance. This value is a positive number N, which
+ * indicates that the supported left-right balance values are within the range
+ * [-N; N] (e.g. if the value of N is 3, the range is [-3; 3]).
+ *
+ * @brief       For a device supporting ambience modes, get the supported minimum/maximum
+ *              right-left balance.
+ * @param[in]   deviceID              ID for the specific device
+ * @param[in]   ambienceMode          The mode of which we want to know the
+ *                                    supported minimum/maximum left-right balance of.
+ * @param[out]  balance               The variable filled with the supported
+ *                                    minimum/maximum left-right balance from
+ *                                    the device. The value is positive and indicates
+ *                                    both the positive maximum and the negative
+ *                                    minimum (e.g. 3 means that the supported
+ *                                    left-right balance range is [-3; 3]).
+ * @return      Device_Unknown        If the specified deviceID is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Return_ParameterFail  If balance is a null pointer or if the mode
+ *                                    doesn't support left-right balance (e.g. OFF).
+ * @return      Device_ReadFails      If it failed to read from the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetSupportedAmbienceModeBalance(unsigned short deviceID, Jabra_AmbienceMode ambienceMode, uint8_t* balance);
+
+/**
+ * For a device supporting ambience modes, get the left-right balance of a given
+ * ambience mode:
+ * - 0 means neutral balance
+ * - negative values indicate balance on the left: the lower the number the
+ *      more the balance is on the left.
+ * - positive values are for balance on the right: the higher the value, the
+ *      more the balance is on the right.
+ * Returned values are constrained in a range [-N; N], where N is what
+ * Jabra_GetSupportedAmbienceModeBalance returns (e.g. if Jabra_GetSupportedAmbienceModeBalance
+ * returns 2, then the valid values are in the range [-2; 2]).
+ *
+ * @brief       For a device supporting ambience modes, get the current right-left balance.
+ * @param[in]   deviceID              ID for the specific device
+ * @param[in]   ambienceMode          The mode of which we want to know the left-right balance of.
+ * @param[out]  balance               The variable filled with the left-right balance
+ *                                    from the device. 0 is neutral balance, negative
+ *                                    values are for balance on the left, positive
+ *                                    numbers indicate balance on the right. The values
+ *                                    are within a range [-N; N], where N is returned by
+ *                                    Jabra_GetSupportedAmbienceModeBalance.
+ * @return      Device_Unknown        If the specified deviceID is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Return_ParameterFail  If balance is a null pointer or if the mode
+ *                                    doesn't support left-right balance (e.g. OFF).
+ * @return      Device_ReadFails      If it failed to read from the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetAmbienceModeBalance(unsigned short deviceID, Jabra_AmbienceMode ambienceMode, int8_t* balance);
+
+/**
+ * For a device supporting ambience modes, set the left-right balance of a given
+ * ambience mode:
+ * - 0 means neutral balance
+ * - negative values indicate balance on the left: the lower the number the
+ *      more the balance is on the left
+ * - positive values are for balance on the right: the highter the value, the
+ *      more the balance is on the right.
+ * Valid values are constrained in a range [-N; N], where N is what
+ * Jabra_GetSupportedAmbienceModeBalance returns (e.g. if Jabra_GetSupportedAmbienceModeBalance
+ * returns 2, then the valid values are in the range [-2; 2]).
+ *
+ * @brief       For a device supporting ambience modes, set current right-left balance.
+ * @param[in]   deviceID              ID for the specific device
+ * @param[in]   ambienceMode          The mode for which we want set the left-right balance.
+ * @param[in]   balance               The left-right balance. 0 is neutral balance,
+ *                                    negative values are for balance on the left,
+ *                                    positive numbers indicate balance on the right.
+ *                                    Valid values are within a range [-N; N], where N
+ *                                    is returned by Jabra_GetSupportedAmbienceModeBalance.
+ * @return      Device_Unknown        If the specified deviceID is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Return_ParameterFail  If the mode doesn't support left-right balance,
+ *                                    (e.g. OFF).
+ * @return      Device_WriteFail      If it failed to write to the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_SetAmbienceModeBalance(unsigned short deviceID, Jabra_AmbienceMode ambienceMode, int8_t balance);
+
+/**
+ * @brief       For a device supporting ambience modes, get the noise level for the current active mode.
+ * @param[in]   deviceID              ID for the specific device
+ * @param[out]  noiseLevel            The variable filled with the noise level from
+ *                                    the device.
+ * @return      Device_Unknown        If the specified deviceID is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Return_ParameterFail  If noiseLevel is a null pointer.
+ * @return      Device_ReadFails      If it failed to read from the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetAmbienceModeNoiseLevel(unsigned short deviceID, uint8_t* noiseLevel);
+
+/**
+ * @brief       For a device supporting ambience modes, get whether or not a setting is enabled for a given mode.
+ * @param[in]   deviceID              ID for the specific device
+ * @param[in]   ambienceMode          The mode of which we want to know whether a setting is enabled of.
+ * @param[in]   ambienceModeSetting   The setting we want to know whether it's enabled or not.
+ * @param[out]  enabled               Whether the setting is enabled or not for the given mode.
+ * @return      Device_Unknown        If the deviceID specified is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Return_ParameterFail  If enabled is a null pointer, or if the mode doesn't
+ *                                    support the setting.
+ * @return      Device_ReadFails      If it failed to read from the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetAmbienceModeSetting(unsigned short deviceID, Jabra_AmbienceMode ambienceMode, Jabra_AmbienceModeSetting ambienceModeSetting, bool* enabled);
+
+/**
+ * @brief       For a device supporting ambience modes, enable or disable a setting for a given mode.
+ * @param[in]   deviceID              ID for the specific device
+ * @param[in]   ambienceMode          The mode of which we want enable/disable a setting.
+ * @param[in]   ambienceModeSetting   The setting we want to enabled or disable.
+ * @param[in]   enabled               Whether we want to enable (true) or disable (false) the setting.
+ * @return      Device_Unknown        If the deviceID specified is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Return_ParameterFail  If the mode doesn't support the setting.
+ * @return      Device_WriteFail      If it failed to write to the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_SetAmbienceModeSetting(unsigned short deviceID, Jabra_AmbienceMode ambienceMode, Jabra_AmbienceModeSetting ambienceModeSetting, bool enable);
+
+/**
+ * @brief       Returns the current ambience mode loop.
+ * @param[in]       deviceID    ID for the specific device.
+ * @param[out]      modes       Pre-allocated array where the modes in the loop will be written.
+ * @param[inout]    length      The length of the input array. After the API call, it will
+ *                              contain the actual size of the returned array (i.e. the
+ *                              number of valid elements). This means that it's set to 0 on
+ *                              errors, unless it's an invalid pointer.
+ * @return      Device_Unknown          If the deviceID specified is not known.
+ * @return      Not_Supported           If this feature is not supported.
+ * @return      Device_ReadFails        If any error occurs while communicating with the device.
+ * @return      Return_ParameterFail    If any input is invalid. In particular, if any of the
+ *                                      pointer is null, or if the pre-allocated array is too
+ *                                      short to fit the result.
+ * @return      Return_Ok               If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetAmbienceModeLoop(unsigned short deviceID, Jabra_AmbienceMode* modes, size_t* length);
+
+/**
+ * @brief       Sets the ambience mode loop.
+ * @param[in]   deviceID    ID for the specific device.
+ * @param[in]   modes       Array containing the ambience mode loop.
+ *                          It can be empty, which means passing a null pointer
+ *                          and 0 as `length`.
+ * @param[in]   length      The length of the input array.
+ * @return      Device_Unknown          If the deviceID specified is not known.
+ * @return      Not_Supported           If this feature is not supported.
+ * @return      Device_WriteFail        If any error occurs while communicating
+ *                                      with the device, or if the loop is too long.
+ * @return      Return_ParameterFail    If the modes array is a null pointer and
+ *                                      `length` is not 0.
+ * @return      Return_Ok               If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_SetAmbienceModeLoop(unsigned short deviceID, const Jabra_AmbienceMode* modes, size_t length);
+
+/**
+ * @brief       Register a listener for ambience mode change events.
+ * @param[in]   deviceID    ID for the specific device.
+ * @param[in]   listener    Listener that receives AmbienceModeChange events.
+ *                          Set to nullptr to unsubscribe.
+ * @return      Device_Unknown        If the deviceID specified is not known.
+ * @return      Not_Supported         If this feature is not supported.
+ * @return      Device_WriteFail      If it failed to write to the device.
+ * @return      Return_Ok             If successful.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_SetAmbienceModeChangeListener(unsigned short deviceID, AmbienceModeChangeListener listener);
+
+/**
+ * @brief Gets the diagnostic log file and writes it to a file on local file system
+ * Requires prior call to #Jabra_TriggerDiagnosticLogGeneration() to initiate file preparation
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] FileName destination file name on local file system.
+ * @return Return_Ok if successful
+ * @return Device_Unknown if successful
+ * @return File_Not_Accessible if source file could not be found or is not ready
+ * @return FileWrite_Fail if destination file writing failed
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetDiagnosticLogFile(const unsigned short deviceID, const char* const FileName);
+
+/**
+ * @brief Type definition of function pointer to use for
+ * #Jabra_TriggerDiagnosticLogGeneration.
+ */
+typedef void(*DiagnosticLogReadyEventHandler)(const unsigned short deviceID);
+
+/**
+ * @brief Trigger generation of diagnostic log. Api is only supported on the Newport platform.
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] callback Callback method called when diagnostic log file is ready.
+ * If NULL is passed for callback, generation will still be initiated but no callback will be done upon completion.
+ * @return Return_Ok if successful.
+ * @return Device_Unknown if the deviceID specified is not known.
+ * @return Not_Supported if the functionality is not supported.
+ * @return Device_WriteFail if the communication with the device failed.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_TriggerDiagnosticLogGeneration(const unsigned short deviceID);
+
+/**
+ * @brief Registration for diagnostic log event.
+ * @param[in] callback Callback method, called when diagnosticLog event is
+ * received from device. Set to NULL to disable.
+ * @see Jabra_TriggerDiagnosticLogGeneration
+ * @see Jabra_GetDiagnosticLogFile
+ */
+LIBRARY_API void Jabra_RegisterDiagnosticLogCallback(DiagnosticLogReadyEventHandler const callback);
 
 #endif /* COMMON_H */
