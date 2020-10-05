@@ -2761,4 +2761,25 @@ LIBRARY_API Jabra_ReturnCode Jabra_SetXpressUrl(unsigned short deviceID, const c
   */
 LIBRARY_API Jabra_ReturnCode Jabra_GetXpressUrl(unsigned short deviceID, char* url, int size);
 
+/**
+ * @brief Set the password for provisioning
+ * @param[in] deviceID ID for a specific device.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_SetPasswordProvisioning(unsigned short deviceID, const char* password);
+/**
+ * @brief Get the password for provisioning
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] Char Pointer to a buffer location where the password string
+ * is written. Must be allocated by the caller.
+ * @param[in] count Maximum number of characters to copy to buffer. Max limit 2 KB.
+ * @param[out] password read from device.
+ * @return Return_Ok if successful.
+ * @return Device_Unknown if the deviceID specified is not known.
+ * @return Not_Supported if the functionality is not supported.
+ * @return Return_Ok if success.
+ * @return Device_Unknown if the deviceID specified is not known.
+ * @return Not_Supported if not supported
+  */
+LIBRARY_API Jabra_ReturnCode Jabra_GetPasswordProvisioning(unsigned short deviceID, char* password, int size);
+
 #endif /* COMMON_H */

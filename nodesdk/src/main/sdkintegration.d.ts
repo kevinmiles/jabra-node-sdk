@@ -224,6 +224,8 @@ export declare interface SdkIntegration {
     EnableNewportRemoteManagement(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
     SetXpressUrl(deviceId: number, url: string, callback: (error: JabraError, result: void) => void): void;
     GetXpressUrl(deviceId: number, callback: (error: JabraError, result: string) => void): void;
+    SetPasswordProvisioning(deviceId: number, password: string, callback: (error: JabraError, result: void) => void): void;
+    GetPasswordProvisioning(deviceId: number, callback: (error: JabraError, result: string) => void): void;
 
     GetWhiteboardPosition(deviceId: number, whiteboardId: number, callback: (error: JabraError, result: WhiteboardPosition) => void): void;
     SetWhiteboardPosition(deviceId: number, whiteboardId: number, whiteboardPosition: WhiteboardPosition, callback: (error: JabraError, result: void) => void): void;
