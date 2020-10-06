@@ -1326,7 +1326,33 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     getXpressUrlAsync() : Promise<string> {
       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getXpressUrlAsync.name, "called with", this.deviceID);
       return util.promisify(sdkIntegration.GetXpressUrl)(this.deviceID).then((result) => {
-        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setXpressUrlAsync.name, "returned");
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getXpressUrlAsync.name, "returned");
+        return result;
+      });
+    }
+    
+    /**
+     * Sets the password for provisioning
+     * @param {string} password - The password
+     * @returns {Promise<void, JabraError>} - Resolves to `void` on success,
+     *   rejects with `JabraError` if an error occurs.
+     */
+    setPasswordProvisioningAsync(password: string) : Promise<void> {
+      _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setPasswordProvisioningAsync.name, "called with", this.deviceID);
+      return util.promisify(sdkIntegration.SetPasswordProvisioning)(this.deviceID, password).then(() => {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setPasswordProvisioningAsync.name, "returned");
+      });
+    }
+  
+    /**
+     * Get the password for provisioning
+     * @returns {Promise<string, JabraError>} - Resolves to password string on success,
+     *   rejects with `JabraError` if an error occurs.
+     */
+    getPasswordProvisioningAsync() : Promise<string> {
+      _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getPasswordProvisioningAsync.name, "called with", this.deviceID);
+      return util.promisify(sdkIntegration.GetPasswordProvisioning)(this.deviceID).then((result) => {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getPasswordProvisioningAsync.name, "returned with", result);
         return result;
       });
     }
