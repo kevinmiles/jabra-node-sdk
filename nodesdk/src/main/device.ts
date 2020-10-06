@@ -1350,7 +1350,7 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
     getPasswordProvisioningAsync() : Promise<string> {
       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getPasswordProvisioningAsync.name, "called with", this.deviceID);
       return util.promisify(sdkIntegration.GetPasswordProvisioning)(this.deviceID).then((result) => {
-        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getPasswordProvisioningAsync.name, "returned");
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getPasswordProvisioningAsync.name, "returned with", result);
         return result;
       });
     }
