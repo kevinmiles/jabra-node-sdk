@@ -2715,10 +2715,10 @@ LIBRARY_API void Jabra_RegisterDectInfoHandler(void(*DectInfoFunc)(unsigned shor
 LIBRARY_API void Jabra_RegisterXpressUrlCallback(void(*xpressUrlChanged)(unsigned short));
 
 /**
- * @brief Registration for Xpress url changed.
- * @param[in] xpressUrlChanged Callback method, called the Xpress url is changed
+ * @brief Registration for Xpress connection status changed.
+ * @param[in] xpressConnectionStatus Callback method, called the Xpress connection status is changed
  */
-LIBRARY_API void Jabra_xpressConnectionStatus(void(*xpressConnectionStatus)(unsigned short, bool));
+LIBRARY_API void Jabra_RegisterXpressConnectionStatusCallback(void(*xpressConnectionStatus)(unsigned short, bool));
 
 /**
  * Frees the #Jabra_DectInfo
