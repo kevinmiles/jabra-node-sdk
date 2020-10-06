@@ -48,13 +48,15 @@ export namespace DeviceTypeCallbacks {
     export type onDevLogEvent = (data: DevLogData) => void;
     export type onBatteryStatusUpdate = (levelInPercent: number, isCharging: boolean, isBatteryLow: boolean) => void;
     export type onRemoteMmiEvent = (type: enumRemoteMmiType, input: enumRemoteMmiInput) => void;
+    export type xpressUrlCallback = () => void;
+    export type xpressConnectionStatusCallback = (status: boolean) => void;
     export type onUploadProgress = (status: enumUploadEventStatus, levelInPercent: number) => void;
     export type onDectInfoEvent = (dectInfo: DectInfo) => void;
 }
 
-export type DeviceTypeEvents = 'btnPress' | 'busyLightChange' | 'downloadFirmwareProgress' | 'onBTParingListChange' | 'onGNPBtnEvent' | 'onDevLogEvent' | 'onBatteryStatusUpdate' | 'onRemoteMmiEvent' | 'onUploadProgress' | 'onDectInfoEvent';
+export type DeviceTypeEvents = 'btnPress' | 'busyLightChange' | 'downloadFirmwareProgress' | 'onBTParingListChange' | 'onGNPBtnEvent' | 'onDevLogEvent' | 'onBatteryStatusUpdate' | 'onRemoteMmiEvent'| 'xpressUrlCallback' | 'xpressConnectionStatusCallback' | 'onUploadProgress' | 'onDectInfoEvent';
 
-export const DeviceEventsList : DeviceTypeEvents[] = ['btnPress', 'busyLightChange', 'downloadFirmwareProgress', 'onBTParingListChange', 'onGNPBtnEvent', 'onDevLogEvent', 'onBatteryStatusUpdate', 'onRemoteMmiEvent', 'onUploadProgress', 'onDectInfoEvent'];
+export const DeviceEventsList : DeviceTypeEvents[] = ['btnPress', 'busyLightChange', 'downloadFirmwareProgress', 'onBTParingListChange', 'onGNPBtnEvent', 'onDevLogEvent', 'onBatteryStatusUpdate', 'onRemoteMmiEvent', 'xpressUrlCallback', 'xpressConnectionStatusCallback', 'onUploadProgress', 'onDectInfoEvent'];
 
 /** 
  * Represents a concrete Jabra device and the operations that can be done on it.   
@@ -1492,11 +1494,21 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
   
    /**
     * Add event handler for remoteMmi events.
-   * 
-   * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
-   */
+    * 
+    * *Please make sure your callback arguments matches the event type or you will get a misleading typescript error. See also {@link https://github.com/microsoft/TypeScript/issues/30843 30843}*
+    */
    on(event: 'onRemoteMmiEvent', listener: DeviceTypeCallbacks.onRemoteMmiEvent): this;
-
+   
+   /**
+    *  Add event handler for when the Xpress url is changed
+    */
+   on(event: 'xpressUrlCallback', listener: DeviceTypeCallbacks.xpressUrlCallback): this;
+   
+   /**
+    *  Add event handler for when the Xpress connection status is changed
+    */
+   on(event: 'xpressConnectionStatusCallback', listener: DeviceTypeCallbacks.xpressConnectionStatusCallback): this;
+   
    /**
    * Add event handler for onUploadProgress device events.
    * 
@@ -1519,7 +1531,8 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    on(event: DeviceTypeEvents,
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
                 DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onRemoteMmiEvent |
-                DeviceTypeCallbacks.onUploadProgress | DeviceTypeCallbacks.onDectInfoEvent): this {
+                DeviceTypeCallbacks.xpressUrlCallback | DeviceTypeCallbacks.xpressConnectionStatusCallback | DeviceTypeCallbacks.onUploadProgress | 
+                DeviceTypeCallbacks.onDectInfoEvent): this {
 
       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.on.name, "called with", this.deviceID, event, "<listener>"); 
 
@@ -1586,6 +1599,16 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    */
     off(event: 'onRemoteMmiEvent', listener: DeviceTypeCallbacks.onRemoteMmiEvent): this;
 
+    /**
+     * Remove event handler for xpressUrlCallback.
+     */    
+    off(event: 'xpressUrlCallback', listener: DeviceTypeCallbacks.xpressUrlCallback): this;
+    
+    /**
+     * Remove event handler for xpressConnectionStatusCallback.
+     */        
+    off(event: 'xpressConnectionStatusCallback', listener: DeviceTypeCallbacks.xpressConnectionStatusCallback): this;
+    
    /**
    * Remove event handler for previosly setup onUploadProgress device events.
    * 
@@ -1608,7 +1631,8 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
    off(event: DeviceTypeEvents,
       listener: DeviceTypeCallbacks.btnPress | DeviceTypeCallbacks.busyLightChange | DeviceTypeCallbacks.downloadFirmwareProgress | DeviceTypeCallbacks.onBTParingListChange |
                 DeviceTypeCallbacks.onGNPBtnEvent | DeviceTypeCallbacks.onDevLogEvent | DeviceTypeCallbacks.onBatteryStatusUpdate | DeviceTypeCallbacks.onRemoteMmiEvent |
-                DeviceTypeCallbacks.onUploadProgress | DeviceTypeCallbacks.onDectInfoEvent): this {
+                DeviceTypeCallbacks.xpressUrlCallback | DeviceTypeCallbacks.xpressConnectionStatusCallback | DeviceTypeCallbacks.onUploadProgress | 
+                DeviceTypeCallbacks.onDectInfoEvent): this {
 
 
       _JabraNativeAddonLog(AddonLogSeverity.verbose, this.off.name, "called with", this.deviceID, event, "<listener>"); 

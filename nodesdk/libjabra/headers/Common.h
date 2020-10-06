@@ -2781,5 +2781,17 @@ LIBRARY_API Jabra_ReturnCode Jabra_SetPasswordProvisioning(unsigned short device
  * @return Not_Supported if not supported
   */
 LIBRARY_API Jabra_ReturnCode Jabra_GetPasswordProvisioning(unsigned short deviceID, char* password, int size);
+ 
+/** 
+ * @brief Registration for Xpress url changed.
+ * @param[in] xpressUrlChanged Callback method, called the Xpress url is changed
+ */
+LIBRARY_API void Jabra_RegisterXpressUrlCallback(void(*xpressUrlChanged)(unsigned short));
+
+/**
+ * @brief Registration for Xpress connection status changed.
+ * @param[in] xpressConnectionStatus Callback method, called the Xpress connection status is changed
+ */
+LIBRARY_API void Jabra_RegisterXpressConnectionStatusCallback(void(*xpressConnectionStatus)(unsigned short, bool));
 
 #endif /* COMMON_H */

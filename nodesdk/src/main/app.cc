@@ -24,6 +24,8 @@ class StateJabraInitialize {
   ThreadSafeCallback *devLogCallback;
   ThreadSafeCallback *batteryStatusCallback;
   ThreadSafeCallback *remoteMmiCallback;
+  ThreadSafeCallback *xpressUrlCallback;
+  ThreadSafeCallback *xpressConnectionStatusCallback;
   ThreadSafeCallback *downloadFirmwareProgressCallback;
   ThreadSafeCallback *uploadProgressCallback;
   ThreadSafeCallback *registerPairingListCallback;
@@ -56,6 +58,8 @@ class StateJabraInitialize {
                            devLogCallback(nullptr),
                            batteryStatusCallback(nullptr),
                            remoteMmiCallback(nullptr),
+                           xpressUrlCallback(nullptr),
+                           xpressConnectionStatusCallback(nullptr),
                            downloadFirmwareProgressCallback(nullptr),
                            uploadProgressCallback(nullptr),
                            registerPairingListCallback(nullptr),
@@ -73,6 +77,8 @@ class StateJabraInitialize {
            ThreadSafeCallback* _devLogCallback,
            ThreadSafeCallback* _batteryStatusCallback,
            ThreadSafeCallback* _remoteMmiCallback,
+           ThreadSafeCallback* _xpressUrlCallback,
+           ThreadSafeCallback* _xpressConnectionStatusCallback,
            ThreadSafeCallback* _downloadFirmwareProgressCallback,
            ThreadSafeCallback* _uploadProgressCallback,
            ThreadSafeCallback* _registerPairingListCallback,
@@ -95,6 +101,8 @@ class StateJabraInitialize {
       devLogCallback = _devLogCallback;
       batteryStatusCallback = _batteryStatusCallback;
       remoteMmiCallback = _remoteMmiCallback;
+      xpressUrlCallback = _xpressUrlCallback;
+      xpressConnectionStatusCallback = _xpressConnectionStatusCallback;
       downloadFirmwareProgressCallback = _downloadFirmwareProgressCallback;
       uploadProgressCallback = _uploadProgressCallback;
       registerPairingListCallback = _registerPairingListCallback;
@@ -151,6 +159,14 @@ class StateJabraInitialize {
   ThreadSafeCallback * getRemoteMmiCallback () {
     return remoteMmiCallback;
   }
+  
+  ThreadSafeCallback * getXpressUrlCallback () {
+    return xpressUrlCallback;
+  } 
+  
+  ThreadSafeCallback * getXpressConnectionStatusCallback () {
+    return xpressConnectionStatusCallback;
+  } 
 
   ThreadSafeCallback * getDownloadFirmwareProgressCallback() {
     return downloadFirmwareProgressCallback;
@@ -204,6 +220,8 @@ class StateJabraInitialize {
     releaseCallback(devLogCallback);
     releaseCallback(batteryStatusCallback);
     releaseCallback(remoteMmiCallback);
+    releaseCallback(xpressUrlCallback);
+    releaseCallback(xpressConnectionStatusCallback);
     releaseCallback(downloadFirmwareProgressCallback);
     releaseCallback(uploadProgressCallback);
     releaseCallback(registerPairingListCallback);
@@ -259,7 +277,8 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
       util::FUNCTION, util::FUNCTION, util::FUNCTION,
-      util::FUNCTION, util::OBJECT })) {
+      util::FUNCTION, util::FUNCTION, util::FUNCTION,
+      util::OBJECT })) {
 
     int argNr = 0;
 
@@ -272,6 +291,8 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
     auto devLogCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto batteryStatusCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto remoteMmiCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
+    auto xpressUrlCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
+    auto xpressConnectionStatusCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto downloadFirmwareProgressCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto uploadProgressCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
     auto registerPairingListCallback = new ThreadSafeCallback(info[argNr++].As<Napi::Function>());
@@ -297,6 +318,8 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                                devLogCallback,
                                batteryStatusCallback,
                                remoteMmiCallback,
+                               xpressUrlCallback,
+                               xpressConnectionStatusCallback,
                                downloadFirmwareProgressCallback,
                                uploadProgressCallback,
                                registerPairingListCallback,
@@ -654,6 +677,46 @@ Napi::Value napi_Initialize(const Napi::CallbackInfo& info) {
                 LOG_FATAL_(LOGINSTANCE) << errorMsg;
               }             
             });
+            
+            Jabra_RegisterXpressUrlCallback([] (unsigned short deviceID){
+              try {
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterXpressUrlCallback callback fired without params";
+
+                auto xpressUrlCallback = state_Jabra_Initialize.getXpressUrlCallback();
+
+                if (xpressUrlCallback) {
+                  xpressUrlCallback->call([deviceID](Napi::Env env, std::vector<napi_value>& args) {
+                    args = { Napi::Number::New(env, deviceID)};
+                  });
+                }                
+              } catch (const std::exception &e) {
+                const std::string errorMsg = "RegisterXpressUrlCallback callback failed: " + std::string(e.what());
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
+              } catch (...) {
+                const std::string errorMsg = "RegisterXpressUrlCallback callback failed failed with unknown exception";
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
+              }                 
+            });
+            
+            Jabra_RegisterXpressConnectionStatusCallback([] (unsigned short deviceID, bool status) {
+              try {
+                LOG_VERBOSE_(LOGINSTANCE) << "Jabra_RegisterXpressConnectionStatusCallback callback got " << status; 
+
+                auto xpressConnectionStatusCallback = state_Jabra_Initialize.getXpressConnectionStatusCallback();
+
+                if (xpressConnectionStatusCallback) {
+                  xpressConnectionStatusCallback->call([deviceID, status](Napi::Env env, std::vector<napi_value>& args) {
+                    args = { Napi::Number::New(env, deviceID), Napi::Boolean::New(env, status)};
+                  });
+                }
+              } catch (const std::exception &e) {
+                const std::string errorMsg = "RegisterXpressConnectionStatusCallback callback failed: " + std::string(e.what());
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
+              } catch (...) {
+                const std::string errorMsg = "RegisterXpressConnectionStatusCallback callback failed failed with unknown exception";
+                LOG_FATAL_(LOGINSTANCE) << errorMsg;
+              }                 
+            });            
 
             Jabra_RegisterUploadProgress([] (unsigned short deviceID, Jabra_UploadEventStatus status, unsigned short percentage) {
               try {
