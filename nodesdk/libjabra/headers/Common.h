@@ -2761,4 +2761,16 @@ LIBRARY_API Jabra_ReturnCode Jabra_SetXpressUrl(unsigned short deviceID, const c
   */
 LIBRARY_API Jabra_ReturnCode Jabra_GetXpressUrl(unsigned short deviceID, char* url, int size);
 
+/**
+ * @brief Registration for Xpress url changed.
+ * @param[in] xpressUrlChanged Callback method, called the Xpress url is changed
+ */
+LIBRARY_API void Jabra_RegisterXpressUrlCallback(void(*xpressUrlChanged)(unsigned short));
+
+/**
+ * @brief Registration for Xpress connection status changed.
+ * @param[in] xpressConnectionStatus Callback method, called the Xpress connection status is changed
+ */
+LIBRARY_API void Jabra_RegisterXpressConnectionStatusCallback(void(*xpressConnectionStatus)(unsigned short, bool));
+
 #endif /* COMMON_H */
