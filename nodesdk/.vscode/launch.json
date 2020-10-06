@@ -18,8 +18,7 @@
             "internalConsoleOptions": "openOnSessionStart",
             "env": { 
                 "LIBJABRA_TRACE_LEVEL":"trace"
-            },
-            "runtimeExecutable": "/opt/asdf-vm/data/installs/nodejs/14.4.0/bin/node"
+            }
         },
         {
             "name": "misc.ts manual test - typescript only",
@@ -32,8 +31,7 @@
             "internalConsoleOptions": "openOnSessionStart",
             "env": {
                 "LIBJABRA_TRACE_LEVEL":"trace"
-            },
-            "runtimeExecutable": "/opt/asdf-vm/data/installs/nodejs/14.4.0/bin/node"
+            }
         },
 
         ///////////////////////////////
