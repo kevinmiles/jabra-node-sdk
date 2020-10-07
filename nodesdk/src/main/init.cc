@@ -163,6 +163,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   EXPORTS_SET(EnableNewportRemoteManagement);
   EXPORTS_SET(SetXpressUrl);
   EXPORTS_SET(GetXpressUrl);
+  EXPORTS_SET(GetDiagnosticLogFile);
+  EXPORTS_SET(TriggerDiagnosticLogGeneration);
   EXPORTS_SET(SetPasswordProvisioning);
   EXPORTS_SET(GetPasswordProvisioning);
   EXPORTS_SET(GetWhiteboardPosition);

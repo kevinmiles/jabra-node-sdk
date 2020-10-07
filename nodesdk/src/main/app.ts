@@ -323,6 +323,19 @@ export class JabraType implements MetaApi {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
                     _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onDectInfoEvent callback", err);
                 }
+            }, (deviceId) => {
+                try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onDiagLogEvent", (() => `onDiagLogEvent event received from native sdk`));
+                    let device = this.deviceTypes.get(deviceId);
+                    if (device) {
+                        device._eventEmitter.emit('onDiagLogEvent');
+                    } else {
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "onDiagLogEvent callback", "Could not lookup device with id " + deviceId);
+                    }
+                } catch (err) {
+                    // Log but do not propagate js errors into native caller (or node process will be aborted):
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onDiagLogEvent callback", err);
+                }
             },
             configParams);  
         });
