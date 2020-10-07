@@ -38,6 +38,8 @@ export declare interface SdkIntegration {
                devLogCallback: (deviceId: number, json: string) => void,
                batteryStatusCallback: (deviceId: number, levelInPercent: number, isCharging: boolean, isBatteryLow: boolean) => void,
                onRemoteMmiEvent: (deviceId: number, type: enumRemoteMmiType, input: enumRemoteMmiInput) => void,
+               xpressUrlCallback: (deviceId: number) => void,
+               xpressConnectionStatusCallback: (deviceId: number, status: boolean) => void,
                downloadFirmwareProgressCallback: (deviceId: number, type: enumFirmwareEventType, status: enumFirmwareEventStatus, dwnFirmPercentage: number) => void,
                uploadProgressCallback: (deviceId: number, status: enumUploadEventStatus, percentage: number) => void,
                registerPairingListCallback: (deviceId: number, pairedListInfo: PairedListInfo) => void,
@@ -225,6 +227,8 @@ export declare interface SdkIntegration {
     EnableNewportRemoteManagement(deviceId: number, enable: boolean, callback: (error: JabraError, result: void) => void): void;
     SetXpressUrl(deviceId: number, url: string, callback: (error: JabraError, result: void) => void): void;
     GetXpressUrl(deviceId: number, callback: (error: JabraError, result: string) => void): void;
+    SetPasswordProvisioning(deviceId: number, password: string, callback: (error: JabraError, result: void) => void): void;
+    GetPasswordProvisioning(deviceId: number, callback: (error: JabraError, result: string) => void): void;
 
     GetDiagnosticLogFile(deviceId: number, filename: string, callback: (error: JabraError, result: void) => void): void;
     TriggerDiagnosticLogGeneration(deviceId: number, callback: (error: JabraError, result: number) => void): void;

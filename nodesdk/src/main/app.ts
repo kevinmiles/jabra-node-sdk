@@ -232,6 +232,32 @@ export class JabraType implements MetaApi {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
                     _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::onRemoteMmiEvent callback", err)
                 }
+            }, (deviceId) => {
+                try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::xpressUrlCallback", (() => `xpressUrlCallback event received from native sdk - no params`));
+                    let device = this.deviceTypes.get(deviceId);
+                    if (device) {
+                        device._eventEmitter.emit('xpressUrlCallback');
+                    } else {
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "xpressUrlCallback callback", "Could not lookup device with id " + deviceId);
+                    }
+                } catch (err) {
+                    // Log but do not propagate js errors into native caller (or node process will be aborted):
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::xpressUrlCallback callback", err)
+                }
+            }, (deviceId, status) => {
+                try {
+                    _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::xpressConnectionStatusCallback", (() => `xpressConnectionStatusCallback event received from native sdk with status=${status}`));
+                    let device = this.deviceTypes.get(deviceId);
+                    if (device) {
+                        device._eventEmitter.emit('xpressConnectionStatusCallback', status);
+                    } else {
+                        _JabraNativeAddonLog(AddonLogSeverity.error, "xpressConnectionStatusCallback callback", "Could not lookup device with id " + deviceId);
+                    }
+                } catch (err) {
+                    // Log but do not propagate js errors into native caller (or node process will be aborted):
+                    _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::xpressConnectionStatusCallback callback", err)
+                } 
             }, (deviceId, type, status, dwnFirmPercentage) => {
                 try {
                     _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::downloadFirmwareProgress", (() => `downloadFirmwareProgress event received from native sdk with type=${type}, status=${status}, dwnFirmPercentage=${dwnFirmPercentage}`));
@@ -244,7 +270,7 @@ export class JabraType implements MetaApi {
                 } catch (err) {
                     // Log but do not propagate js errors into native caller (or node process will be aborted):
                     _JabraNativeAddonLog(AddonLogSeverity.error, "JabraType::constructor::downloadFirmwareProgress callback", err)
-                }
+                }                
             }, (deviceId, status, percentage) => {
                 try {
                     _JabraNativeAddonLog(AddonLogSeverity.verbose, "JabraType::constructor::onUploadProgress", (() => `onUploadProgress event received from native sdk with status ${status}, percentage ${percentage}`));

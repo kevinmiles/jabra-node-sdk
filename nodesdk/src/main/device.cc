@@ -1097,6 +1097,51 @@ Napi::Value napi_TriggerDiagnosticLogGeneration(const Napi::CallbackInfo& info) 
   return env.Undefined();
 }
 
+Napi::Value napi_SetPasswordProvisioning(const Napi::CallbackInfo& info) {
+    const char * const functionName = __func__;
+    Napi::Env env = info.Env();
+
+    if (util::verifyArguments(functionName, info, {util::NUMBER, util::STRING, util::FUNCTION})) {
+        const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
+        const std::string password = info[1].As<Napi::String>();
+        Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
+
+        (new util::JAsyncWorker<void, void>(
+            functionName,
+            javascriptResultCallback,
+            [functionName, deviceId, password](){
+                Jabra_ReturnCode retCode = Jabra_SetPasswordProvisioning(deviceId, password.c_str());
+                if (retCode != Return_Ok) {
+                  util::JabraReturnCodeException::LogAndThrow(functionName, retCode);
+                }
+            }
+        ))->Queue();
+  }
+
+  return env.Undefined();
+}
+
+Napi::Value napi_GetPasswordProvisioning(const Napi::CallbackInfo& info) {
+    const char * const functionName = __func__;
+    return util::SimpleDeviceAsyncFunction<Napi::String, std::string>(functionName, info,
+        [functionName](unsigned short deviceId) {
+            // 2 * 1024 == 2 Kb is the maximum allowed by Jabra_GetPasswordProvisioning
+            int size = 2 * 1024;
+            std::vector<char> buffer(size);
+
+            Jabra_ReturnCode retCode = Jabra_GetPasswordProvisioning(deviceId, buffer.data(), size);
+            if (retCode != Return_Ok) {
+                util::JabraReturnCodeException::LogAndThrow(functionName, retCode);
+                return std::string(); // Dummy return - avoid compiler warnings.
+            }
+
+            std::string result(buffer.data());
+            return util::toUtf8(result, functionName);
+        }, [](const Napi::Env& env, const std::string& cppResult) {
+            return Napi::String::New(env, cppResult);
+        });
+}
+
 Napi::Value napi_GetWhiteboardPosition(const Napi::CallbackInfo& info) {
     const char * const functionName = __func__;
     Napi::Env env = info.Env();
