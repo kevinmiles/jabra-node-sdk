@@ -1476,6 +1476,32 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
         });
     }
 
+    /**
+     * Stores the current Pan/Tilt/Zoom settings into a preset slot.
+     * @param {number} - The preset slot to be used.
+     * @returns {Promise<void, JabraError>} - Resolves to `void` on success,
+     *    rejects with `JabraError` on error.
+     */
+    StorePTZPresetAsync(PresetSlot: number) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.StorePTZPresetAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.StorePTZPreset)(this.deviceID, PresetSlot).then(() => {
+          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.StorePTZPresetAsync.name, "returned");
+        });
+    }
+
+    /**
+     * Applies Pan/Tilt/Zoom settings from a given preset slot.
+     * @param {number} - The preset slot to be used.
+     * @returns {Promise<void, JabraError>} - Resolves to `void` on success,
+     *    rejects with `JabraError` on error.
+     */
+    ApplyPTZPresetAsync(PresetSlot: number) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.ApplyPTZPresetAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.ApplyPTZPreset)(this.deviceID, PresetSlot).then(() => {
+          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.ApplyPTZPresetAsync.name, "returned");
+        });
+    }
+
   /**
    * Get meta information about methods, properties etc. that can be used 
    * for reflective usage of this class.

@@ -76,3 +76,6 @@ Napi::Value napi_GetZoomLimits(const Napi::CallbackInfo& info);
 
 Napi::Value napi_StoreColorControlPreset(const Napi::CallbackInfo& info);
 Napi::Value napi_ApplyColorControlPreset(const Napi::CallbackInfo& info);
+
+Napi::Value napi_StorePTZPreset(const Napi::CallbackInfo& info);
+Napi::Value napi_ApplyPTZPreset(const Napi::CallbackInfo& info);
