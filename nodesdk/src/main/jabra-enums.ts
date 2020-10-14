@@ -255,7 +255,7 @@ export enum enumSecureConnectionMode {
 
 /** Represents a color control  preset slot on the device.*/
 export enum enumColorControlPreset {
-  ColorControlPreset1 = 0
+  PRESET1 = 0
 }
 
 /**
