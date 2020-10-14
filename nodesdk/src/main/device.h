@@ -73,3 +73,6 @@ Napi::Value napi_SetWhiteboardPosition(const Napi::CallbackInfo& info);
 Napi::Value napi_GetZoom(const Napi::CallbackInfo& info);
 Napi::Value napi_SetZoom(const Napi::CallbackInfo& info);
 Napi::Value napi_GetZoomLimits(const Napi::CallbackInfo& info);
+
+Napi::Value napi_StoreColorControlPreset(const Napi::CallbackInfo& info);
+Napi::Value napi_ApplyColorControlPreset(const Napi::CallbackInfo& info);

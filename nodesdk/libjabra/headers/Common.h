@@ -596,6 +596,11 @@ typedef struct _RemoteMmiDefinition {
   RemoteMmiOutput output;
 } RemoteMmiDefinition;
 
+/** Represents a color control  preset slot on the device.*/
+typedef enum _ColorControlPreset {
+    ColorControlPreset1 = 0
+} Jabra_ColorControlPreset;
+
 typedef struct _PanicListDevType {
   uint8_t panicCode[25];
 } Jabra_PanicListDevType;
@@ -3262,5 +3267,31 @@ LIBRARY_API Jabra_ReturnCode Jabra_TriggerDiagnosticLogGeneration(const unsigned
  * @see Jabra_GetDiagnosticLogFile
  */
 LIBRARY_API void Jabra_RegisterDiagnosticLogCallback(DiagnosticLogReadyEventHandler const callback);
+
+/**
+ * @brief To store  the color control preset on the device.
+ *
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] presetSlot    A predefined Jabra_ColorControlPreset slot for color control preset.
+ *
+ * @return  Return_Ok if success
+ * @return  Device_Unknown if the deviceID specified is not known.
+ * @return  Not_Supported if preset is not supported.
+ * @return  Device_WriteFail on errors while communicating with the device.
+*/
+LIBRARY_API Jabra_ReturnCode Jabra_StoreColorControlPreset(unsigned short deviceID, Jabra_ColorControlPreset presetSlot);
+
+/**
+ * @brief To apply the color control preset from the device.
+ *
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] presetSlot    A predefined Jabra_ColorControlPreset slot for color control preset.
+ *
+ * @return  Return_Ok if success
+ * @return  Device_Unknown if the deviceID specified is not known.
+ * @return  Not_Supported if preset is not supported.
+ * @return  Device_WriteFail on errors while communicating with the device.
+*/
+LIBRARY_API Jabra_ReturnCode Jabra_ApplyColorControlPreset(unsigned short deviceID, Jabra_ColorControlPreset presetSlot);
 
 #endif /* COMMON_H */
