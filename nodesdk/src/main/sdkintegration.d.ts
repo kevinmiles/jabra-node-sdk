@@ -8,7 +8,7 @@ import { ConfigParamsCloud, GenericConfigParams, enumHidState, AudioFileFormatEn
          NamedAsset, AddonLogSeverity, JabraError, RemoteMmiActionOutput, DectInfo, WhiteboardPosition, ZoomLimits } from './core-types';
 import { enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus,
          enumUploadEventStatus, enumBTPairedListType, enumRemoteMmiType,
-         enumRemoteMmiInput, enumRemoteMmiPriority, enumRemoteMmiSequence } from './jabra-enums';
+         enumRemoteMmiInput, enumRemoteMmiPriority, enumRemoteMmiSequence, enumColorControlPreset } from './jabra-enums';
 
 /** 
  * Declares all natively implemented n-api functions that call into the Jabra C SDK.
@@ -239,4 +239,7 @@ export declare interface SdkIntegration {
     GetZoom(deviceId: number, callback: (error: JabraError, result: number) => void): void;
     SetZoom(deviceId: number, zoom: number, callback: (error: JabraError, result: void) => void): void;
     GetZoomLimits(deviceId: number, callback: (error: JabraError, result: ZoomLimits) => void): void;
+
+    StoreColorControlPreset(deviceId: number, type: enumColorControlPreset, callback: (error: JabraError, result: void) => void): void;
+    ApplyColorControlPreset(deviceId: number, type: enumColorControlPreset, callback: (error: JabraError, result: void) => void): void;
 }

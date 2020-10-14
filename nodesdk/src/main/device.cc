@@ -1311,3 +1311,51 @@ Napi::Value napi_GetZoomLimits(const Napi::CallbackInfo& info) {
         }
     );
 }
+
+Napi::Value napi_StoreColorControlPreset(const Napi::CallbackInfo& info) {
+  const char * const functionName = __func__;
+  Napi::Env env = info.Env();
+
+  if (util::verifyArguments(functionName, info, {util::NUMBER, util::NUMBER, util::FUNCTION})) {
+    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
+    const Jabra_ColorControlPreset preset = (Jabra_ColorControlPreset)(info[1].As<Napi::Number>().Int32Value());
+    Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
+
+    (new util::JAsyncWorker<void, void>(
+      functionName, 
+      javascriptResultCallback,
+      [functionName, deviceId, preset](){ 
+        Jabra_ReturnCode retv;                       
+        if ((retv = Jabra_StoreColorControlPreset(deviceId, preset)) != Return_Ok) {
+          util::JabraReturnCodeException::LogAndThrow(functionName, retv);
+        }
+      }
+    ))->Queue();
+  }
+
+  return env.Undefined();
+}
+
+Napi::Value napi_ApplyColorControlPreset(const Napi::CallbackInfo& info) {
+  const char * const functionName = __func__;
+  Napi::Env env = info.Env();
+
+  if (util::verifyArguments(functionName, info, {util::NUMBER, util::NUMBER, util::FUNCTION})) {
+    const unsigned short deviceId = (unsigned short)(info[0].As<Napi::Number>().Int32Value());
+    const Jabra_ColorControlPreset preset = (Jabra_ColorControlPreset)(info[1].As<Napi::Number>().Int32Value());
+    Napi::Function javascriptResultCallback = info[2].As<Napi::Function>();
+
+    (new util::JAsyncWorker<void, void>(
+      functionName, 
+      javascriptResultCallback,
+      [functionName, deviceId, preset](){ 
+        Jabra_ReturnCode retv;                       
+        if ((retv = Jabra_ApplyColorControlPreset(deviceId, preset)) != Return_Ok) {
+          util::JabraReturnCodeException::LogAndThrow(functionName, retv);
+        }
+      }
+    ))->Queue();
+  }
+
+  return env.Undefined();
+}

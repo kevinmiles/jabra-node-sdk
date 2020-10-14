@@ -253,6 +253,11 @@ export enum enumSecureConnectionMode {
   SC_RESTRICTED_MODE
 }
 
+/** Represents a color control  preset slot on the device.*/
+export enum enumColorControlPreset {
+  PRESET1 = 0
+}
+
 /**
  * Enum for types of remote MMI 
  */
