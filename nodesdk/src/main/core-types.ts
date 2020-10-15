@@ -287,16 +287,23 @@ export interface WhiteboardPosition {
 }
 
 /**
+ * This structure represents a device camera's limits for parameters such pan
+ * and zoom.
+ */
+export interface VideoLimits {
+      /* The minimum value the parameter level can be set to. */
+      min: number;
+      /* The maximum value the parameter level can be set to. */
+      max: number;
+      /* The minimum amount that the value needs to change for it to have any effect. */
+      stepSize: number;
+}
+
+/**
  * This structure represents a device camera's zoom limits.
  */
-export interface ZoomLimits {
-    /* The minimum value the zoom level can be set to. */
-    min: number;
-    /* The maximum value the zoom level can be set to. */
-    max: number;
-    /* The minimum amount that the value needs to change for it to have any effect. */
-    stepSize: number;
-}
+// This type name is kept for backwards compatibility
+export type ZoomLimits = VideoLimits;
 
 /**
  * This structure represents a device camera's pan an tilt values.
