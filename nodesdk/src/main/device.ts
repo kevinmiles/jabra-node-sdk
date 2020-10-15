@@ -1481,10 +1481,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, JabraError>} - Resolves to `void` on success,
      *    rejects with `JabraError` on error.
      */
-    StoreColorControlPresetAsync(PresetSlot: number) : Promise<void> {
-        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.StoreColorControlPresetAsync.name, "called with", this.deviceID);
+    storeColorControlPresetAsync(PresetSlot: number) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.storeColorControlPresetAsync.name, "called with", this.deviceID);
         return util.promisify(sdkIntegration.StoreColorControlPreset)(this.deviceID, PresetSlot).then(() => {
-          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.StoreColorControlPresetAsync.name, "returned");
+          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.storeColorControlPresetAsync.name, "returned");
         });
     }
 
@@ -1494,10 +1494,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, JabraError>} - Resolves to `void` on success,
      *    rejects with `JabraError` on error.
      */
-    ApplyColorControlPresetAsync(PresetSlot: number) : Promise<void> {
-        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.ApplyColorControlPresetAsync.name, "called with", this.deviceID);
+    applyColorControlPresetAsync(PresetSlot: number) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.applyColorControlPresetAsync.name, "called with", this.deviceID);
         return util.promisify(sdkIntegration.ApplyColorControlPreset)(this.deviceID, PresetSlot).then(() => {
-          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.ApplyColorControlPresetAsync.name, "returned");
+          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.applyColorControlPresetAsync.name, "returned");
         });
     }
 
@@ -1507,10 +1507,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, JabraError>} - Resolves to `void` on success,
      *    rejects with `JabraError` on error.
      */
-    StorePTZPresetAsync(PresetSlot: number) : Promise<void> {
-        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.StorePTZPresetAsync.name, "called with", this.deviceID);
+    storePTZPresetAsync(PresetSlot: number) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.storePTZPresetAsync.name, "called with", this.deviceID);
         return util.promisify(sdkIntegration.StorePTZPreset)(this.deviceID, PresetSlot).then(() => {
-          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.StorePTZPresetAsync.name, "returned");
+          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.storePTZPresetAsync.name, "returned");
         });
     }
 
@@ -1520,10 +1520,10 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
      * @returns {Promise<void, JabraError>} - Resolves to `void` on success,
      *    rejects with `JabraError` on error.
      */
-    ApplyPTZPresetAsync(PresetSlot: number) : Promise<void> {
-        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.ApplyPTZPresetAsync.name, "called with", this.deviceID);
+    applyPTZPresetAsync(PresetSlot: number) : Promise<void> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.applyPTZPresetAsync.name, "called with", this.deviceID);
         return util.promisify(sdkIntegration.ApplyPTZPreset)(this.deviceID, PresetSlot).then(() => {
-          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.ApplyPTZPresetAsync.name, "returned");
+          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.applyPTZPresetAsync.name, "returned");
         });
     }
 
