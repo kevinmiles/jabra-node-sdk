@@ -258,6 +258,13 @@ export enum enumColorControlPreset {
   PRESET1 = 0
 }
 
+/** Represents a PTZ preset slot on the device.*/
+export enum enumPTZPreset {
+  PRESET1 = 0,
+  PRESET2,
+  PRESET3
+}
+
 /**
  * Enum for types of remote MMI 
  */

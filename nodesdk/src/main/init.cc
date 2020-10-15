@@ -174,6 +174,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   EXPORTS_SET(GetZoomLimits);
   EXPORTS_SET(StoreColorControlPreset);
   EXPORTS_SET(ApplyColorControlPreset);
+  EXPORTS_SET(StorePTZPreset);
+  EXPORTS_SET(ApplyPTZPreset);
 
   try {
     configureLogging();
