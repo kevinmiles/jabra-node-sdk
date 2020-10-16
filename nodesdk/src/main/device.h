@@ -76,6 +76,7 @@ Napi::Value napi_GetZoomLimits(const Napi::CallbackInfo& info);
 
 Napi::Value napi_GetPanTilt(const Napi::CallbackInfo& info);
 Napi::Value napi_SetPanTilt(const Napi::CallbackInfo& info);
+Napi::Value napi_GetPanTiltLimits(const Napi::CallbackInfo& info);
 
 Napi::Value napi_StoreColorControlPreset(const Napi::CallbackInfo& info);
 Napi::Value napi_ApplyColorControlPreset(const Napi::CallbackInfo& info);

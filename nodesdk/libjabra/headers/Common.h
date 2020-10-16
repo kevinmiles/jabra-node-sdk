@@ -335,15 +335,21 @@ typedef enum _DeviceFeature {
   ManualBusyLight = 1027,
   Whiteboard = 1028,
   Video = 1029,
-  AmbienceModes = 1030
+  AmbienceModes = 1030,
+  SealingTest = 1031
 } DeviceFeature;
 
-/** Represents a preset slot on the device.*/
+/** Represents a PTZ preset slot on the device.*/
 typedef enum _PTZPreset {
     PTZPreset1 = 0,
     PTZPreset2,
     PTZPreset3
 } Jabra_PTZPreset;
+
+/** Represents a color control  preset slot on the device.*/
+typedef enum _ColorControlPreset {
+    ColorControlPreset1 = 0
+} Jabra_ColorControlPreset;
 
 /** This enum represents actions/parameters required to update firmware in a given device. */
 typedef enum _DeviceFWURequirement {
@@ -595,11 +601,6 @@ typedef struct _RemoteMmiDefinition {
   /** Supported output LED colours. */
   RemoteMmiOutput output;
 } RemoteMmiDefinition;
-
-/** Represents a color control  preset slot on the device.*/
-typedef enum _ColorControlPreset {
-    ColorControlPreset1 = 0
-} Jabra_ColorControlPreset;
 
 typedef struct _PanicListDevType {
   uint8_t panicCode[25];
@@ -2779,6 +2780,63 @@ LIBRARY_API Jabra_ReturnCode Jabra_SetWhiteboardPosition(unsigned short deviceID
 LIBRARY_API Jabra_ReturnCode Jabra_GetWhiteboardPosition(unsigned short deviceID, uint8_t whiteboardNumber, Jabra_WhiteboardPosition* whiteboardPosition);
 
 /**
+ * @brief       For a video device sets the current pan and tilt positions in arc second units.
+ * @param[in]   deviceID ID for the specific device
+ * @param[in]   pan the pan in the range [-180*3600; +180*3600].
+ * @param[in]   tilt the tilt in the range [-180*3600; +180*3600].
+ * @return      Device_Unknown if the deviceID specified is not known.
+ * @return      Not_Supported if the video feature is not supported.
+ * @return      Device_WriteFail if it failed to write to the device.
+ * @return      Return_Ok if successful.
+ *
+ * pan and tilt are given in arc seconds.  1 arc second is 1/3600 of a degree,
+ * so values will range from -648000(-180*3600) to 648000(180*3600). Positive
+ * values are clockwise from the origin.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_SetPanTilt(unsigned short deviceID, int32_t pan, int32_t tilt);
+
+/**
+ * @brief       For a video device gets the current pan and tilt positions in arc second units.
+ * @param[in]   deviceID ID for the specific device
+ * @param[out]  pan pointer to an int32_t that will be filled with the current pan value.
+ * @param[out]  tilt pointer to an int32_t that will be filled with the current tilt value.
+ * @return      Device_Unknown if the deviceID specified is not known.
+ * @return      Not_Supported if the video feature is not supported.
+ * @return      Device_WriteFail if it failed to write to the device.
+ * @return      Return_Ok if successful.
+ *
+ * pan and tilt are given in arc seconds.  1 arc second is 1/3600 of a degree,
+ * so values will range from -648000(-180*3600) to 648000(180*3600). Positive
+ * values are clockwise from the origin.
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetPanTilt(unsigned short deviceID, int32_t* pan, int32_t* tilt);
+
+/**
+ * This structure represent a device camera's pan or tilt limits.
+ */
+typedef struct _PanTiltLimits {
+    /** @brief The minimum value the pan or tilt level can be set to. */
+    int32_t min;
+    /** @brief The maximum value the pan or tilt level can be set to. */
+    int32_t max;
+    /** @brief The minimum amount that the value needs to change for it to have any effect. */
+    uint16_t stepSize;
+} Jabra_PanTiltLimits;
+
+/**
+ * @brief       For a video device gets the pan and tilt limits
+ * @param[in]   deviceID ID for the specific device
+ * @param[out]  pan the pan limits for the device
+ * @param[out]  tilt the tilt limits for the device
+ * @return      Device_Unknown if the deviceID specified is not known.
+ * @return      Not_Supported if the video feature is not supported.
+ * @return      Device_ReadFails if it failed to read from the device.
+ * @return      Return_Ok if successful.
+ *
+ */
+LIBRARY_API Jabra_ReturnCode Jabra_GetPanTiltLimits(unsigned short deviceID, Jabra_PanTiltLimits* pan, Jabra_PanTiltLimits* tilt);
+
+/**
  * @brief       For a video device, sets the zoom level.
  * @param[in]   deviceID ID for the specific device
  * @param[out]  zoomLevel Zoom level (objective lens focal length).
@@ -2825,38 +2883,6 @@ typedef struct _ZoomLimits {
  * @return      Return_Ok if successful.
  */
 LIBRARY_API Jabra_ReturnCode Jabra_GetZoomLimits(unsigned short deviceID, Jabra_ZoomLimits* limits);
-
-/**
- * @brief       For a video device sets the current pan and tilt positions in arc second units.
- * @param[in]   deviceID ID for the specific device
- * @param[in]   pan the pan in the range [-180*3600; +180*3600].
- * @param[in]   tilt the tilt in the range [-180*3600; +180*3600].
- * @return      Device_Unknown if the deviceID specified is not known.
- * @return      Not_Supported if the video feature is not supported.
- * @return      Device_WriteFail if it failed to write to the device.
- * @return      Return_Ok if successful.
- *
- * pan and tilt are given in arc seconds.  1 arc second is 1/3600 of a degree,
- * so values will range from -648000(-180*3600) to 648000(180*3600). Positive
- * values are clockwise from the origin.
- */
-LIBRARY_API Jabra_ReturnCode Jabra_SetPanTilt(unsigned short deviceID, int32_t pan, uint32_t tilt);
-
-/**
- * @brief       For a video device gets the current pan and tilt positions in arc second units.
- * @param[in]   deviceID ID for the specific device
- * @param[out]  pan pointer to an int32_t that will be filled with the current pan value.
- * @param[out]  tilt pointer to an int32_t that will be filled with the current tilt value.
- * @return      Device_Unknown if the deviceID specified is not known.
- * @return      Not_Supported if the video feature is not supported.
- * @return      Device_WriteFail if it failed to write to the device.
- * @return      Return_Ok if successful.
- *
- * pan and tilt are given in arc seconds.  1 arc second is 1/3600 of a degree,
- * so values will range from -648000(-180*3600) to 648000(180*3600). Positive
- * values are clockwise from the origin.
- */
-LIBRARY_API Jabra_ReturnCode Jabra_GetPanTilt(unsigned short deviceID, int32_t* pan, int32_t* tilt);
 
 /**
  * @brief Set Xpress URL using file transfer on Newport. Api is only supported on the newport platform
@@ -2957,6 +2983,32 @@ LIBRARY_API Jabra_ReturnCode Jabra_StorePTZPreset(unsigned short deviceID,Jabra_
  * @return  Device_WriteFail on errors while communicating with the device.
 */
 LIBRARY_API Jabra_ReturnCode Jabra_ApplyPTZPreset(unsigned short deviceID,Jabra_PTZPreset presetSlot);
+
+/**
+ * @brief To store  the color control preset on the device.
+ *
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] presetSlot    A predefined Jabra_ColorControlPreset slot for color control preset.
+ *
+ * @return  Return_Ok if success
+ * @return  Device_Unknown if the deviceID specified is not known.
+ * @return  Not_Supported if preset is not supported.
+ * @return  Device_WriteFail on errors while communicating with the device.
+*/
+LIBRARY_API Jabra_ReturnCode Jabra_StoreColorControlPreset(unsigned short deviceID, Jabra_ColorControlPreset presetSlot);
+
+/**
+ * @brief To apply the color control preset from the device.
+ *
+ * @param[in] deviceID ID for a specific device.
+ * @param[in] presetSlot    A predefined Jabra_ColorControlPreset slot for color control preset.
+ *
+ * @return  Return_Ok if success
+ * @return  Device_Unknown if the deviceID specified is not known.
+ * @return  Not_Supported if preset is not supported.
+ * @return  Device_WriteFail on errors while communicating with the device.
+*/
+LIBRARY_API Jabra_ReturnCode Jabra_ApplyColorControlPreset(unsigned short deviceID, Jabra_ColorControlPreset presetSlot);
 
 /**
  * @brief       Enum describing the possible ambience modes
@@ -3299,31 +3351,5 @@ LIBRARY_API Jabra_ReturnCode Jabra_TriggerDiagnosticLogGeneration(const unsigned
  * @see Jabra_GetDiagnosticLogFile
  */
 LIBRARY_API void Jabra_RegisterDiagnosticLogCallback(DiagnosticLogReadyEventHandler const callback);
-
-/**
- * @brief To store  the color control preset on the device.
- *
- * @param[in] deviceID ID for a specific device.
- * @param[in] presetSlot    A predefined Jabra_ColorControlPreset slot for color control preset.
- *
- * @return  Return_Ok if success
- * @return  Device_Unknown if the deviceID specified is not known.
- * @return  Not_Supported if preset is not supported.
- * @return  Device_WriteFail on errors while communicating with the device.
-*/
-LIBRARY_API Jabra_ReturnCode Jabra_StoreColorControlPreset(unsigned short deviceID, Jabra_ColorControlPreset presetSlot);
-
-/**
- * @brief To apply the color control preset from the device.
- *
- * @param[in] deviceID ID for a specific device.
- * @param[in] presetSlot    A predefined Jabra_ColorControlPreset slot for color control preset.
- *
- * @return  Return_Ok if success
- * @return  Device_Unknown if the deviceID specified is not known.
- * @return  Not_Supported if preset is not supported.
- * @return  Device_WriteFail on errors while communicating with the device.
-*/
-LIBRARY_API Jabra_ReturnCode Jabra_ApplyColorControlPreset(unsigned short deviceID, Jabra_ColorControlPreset presetSlot);
 
 #endif /* COMMON_H */

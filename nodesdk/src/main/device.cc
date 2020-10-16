@@ -1374,6 +1374,38 @@ Napi::Value napi_SetPanTilt(const Napi::CallbackInfo& info) {
     return env.Undefined();
 }
 
+Napi::Value napi_GetPanTiltLimits(const Napi::CallbackInfo& info) {
+    const char * const functionName = __func__;
+    return util::SimpleDeviceAsyncFunction<Napi::Object, std::pair<Jabra_PanTiltLimits, Jabra_PanTiltLimits>>(
+        functionName, info,
+        [functionName](unsigned short deviceId) {
+            std::pair<Jabra_PanTiltLimits, Jabra_PanTiltLimits> panTiltLimits; // pan,tilt
+
+            Jabra_ReturnCode retCode = Jabra_GetPanTiltLimits(deviceId,
+                &panTiltLimits.first, &panTiltLimits.second);
+
+            if (retCode != Jabra_ReturnCode::Return_Ok) {
+                util::JabraReturnCodeException::LogAndThrow(functionName, retCode);
+            }
+            return panTiltLimits;
+        },
+        [](const Napi::Env& env, const std::pair<Jabra_PanTiltLimits, Jabra_PanTiltLimits>& cPanTiltLimits) {
+            Napi::Object jsPanLimits = Napi::Object::New(env);
+            jsPanLimits.Set("min", Napi::Number::New(env, cPanTiltLimits.first.min));
+            jsPanLimits.Set("max", Napi::Number::New(env, cPanTiltLimits.first.max));
+            jsPanLimits.Set("stepSize", Napi::Number::New(env, cPanTiltLimits.first.stepSize));
+            Napi::Object jsTiltLimits = Napi::Object::New(env);
+            jsTiltLimits.Set("min", Napi::Number::New(env, cPanTiltLimits.second.min));
+            jsTiltLimits.Set("max", Napi::Number::New(env, cPanTiltLimits.second.max));
+            jsTiltLimits.Set("stepSize", Napi::Number::New(env, cPanTiltLimits.second.stepSize));
+            Napi::Object jsPanTiltLimits = Napi::Object::New(env);
+            jsPanTiltLimits.Set("pan", jsPanLimits);
+            jsPanTiltLimits.Set("tilt", jsTiltLimits);
+            return jsPanTiltLimits;
+        }
+    );
+}
+
 Napi::Value napi_StoreColorControlPreset(const Napi::CallbackInfo& info) {
   const char * const functionName = __func__;
   Napi::Env env = info.Env();

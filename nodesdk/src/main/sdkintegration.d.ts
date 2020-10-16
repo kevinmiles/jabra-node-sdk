@@ -242,6 +242,7 @@ export declare interface SdkIntegration {
 
     GetPanTilt(deviceId: number, callback: (error: JabraError, result: PanTilt) => void): void;
     SetPanTilt(deviceId: number, panTilt: PanTilt, callback: (error: JabraError, result: void) => void): void;
+    GetPanTiltLimits(deviceId: number, callback: (error: JabraError, result: PanTiltLimits) => void): void;
     
     StoreColorControlPreset(deviceId: number, type: enumColorControlPreset, callback: (error: JabraError, result: void) => void): void;
     ApplyColorControlPreset(deviceId: number, type: enumColorControlPreset, callback: (error: JabraError, result: void) => void): void;

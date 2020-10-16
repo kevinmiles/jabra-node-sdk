@@ -1,6 +1,6 @@
 import { SdkIntegration } from "./sdkintegration";
 import { AddonLogSeverity, DeviceTiming, DevLogData, AudioFileFormatEnum,
-  RemoteMmiActionOutput, WhiteboardPosition, ZoomLimits, PanTilt } from "./core-types";
+  RemoteMmiActionOutput, WhiteboardPosition, ZoomLimits, PanTilt, PanTiltLimits } from "./core-types";
 import { isNodeJs } from './util';
 import { _JabraNativeAddonLog } from './logger';
 
@@ -1473,6 +1473,18 @@ export class DeviceType implements DeviceInfo, DeviceTiming, MetaApi {
       return util.promisify(sdkIntegration.SetPanTilt)(this.deviceID, panTilt).then(() => {
         _JabraNativeAddonLog(AddonLogSeverity.verbose, this.setPanTiltAsync.name, "returned");
       });
+    }
+
+    /** Returns the current pan-tilt limits values from the device's camera.
+     * @returns {Promise<PanTiltLimits, JabraError>} - Resolves to the
+     *    pan-tilt limits on success, else rejects with `JabraError`
+     */
+    getPanTiltLimitsAsync() : Promise<PanTiltLimits> {
+        _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getPanTiltLimitsAsync.name, "called with", this.deviceID);
+        return util.promisify(sdkIntegration.GetPanTiltLimits)(this.deviceID).then((result) => {
+          _JabraNativeAddonLog(AddonLogSeverity.verbose, this.getPanTiltLimitsAsync.name, "returned");
+          return result;
+        });
     }
 
     /**

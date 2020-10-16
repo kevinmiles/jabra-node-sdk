@@ -312,3 +312,11 @@ export interface PanTilt {
   pan: number,
   tilt: number
 }
+
+/**
+ * This structure represents a device camera's pan and tilt limits
+ */
+export interface PanTiltLimits {
+    pan: VideoLimits,
+    tilt: VideoLimits
+  }
