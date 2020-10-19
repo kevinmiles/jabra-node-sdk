@@ -2840,7 +2840,7 @@ LIBRARY_API Jabra_ReturnCode Jabra_GetZoomLimits(unsigned short deviceID, Jabra_
  * so values will range from -648000(-180*3600) to 648000(180*3600). Positive
  * values are clockwise from the origin.
  */
-LIBRARY_API Jabra_ReturnCode Jabra_SetPanTilt(unsigned short deviceID, int32_t pan, uint32_t tilt);
+LIBRARY_API Jabra_ReturnCode Jabra_SetPanTilt(unsigned short deviceID, int32_t pan, int32_t tilt);
 
 /**
  * @brief       For a video device gets the current pan and tilt positions in arc second units.
