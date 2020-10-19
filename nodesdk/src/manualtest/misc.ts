@@ -28,6 +28,17 @@ let reserved1 = {
             console.log("getErrorStringAsync failed with error " + err);
         });
 
+        if (process.argv.length === 3 && process.argv.slice(2).toString() === 'deptest')
+        {
+            (async () => { 
+                console.log("Dependency test");
+                await delay(10000);
+        
+                console.log('Exiting with error code 0')
+                process.exit(0); // force exit with code 0 since any dependency error would have occured by now
+            })();
+        }
+        
         // let r = jabra._SyncExperiment(0);
         // console.log("_SyncExperiment returned '" + JSON.stringify(r, null, 3) + "'");
   
@@ -548,4 +559,6 @@ let reserved1 = {
 
 })();
 
-
+function delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+}
