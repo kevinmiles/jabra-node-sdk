@@ -670,6 +670,13 @@ const deviceOperations :Array<{description: string, operation: (app :DeviceType)
         console.error(err.toString());
       }
 
+      try {
+        let limits = await device.getPanTiltLimitsAsync();
+        console.info(`PanTilt limits: ${ util.inspect(limits) }`);
+      } catch (err) {
+        console.error(err.toString());
+      }
+
       // try {
       //   let limits = await device.getZoomLimitsAsync();
       //   console.info(`Zoom limits: ${ util.inspect(limits) }`);
