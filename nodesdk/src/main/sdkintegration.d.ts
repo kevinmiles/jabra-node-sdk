@@ -5,7 +5,7 @@
  */
 
 import { ConfigParamsCloud, GenericConfigParams, enumHidState, AudioFileFormatEnum, DeviceSettings, DeviceInfo, PairedListInfo,
-         NamedAsset, AddonLogSeverity, JabraError, RemoteMmiActionOutput, DectInfo, WhiteboardPosition, ZoomLimits } from './core-types';
+         NamedAsset, AddonLogSeverity, JabraError, RemoteMmiActionOutput, DectInfo, WhiteboardPosition, ZoomLimits, PanTilt } from './core-types';
 import { enumDeviceBtnType, enumFirmwareEventType, enumFirmwareEventStatus,
          enumUploadEventStatus, enumBTPairedListType, enumRemoteMmiType,
          enumRemoteMmiInput, enumRemoteMmiPriority, enumRemoteMmiSequence, enumColorControlPreset, enumPTZPreset } from './jabra-enums';
@@ -240,6 +240,10 @@ export declare interface SdkIntegration {
     SetZoom(deviceId: number, zoom: number, callback: (error: JabraError, result: void) => void): void;
     GetZoomLimits(deviceId: number, callback: (error: JabraError, result: ZoomLimits) => void): void;
 
+    GetPanTilt(deviceId: number, callback: (error: JabraError, result: PanTilt) => void): void;
+    SetPanTilt(deviceId: number, panTilt: PanTilt, callback: (error: JabraError, result: void) => void): void;
+    GetPanTiltLimits(deviceId: number, callback: (error: JabraError, result: PanTiltLimits) => void): void;
+    
     StoreColorControlPreset(deviceId: number, type: enumColorControlPreset, callback: (error: JabraError, result: void) => void): void;
     ApplyColorControlPreset(deviceId: number, type: enumColorControlPreset, callback: (error: JabraError, result: void) => void): void;
 
