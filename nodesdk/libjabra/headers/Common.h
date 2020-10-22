@@ -336,7 +336,8 @@ typedef enum _DeviceFeature {
   Whiteboard = 1028,
   Video = 1029,
   AmbienceModes = 1030,
-  SealingTest = 1031
+  SealingTest = 1031,
+  AMASupport = 1032
 } DeviceFeature;
 
 /** Represents a PTZ preset slot on the device.*/
@@ -2802,7 +2803,8 @@ LIBRARY_API Jabra_ReturnCode Jabra_SetPanTilt(unsigned short deviceID, int32_t p
  * @param[out]  tilt pointer to an int32_t that will be filled with the current tilt value.
  * @return      Device_Unknown if the deviceID specified is not known.
  * @return      Not_Supported if the video feature is not supported.
- * @return      Device_WriteFail if it failed to write to the device.
+ * @return      Device_ReadFails if it failed to read from the device.
+ * @return      Return_ParameterFail if pan or tilt is a null pointer.
  * @return      Return_Ok if successful.
  *
  * pan and tilt are given in arc seconds.  1 arc second is 1/3600 of a degree,
